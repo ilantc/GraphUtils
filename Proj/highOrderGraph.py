@@ -1,7 +1,7 @@
 import networkx as nx
 import random
 import re
-
+import gurobipy as gp
 
 class DiGraph:
     
@@ -79,5 +79,29 @@ class DiGraph:
             text = text + str(self.allWeights[f]) + "\n"
             outFile.write(text)
 
-
-
+class LPMaker:
+    
+    def __init__(self,modelName = 'lpModel'):
+        self.model = gp.Model(modelName)
+        
+    # create the lp
+    def createLP(self,g):
+        
+        edges = gp.tuplelist(g.graph.edges())
+        nodes = g.graph.nodes()
+        
+        # Create variables
+        z = {}
+        for (u,v) in edges:
+            z[u,v] = self.model.addVar(gp.GRB.BINARY, name='z_%s_%s_' % (u,v))
+        
+        # incoming edges constraints - every node except for 0 has one incoming edge
+        for node in nodes:
+            if node == 0:
+                continue
+            self.model.addConstr(gp.quicksum(z[u,node] for u in edges.select('*',node)) == 1,
+                'inEdge_%s' % (node))
+        
+        # node 0 has no incoming edge
+        self.model.addConstr(gp.quicksum(z[u,0] for u in edges.select('*',0)) == 0,
+                'noInEdge_0')
