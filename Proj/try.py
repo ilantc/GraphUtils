@@ -1,7 +1,7 @@
 import networkx as nx
 import highOrderGraph
-import re
-from gurobipy import *
+# import re
+# from gurobipy import *
 # G=nx.DiGraph()
 # G.add_nodes_from(range(5))
 #  
@@ -17,15 +17,21 @@ from gurobipy import *
   
 # print(G.edges())
  
-F = highOrderGraph.DiGraph(4)
+F = highOrderGraph.DiGraph(4,"out2.txt")
 F.addWeights()
-# F.writeFile("out.txt")
+F.writeFile("out2.txt")
 
-edges = F.graph.edges()
-print(edges)
+lpm = highOrderGraph.LPMaker(F,'try')
+# lpm.createLP()
+# lpm.solveLP()
+lpm.createWeightReductionLP()
+lpm.solveWeightReductionLP()
 
-l = gurobipy.tuplelist(edges)
-print(l.select(0,'*'))
+# edges = F.graph.edges()
+# print(edges)
+# 
+# l = gurobipy.tuplelist(edges)
+# print(l.select(0,'*'))
 # s = "(1,2),(3,5),4.25"
 # m = re.findall("\(\d+,\d+\)",s)
 # v = re.findall("\),(\d+[.\d+]*)",s)
@@ -38,6 +44,3 @@ print(l.select(0,'*'))
 #     val = float(v[0])
 #     print(val)
 # print(v)
-
-
-
