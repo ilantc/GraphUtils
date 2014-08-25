@@ -1,5 +1,6 @@
-import networkx as nx
+# import networkx as nx
 import highOrderGraph
+import xlsxwriter as xw
 # import re
 # from gurobipy import *
 # G=nx.DiGraph()
@@ -16,16 +17,54 @@ import highOrderGraph
 #     print("U is " + str(u) + ", V is " + str(v))
   
 # print(G.edges())
- 
-F = highOrderGraph.DiGraph(8)
+n=8
+F = highOrderGraph.DiGraph(n)
 F.addWeights()
-F.writeFile("out3.txt")
+filename = "out3"
+F.writeFile(filename + ".txt")
  
 lpm = highOrderGraph.LPMaker(F,'try')
 # lpm.createLP()
 # lpm.solveLP()
 lpm.createWeightReductionLP()
 lpm.solveWeightReductionLP()
+
+workbook = xw.Workbook('W_model_8.xlsx')
+worksheet = workbook.add_worksheet()
+row = 0
+col = 0
+outFile = open(filename + "_av.txt", "w")
+for (u,v) in lpm.g.graph.edges():
+    newW = lpm.newWeights[(u,v)]
+    allW = filter(lambda x: (u,v) in x,lpm.g.allWeights)
+    sumAllW = 0
+    for w in allW:
+        sumAllW += lpm.g.allWeights[w] 
+    outFile.write('(%s,%s),%s\n' % (u,v,sumAllW/len(allW) ))
+    worksheet.write_column(0,col, [str((u,v))] + [str(w) for w in allW])
+    col += 1
+    worksheet.write_column(0,col, [newW] + [lpm.g.allWeights[w] for w in allW])
+    col += 1
+workbook.close()
+outFile.close()
+
+G = highOrderGraph.DiGraph(n,filename + "_av.txt")
+G.addWeights()
+lpm = highOrderGraph.LPMaker(G,'try')
+lpm.createLP()
+lpm.solveLP()
+
+
+
+
+#     print('(%s,%s)\t%s' % (u,v,newW))
+#     print('===')
+#     for w in allW:
+#         text = ''
+#         text += str(w) + '\t'
+#         text += str(lpm.g.allWeights[w])
+#         print(text)
+
 
 # edges = F.graph.edges()
 # print(edges)

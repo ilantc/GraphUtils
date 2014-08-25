@@ -5,7 +5,7 @@ import gurobipy as gp
 
 class DiGraph:
     
-    def __init__(self,n,file=None):
+    def __init__(self,n,infile=None):
         # create a new graph
         G = nx.DiGraph()
         # add all nodes and edges
@@ -21,11 +21,11 @@ class DiGraph:
         
         # save graph
         self.graph = G
-        self.file  = file
+        self.infile  = infile
         
     def addWeights(self):
-        if self.file:
-            self.readFile(self.file)
+        if self.infile:
+            self.readFile(self.infile)
         else:
             for (u1,v1) in self.graph.edges():
                 # set weight for this edge
@@ -45,9 +45,9 @@ class DiGraph:
                     elif (v1 == u2) and (u1 != v2):
                         self.allWeights[feature] = val
 
-    def readFile(self,file):
+    def readFile(self,infile):
         
-        ins = open( file, "r" )
+        ins = open( infile, "r" )
 
         for line in ins:
             # line is something like: "(1,2),(3,5),4.25"
@@ -77,6 +77,7 @@ class DiGraph:
                 text = text + "(" + str(u) + "," + str(v) + "),"
             text = text + str(self.allWeights[feat]) + "\n"
             outFile.write(text)
+        outFile.close()
 
 class LPMaker:
     
@@ -148,8 +149,6 @@ class LPMaker:
         # solve the model
         self.LPModel.update()
         self.LPModel.write("simpleModel.lp")
-        for c in self.LPModel.getConstrs():
-            print(c)
         self.LPModel.optimize()
         if self.LPModel.status == gp.GRB.status.OPTIMAL:
             for (u,v) in self.g.graph.edges():
@@ -254,13 +253,20 @@ class LPMaker:
                 if self.LPVars[((u,v),)].x > 0:
                     print('(%s,%s)' % (u,v))
             print('=====')
+            newWeights = {}
             for (u,v) in self.g.graph.edges():
                 text = '(%s,%s)' % (u,v)
                 text = text + ', w = %s' % (self.newWeightsVars[u,v].x)
+                newWeights[(u,v)] = self.newWeightsVars[u,v].x
                 if self.newLPVars[u,v].x > 0:
                     text = text + ' *'
                 print(text)
+            self.newWeights = newWeights
 
+    def printWs(self):
+        for (u,v) in self.g.graph.edges():
+            newW = self.newWeights[(u,v)]
+            allW = filter(lambda x: (u,v) in x,self.g.allWeights)
 
 def allNonEmptySubsets(feature):
     if len(feature) == 0:
@@ -273,3 +279,5 @@ def allNonEmptySubsets(feature):
     for e in out:
         out2.append( tuple(e) )
     return out2
+
+
