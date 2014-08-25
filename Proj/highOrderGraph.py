@@ -67,16 +67,15 @@ class DiGraph:
             
         ins.close()
         
-    def writeFile(self,file):
-        outFile = open(file, "w")
-        for f in self.allWeights:
+    def writeFile(self,f):
+        outFile = open(f, "w")
+        for feat in self.allWeights:
             #print("F is: ")
             text = ""
-            count = 0
-            for (u,v) in f:
+            for (u,v) in feat:
                 #print("\tU is " + str(u) + ", V is " + str(v))
                 text = text + "(" + str(u) + "," + str(v) + "),"
-            text = text + str(self.allWeights[f]) + "\n"
+            text = text + str(self.allWeights[feat]) + "\n"
             outFile.write(text)
 
 class LPMaker:
@@ -95,9 +94,12 @@ class LPMaker:
         
         # Create variables and objective
         z = {}
+        modelOrder = 0;
         for feature in self.g.allWeights:
             z[feature] = model.addVar(vtype=gp.GRB.BINARY, name='z_%s' % '_'.join([str(u) + '_' + str(v) for (u,v) in feature]))
-        
+            if (len(feature) > modelOrder):
+                modelOrder = len(feature)
+        self.order = modelOrder
         model.update()
         
         # incoming edges constraints - every node except for 0 has one incoming edge
@@ -215,14 +217,28 @@ class LPMaker:
                     # v's parent must out of span for (v,u) \in E
                     model.addConstr(gp.quicksum(y[j,v] for j in notInSpan) >=  y[v,u],'%s_%s_in_Y_%s_parent' % (u,v,u))
         
-#         diff edges constraints
+        # diff edges constraints
         for (u,v) in edges:
             model.addConstr(d[u,v] + y[u,v], gp.GRB.GREATER_EQUAL,self.LPVars[((u,v),)],'d_z_y_%s_%s' % (u,v))
             model.addConstr(d[u,v] + self.LPVars[((u,v),)], gp.GRB.GREATER_EQUAL,y[u,v],'d_y_z_%s_%s' % (u,v))
-                   
+        
+        # lower bounds on w constraints
+        for feature in self.LPVars:
+            allSubsets = allNonEmptySubsets(feature)
+            allW = 0
+            for f in allSubsets:
+                if self.g.allWeights.has_key(f):
+                    allW += self.g.allWeights[f]
+                else:
+                    print('Oh no!')
+            model.addConstr(gp.quicksum(w[u,v] for (u,v) in feature),gp.GRB.GREATER_EQUAL,allW,'subset_%s' % '_'.join([str(u) + '_' + str(v) for (u,v) in feature])) 
+                 
+           
         model.setObjective(gp.quicksum(self.LPVars[t]*self.g.allWeights[t] for t in self.g.allWeights) + 
                            gp.quicksum(y[u,v]*w[u,v] for (u,v) in edges) - 
-                           gp.quicksum(d[u,v] for (u,v) in edges),gp.GRB.MAXIMIZE) 
+                           gp.quicksum(d[u,v] for (u,v) in edges) - 
+                           gp.quicksum(w[u,v]*w[u,v] for (u,v) in edges) -
+                           gp.quicksum(y[u,v]*y[u,v] for (u,v) in edges) ,gp.GRB.MAXIMIZE) 
         model.update()
         self.WeightReductionLPModel = model
         self.WeightReductionLPModel.write('model.lp')
@@ -239,5 +255,21 @@ class LPMaker:
                     print('(%s,%s)' % (u,v))
             print('=====')
             for (u,v) in self.g.graph.edges():
+                text = '(%s,%s)' % (u,v)
+                text = text + ', w = %s' % (self.newWeightsVars[u,v].x)
                 if self.newLPVars[u,v].x > 0:
-                    print('(%s,%s)' % (u,v))
+                    text = text + ' *'
+                print(text)
+
+
+def allNonEmptySubsets(feature):
+    if len(feature) == 0:
+        return
+    out = [[]]
+    for e in feature:
+        out += [x+[e] for x in out]
+    out.remove([])
+    out2 = []
+    for e in out:
+        out2.append( tuple(e) )
+    return out2

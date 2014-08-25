@@ -17,10 +17,10 @@ import highOrderGraph
   
 # print(G.edges())
  
-F = highOrderGraph.DiGraph(4,"out2.txt")
+F = highOrderGraph.DiGraph(8)
 F.addWeights()
-F.writeFile("out2.txt")
-
+F.writeFile("out3.txt")
+ 
 lpm = highOrderGraph.LPMaker(F,'try')
 # lpm.createLP()
 # lpm.solveLP()
@@ -44,3 +44,18 @@ lpm.solveWeightReductionLP()
 #     val = float(v[0])
 #     print(val)
 # print(v)
+
+# def allNonEmptySubsets(feature):
+#     if len(feature) == 0:
+#         return
+#     out = [[]]
+#     for e in feature:
+#         out += [x+[e] for x in out]
+#     out.remove([])
+#     out2 = []
+#     for e in out:
+#         out2.append( tuple(e) )
+#     return out2
+# 
+# f = ((1,3),(3,4),(5,6))
+# print(allNonEmptySubsets(f))
