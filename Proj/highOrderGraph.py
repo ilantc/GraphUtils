@@ -26,6 +26,10 @@ class DiGraph:
     def addWeights(self):
         if self.infile:
             self.readFile(self.infile)
+            # remove edges that are not in the model
+            for (u,v) in self.graph.edges():
+                if not self.graph.allWeights[((u,v),)]:
+                    self.graph.remove_edge(u,v)
         else:
             for (u1,v1) in self.graph.edges():
                 # set weight for this edge
@@ -63,6 +67,8 @@ class DiGraph:
             val = float(v[0])
             
             # save this feature
+            if (self.allWeights[tuple(feature)]):
+                val = val + self.allWeights[tuple(feature)]          
             self.allWeights[tuple(feature)] = val
             
         ins.close()
@@ -102,7 +108,7 @@ class LPMaker:
         model.update()
         
         # incoming edges constraints - every node except for 0 has one incoming edge
-        self.addIncomingEdgesConstrs(nodes,edges,model,z,'Z')
+        self.addIncomingEdgesConstrs(nodes,edges,model,z,'Z')        
         
         if (projective):
             # projectivity + no circles constraints
@@ -162,7 +168,11 @@ class LPMaker:
                     allW += self.g.allWeights[f]
                 else:
                     print('Oh no!')
-            model.addConstr(gp.quicksum(w[u,v] for (u,v) in feature),gp.GRB.GREATER_EQUAL,allW,'subset_%s' % '_'.join([str(u) + '_' + str(v) for (u,v) in feature])) 
+            operator = gp.GRB.GREATER_EQUAL;
+            if (allW < 0):
+                operator = gp.GRB.LESS_EQUAL
+            
+            model.addConstr(gp.quicksum(w[u,v] for (u,v) in feature),operator,allW,'subset_%s' % '_'.join([str(u) + '_' + str(v) for (u,v) in feature])) 
                  
         self.WeightReductionLPModel = model
         self.newWeightsVars = w
