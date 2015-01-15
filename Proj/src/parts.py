@@ -4,9 +4,19 @@ class part_DEPENDENCYPART_ARC:
         self.u = u
         self.v = v
         self.val = val
-    
+        self.type = 'arc'
+                            
     def getAllSubParts(self):
         return [];
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_ARC (" + str(self.u) + "," + str(self.v) + ")," + str(self.val) 
@@ -18,12 +28,23 @@ class part_DEPENDENCYPART_SIBL:
         self.v1 = v1
         self.v2 = v2
         self.val = val
+        self.type = 'sibl'
     
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v1})
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v2})
         return allSubParts;
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_SIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
@@ -35,7 +56,7 @@ class part_DEPENDENCYPART_NEXTSIBL:
         self.v1 = v1
         self.v2 = v2
         self.val = val
-    
+        self.type = 'nextSibl'
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v1})
@@ -44,6 +65,17 @@ class part_DEPENDENCYPART_NEXTSIBL:
                             'v1': self.v1,'v2': self.v2})
         return allSubParts;
 
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for v in range(self.v1 + 1, self.v2):
+            edges.append((self.u,v))
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_NEXTSIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
@@ -54,11 +86,23 @@ class part_DEPENDENCYPART_NEXTSIBL_LAST_SIB:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'lastSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
         return allSubParts;
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for v in range(self.v + 1, n + 1):
+            edges.append((self.u,v))
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_NEXTSIBL_LAST_SIB (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
@@ -69,12 +113,24 @@ class part_DEPENDENCYPART_NEXTSIBL_FIRST_SIB:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'firstSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
         return allSubParts;
+        
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
     
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for v in range(0, self.v):
+            edges.append((self.u,v))
+        return edges
+  
     def __repr__(self):
         return "DEPENDENCYPART_NEXTSIBL_FIRST_SIB (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
         
@@ -85,6 +141,7 @@ class part_DEPENDENCYPART_GRANDPAR:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'grandParant'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -92,6 +149,16 @@ class part_DEPENDENCYPART_GRANDPAR:
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
         return allSubParts;
     
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.g,self.u))
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
+  
     def __repr__(self):
         return "DEPENDENCYPART_GRANDPAR (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
 
@@ -101,12 +168,26 @@ class part_DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'grandParantNoGrandChild'
     
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
+        allSubParts.append({'type': 'nextSiblNoChild','u': self.v,'v': self.v})
         return allSubParts;
-        
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,n + 1):
+            edges.append((self.v,w))
+        return edges
+  
+     
     def __repr__(self):
         return "DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
 
@@ -118,6 +199,7 @@ class part_DEPENDENCYPART_GRANDSIBL:
         self.v1 = v1
         self.v2 = v2
         self.val = val
+        self.type = 'grandSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -131,6 +213,17 @@ class part_DEPENDENCYPART_GRANDSIBL:
         allSubParts.append({'type': 'grandParant','g': self.g,'u': self.u,\
                             'v': self.v2})
         return allSubParts
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.g,self.u))
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
             
     def __repr__(self):
         return "DEPENDENCYPART_GRANDSIBL (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v1) + "),(" + \
@@ -143,6 +236,7 @@ class part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'grandSiblFirstSibl'
         
     def getAllSubParts(self):
         allSubParts = [];
@@ -152,6 +246,18 @@ class part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB:
         allSubParts.append({'type': 'grandParant','g': self.g,'u': self.u,\
                             'v': self.v})
         return allSubParts
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.g,self.u))
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,self.v):
+            edges.append((self.u,w))
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_GRANDSIBL_FIRST_SIB (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
@@ -163,6 +269,7 @@ class part_DEPENDENCYPART_GRANDSIBL_LAST_SIB:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'grandSiblLastSibl'
         
     def getAllSubParts(self):
         allSubParts = [];
@@ -172,6 +279,18 @@ class part_DEPENDENCYPART_GRANDSIBL_LAST_SIB:
         allSubParts.append({'type': 'grandParant','g': self.g,'u': self.u,\
                             'v': self.v})
         return allSubParts
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.g,self.u))
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(self.v + 1,n + 1):
+            edges.append((self.u,w))
+        return edges
      
     def __repr__(self):
         return "DEPENDENCYPART_GRANDSIBL_LAST_SIB (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
@@ -182,15 +301,28 @@ class part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'grandSiblNoSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
+        allSubParts.append({'arc': 'nextSiblNoChild','u': self.v,'v': self.v})
 
         return allSubParts
-   
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,n + 1):
+            edges.append((self.v,w))
+        return edges
+    
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "DEPENDENCYPART_GRANSIBL_NO_CHILDREN (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
 
 class part_DEPENDENCYPART_TRISIBL:
     
@@ -200,6 +332,7 @@ class part_DEPENDENCYPART_TRISIBL:
         self.v2 = v2
         self.v3 = v3
         self.val = val
+        self.type = 'triSibl'
         
     def getAllSubParts(self):
         allSubParts = [];
@@ -214,6 +347,17 @@ class part_DEPENDENCYPART_TRISIBL:
                             'v1': self.v2,'v2': self.v3})
         return allSubParts
     
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        edges.append((self.u,self.v3))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
+    
     def __repr__(self):
         return "DEPENDENCYPART_TRISIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + "),(" + \
                                             str(self.u) + "," + str(self.v3) + ")," + str(self.val)
@@ -225,6 +369,7 @@ class part_DEPENDENCYPART_TRISIBL_LAST_SIBS:
         self.v1 = v1
         self.v2 = v2
         self.val = val
+        self.type = 'triSiblLastSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -234,6 +379,18 @@ class part_DEPENDENCYPART_TRISIBL_LAST_SIBS:
                             'v1': self.v1,'v2': self.v2})
         allSubParts.append({'type': 'lastSibl','u': self.u,'v': self.v2})
         return allSubParts
+
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(self.v2 + 1, n + 1):
+            edges.append((self.u,w))
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_TRISIBL_LAST_SIBS (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
@@ -245,6 +402,7 @@ class part_DEPENDENCYPART_TRISIBL_FIRST_SIBS:
         self.v1 = v1
         self.v2 = v2
         self.val = val
+        self.type = 'triSiblFirstSibl'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -255,6 +413,18 @@ class part_DEPENDENCYPART_TRISIBL_FIRST_SIBS:
         allSubParts.append({'type': 'firstSibl','u': self.u,'v': self.v1})
         return allSubParts
     
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v1))
+        edges.append((self.u,self.v2))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,self.v1):
+            edges.append((self.u,w))
+        return edges
+    
     def __repr__(self):
         return "DEPENDENCYPART_TRISIBL_FIRST_SIBS (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
     
@@ -264,6 +434,7 @@ class part_DEPENDENCYPART_TRISIBL_ONLY_CHILD:
         self.u = u
         self.v = v
         self.val = val
+        self.type = 'triSiblOnlyChild'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -272,8 +443,47 @@ class part_DEPENDENCYPART_TRISIBL_ONLY_CHILD:
         allSubParts.append({'type': 'lastSibl','u': self.u,'v': self.v})
         return allSubParts
     
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,n + 1):
+            edges.append((self.u,w))
+        if (self.u,self.v) not in edges:
+            x = 1
+            print x
+        edges.remove((self.u,self.v))
+        return edges
+    
     def __repr__(self):
         return "DEPENDENCYPART_TRISIBL_ONLY_CHILD (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+
+class part_DEPENDENCYPART_NEXTSIBL_NO_SIBS:
+    def __init__(self,u,v,val):
+        self.u = u
+        self.v = v
+        self.val = val
+        self.type = 'nextSiblNoChild'
+    
+    def getAllSubParts(self):
+        allSubParts = [];
+        return allSubParts;
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        for w in range(0,n + 1):
+            edges.append((self.u,w))
+        return edges
+  
+    def __repr__(self):
+        return "DEPENDENCYPART_NEXTSIBL_NO_SIBS (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
 
 class part_DEPENDENCYPART_HEADBIGRAM:
     
@@ -282,6 +492,7 @@ class part_DEPENDENCYPART_HEADBIGRAM:
         self.v = v
         self.prev_u = prev_u
         self.val = val
+        self.type = 'headBigram'
     
     def getAllSubParts(self):
         allSubParts = [];
@@ -289,6 +500,16 @@ class part_DEPENDENCYPART_HEADBIGRAM:
         allSubParts.append({'type': 'arc','u': self.prev_u,'v': (self.v - 1)})
         
         return allSubParts
+    
+    def getAllExistingEdges(self):
+        edges = [];
+        edges.append((self.u,self.v))
+        edges.append((self.prev_u,self.v - 1))
+        return edges
+    
+    def getAllNonExistingEdges(self,n):
+        edges = [];
+        return edges
     
     def __repr__(self):
         return "DEPENDENCYPART_HEADBIGRAM (" + str(self.u) + "," + str(self.v) + "),(" + str(self.prev_u) + "," + str(self.v - 1) + ")," + str(self.val)

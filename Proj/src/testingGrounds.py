@@ -37,5 +37,6 @@ for partType in pm.partTypeToPartConstructor.keys():
         values[partKey] = i
         i += 1
     part = pm.createPart(partType, values)
+    print "'" + str(part.__class__) + "' : " + partType + ",\\"
     parts.append(part)
 print 1
