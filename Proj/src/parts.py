@@ -19,7 +19,7 @@ class part_DEPENDENCYPART_ARC:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_ARC (" + str(self.u) + "," + str(self.v) + ")," + str(self.val) 
+        return "ARC           (" + str(self.u) + "," + str(self.v) + ")" 
         
 class part_DEPENDENCYPART_SIBL:
     
@@ -47,7 +47,7 @@ class part_DEPENDENCYPART_SIBL:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_SIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
+        return "SIB           (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")"
                 
 class part_DEPENDENCYPART_NEXTSIBL:
     
@@ -78,7 +78,7 @@ class part_DEPENDENCYPART_NEXTSIBL:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_NEXTSIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
+        return "NXTSIB        (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")"
         
 class part_DEPENDENCYPART_NEXTSIBL_LAST_SIB:
     
@@ -105,7 +105,7 @@ class part_DEPENDENCYPART_NEXTSIBL_LAST_SIB:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_NEXTSIBL_LAST_SIB (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "LSTSIB        (" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_NEXTSIBL_FIRST_SIB:
     
@@ -132,7 +132,7 @@ class part_DEPENDENCYPART_NEXTSIBL_FIRST_SIB:
         return edges
   
     def __repr__(self):
-        return "DEPENDENCYPART_NEXTSIBL_FIRST_SIB (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "FRSTSIB       (" + str(self.u) + "," + str(self.v) + ")"
         
 class part_DEPENDENCYPART_GRANDPAR:
     
@@ -160,7 +160,7 @@ class part_DEPENDENCYPART_GRANDPAR:
         return edges
   
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDPAR (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "GP            (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD:
     
@@ -189,7 +189,7 @@ class part_DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD:
   
      
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "GPNoGC        (" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_GRANDSIBL:
     
@@ -226,8 +226,8 @@ class part_DEPENDENCYPART_GRANDSIBL:
         return edges
             
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDSIBL (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v1) + "),(" + \
-                                              str(self.u) + "," + str(self.v2) + ")," + str(self.val)
+        return "GSBL          (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v1) + "),(" + \
+                                              str(self.u) + "," + str(self.v2) + ")"
         
 class part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB:
     
@@ -260,7 +260,7 @@ class part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDSIBL_FIRST_SIB (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "GSBLFRST      (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_GRANDSIBL_LAST_SIB:
     
@@ -293,7 +293,7 @@ class part_DEPENDENCYPART_GRANDSIBL_LAST_SIB:
         return edges
      
     def __repr__(self):
-        return "DEPENDENCYPART_GRANDSIBL_LAST_SIB (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "GSBLLST       (" + str(self.g) + "," + str(self.u) + "),(" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN:
     
@@ -306,7 +306,7 @@ class part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN:
     def getAllSubParts(self):
         allSubParts = [];
         allSubParts.append({'type': 'arc','u': self.u,'v': self.v})
-        allSubParts.append({'arc': 'nextSiblNoChild','u': self.v,'v': self.v})
+        allSubParts.append({'type': 'nextSiblNoChild','u': self.v,'v': self.v})
 
         return allSubParts
     
@@ -322,7 +322,7 @@ class part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_GRANSIBL_NO_CHILDREN (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "GSBLNOSIBL    (" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_TRISIBL:
     
@@ -359,8 +359,8 @@ class part_DEPENDENCYPART_TRISIBL:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_TRISIBL (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + "),(" + \
-                                            str(self.u) + "," + str(self.v3) + ")," + str(self.val)
+        return "TRISBL        (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + "),(" + \
+                                            str(self.u) + "," + str(self.v3) + ")"
 
 class part_DEPENDENCYPART_TRISIBL_LAST_SIBS:
     
@@ -393,7 +393,7 @@ class part_DEPENDENCYPART_TRISIBL_LAST_SIBS:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_TRISIBL_LAST_SIBS (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
+        return "TRISBL_LAST   (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")"
         
 class part_DEPENDENCYPART_TRISIBL_FIRST_SIBS:
     
@@ -426,7 +426,7 @@ class part_DEPENDENCYPART_TRISIBL_FIRST_SIBS:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_TRISIBL_FIRST_SIBS (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")," + str(self.val)
+        return "TRISBL_FRST   (" + str(self.u) + "," + str(self.v1) + "),(" + str(self.u) + "," + str(self.v2) + ")"
     
 class part_DEPENDENCYPART_TRISIBL_ONLY_CHILD:
     
@@ -459,7 +459,7 @@ class part_DEPENDENCYPART_TRISIBL_ONLY_CHILD:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_TRISIBL_ONLY_CHILD (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "TRISBL_ONLY   (" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_NEXTSIBL_NO_SIBS:
     def __init__(self,u,v,val):
@@ -483,7 +483,7 @@ class part_DEPENDENCYPART_NEXTSIBL_NO_SIBS:
         return edges
   
     def __repr__(self):
-        return "DEPENDENCYPART_NEXTSIBL_NO_SIBS (" + str(self.u) + "," + str(self.v) + ")," + str(self.val)
+        return "NXTSIBLNoSIBL (" + str(self.u) + "," + str(self.v) + ")"
 
 class part_DEPENDENCYPART_HEADBIGRAM:
     
@@ -512,4 +512,4 @@ class part_DEPENDENCYPART_HEADBIGRAM:
         return edges
     
     def __repr__(self):
-        return "DEPENDENCYPART_HEADBIGRAM (" + str(self.u) + "," + str(self.v) + "),(" + str(self.prev_u) + "," + str(self.v - 1) + ")," + str(self.val)
+        return "HEADBIGRAM    (" + str(self.u) + "," + str(self.v) + "),(" + str(self.prev_u) + "," + str(self.v - 1) + ")"

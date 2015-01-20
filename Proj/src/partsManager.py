@@ -30,7 +30,7 @@ class partsManager:
         if self.mapping[partType].has_key(key):
 #            raise Exception("trying to create an existing part")
             self.mapping[partType][key].val += values['val']
-            print "found key", key, "for part type", partType, "val is", values['val']
+#             print "found key", key, "for part type", partType, "val is", values['val']
             p = self.mapping[partType][key]
         else:
             pCtor = self.partTypeToPartConstructor[partType]['ctor'];

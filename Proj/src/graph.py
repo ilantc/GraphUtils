@@ -69,7 +69,7 @@ class DiGraph:
         for line in ins:
             matchObj = re.search(" # (\w+)$",line)
             dependencyType = matchObj.group(1)
-            print line, dependencyType
+#             print line, dependencyType
             # all edges of this feature
             edges = re.findall("\(\d+,\d+\)",line)
             v = re.findall("\),([-]?\d+[.\d+]*)",line)
@@ -249,7 +249,7 @@ class LPMaker:
         self.lpFile = lpFile
         self.g = graph
 
-    def createLP(self,projective,setGraphEdges):
+    def createLP(self,projective,setGraphEdges,applyPositiveSlacks):
         
         model = gp.Model(self.modelName)
         graph = self.g.graph
@@ -258,7 +258,7 @@ class LPMaker:
         nodes = graph.nodes()
         nonEdgeParts = []
         
-        M = 100
+        M = 1000
         # Create variables and objective
         z = {}
         # weights
@@ -276,9 +276,8 @@ class LPMaker:
                 wplus[u,v]   = model.addVar(vtype=gp.GRB.CONTINUOUS, name=('w+_%s_%s' % (u,v)), lb=-1e21)
                 wminus[u,v]  = model.addVar(vtype=gp.GRB.CONTINUOUS, name=('w-_%s_%s' % (u,v)), lb=-1e21)
                 d[u,v]       = model.addVar(vtype=gp.GRB.BINARY,     name=('d_%s_%s' % (u,v)))
-            else:
-                nonEdgeParts.append(p)
-                slackVars[p] = model.addVar(vtype=gp.GRB.CONTINUOUS)
+            nonEdgeParts.append(p)
+            slackVars[p] = model.addVar(vtype=gp.GRB.CONTINUOUS)
         model.update()
         
         # incoming edges constraints - every node except for 0 has one incoming edge
@@ -310,6 +309,7 @@ class LPMaker:
                     print allSubparts
                     print p
                     print part
+                    raise
                 if partsManager.hasPart(partType,p):
                     allW += partsManager.getPart(partType,p).val
             operator = gp.GRB.GREATER_EQUAL;
@@ -321,10 +321,15 @@ class LPMaker:
             allNonExistingEdges = part.getAllNonExistingEdges(self.g.n)
             allNonExistingEdges = filter(lambda (u,v): partsManager.hasArc(u,v),allNonExistingEdges)
             if (len(allExistingEdges) + len(allNonExistingEdges) > 0):
-                print "adding constr '" + str(part) + "', allExisting edges are:",allExistingEdges,", all non existing edges are:",allNonExistingEdges
-                if ((partType != 'arc') and (allW < 0)):
+#                 print "adding constr '" + str(part) + "', allExisting edges are:",allExistingEdges,", all non existing edges are:",allNonExistingEdges
+                if allW < 0:
                     model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) +\
                                     gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) -\
+                                    slackVars[part],\
+                                    operator,allW,str(part))
+                elif applyPositiveSlacks:
+                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) +\
+                                    gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) +\
                                     slackVars[part],\
                                     operator,allW,str(part))
                 else:
@@ -342,38 +347,53 @@ class LPMaker:
         
         model.update()
         
-        self.model = model
+        self.model  = model
         self.LPVars = z
-        self.edges = edges
-        self.nodes = nodes
+        self.edges  = edges
+        self.nodes  = nodes
+        self.wplus  = wplus
+        self.wminus = wminus
+        self.slack  = slackVars
               
-    def solve(self,fileName=None):    
+    def solve(self,verbose,fileName=None):    
         
         # write the model 
+        modelFile = None
         if (self.lpFile):
             modelFile = self.lpFile;
         elif fileName:
             modelFile = fileName;
         if modelFile:
             self.model.write(modelFile)
-
+        if not verbose:
+            self.model.setParam('OutputFlag', False )
         # solve the model
         self.model.optimize()
-        return;
-        if self.WeightReductionLPModelWithSetGraph.status == gp.GRB.status.OPTIMAL:
-            for (u,v) in self.edges:
-                if self.LPVars[((u,v),)].x > 0:
-                    print('(%s,%s)' % (u,v))
-            print('=====')
+
+        if self.model.status == gp.GRB.status.OPTIMAL:
+            if verbose:
+                for (u,v) in self.edges:
+                    if self.LPVars[u,v].x > 0:
+                        print('(%s,%s)' % (u,v))
+                print('=====')
             newWeights = {}
+            optEdges = []
             for (u,v) in self.edges:
                 text = '(%s,%s)' % (u,v)
-                text = text + ', w = %s' % (self.newWeightsVars[u,v].x)
-                newWeights[(u,v)] = self.newWeightsVars[u,v].x
-                if self.newLPVars[((u,v),)].x > 0:
-                    text = text + ' *'
-                #print(text)
+                newW = self.wplus[u,v].x - self.wminus[u,v].x
+                text = text + ', w = %s' % (newW)
+                newWeights[u,v] = newW
+                if self.LPVars[u,v].x > 0:
+                    optEdges.append((u,v))
+                if verbose:
+                    print(text)
+            if verbose:
+                print "====="
+                for key in self.slack.keys():
+                    if self.slack[key].x > 0.0:
+                        print key,":",self.slack[key].x
             self.newWeights = newWeights
+            self.optEdges = optEdges
 
     def getConflictingConstrsNames(self, model,edges,partsManager):
         edgeToSense = {}
@@ -406,7 +426,6 @@ class LPMaker:
                 span = range(u,v+1)
                 notInSpan = filter(lambda x:x not in span, nodes)
                 innerSpan = range(u+1,v)
-                #notInInnerSpan = filter(lambda x:x not in innerSpan, nodes)
                 # constraint for (u,v),(v,u) \in E
                 for k in notInSpan:
                     if k > 0:
@@ -466,6 +485,115 @@ class LPMaker:
             if node == 0:
                 continue
             model.addConstr(gp.quicksum(y[(u,t)] for (u,t) in edges.select('*',node)), gp.GRB.EQUAL,1,'%s_inEdge_%s' % (constName,node))
+
+
+    def initGraph(self,n,w):
+        G = nx.DiGraph()
+        # add all nodes and edges
+        G.add_nodes_from(range(n + 1)) 
+        
+        # add edges and weights
+        for (u,v) in w.keys():
+            G.add_edge(u, v, {'weight': w[u,v]})        
+        return G
+    
+    def contract(self,G,C_edges):
+        C_nodes = [u for (u,_) in C_edges]
+        subgraphNodes = filter(lambda node: node not in C_nodes, G.nodes())
+        Gc = G.subgraph(subgraphNodes)
+        newNode = "_".join(map(lambda node: str(node),C_nodes))
+        Gc.add_node(newNode)
+        scoreC = sum(G[u][v]['weight'] for (u,v) in C_edges)
+        for node in subgraphNodes:
+            edgesFromC = [(c,node) for c in filter(lambda cNode: G.has_edge(cNode,node),C_nodes)]
+            if len(edgesFromC) > 0:
+                (best_c,node) = max(edgesFromC, key = lambda (u,v): G[u][v]['weight'])
+                Gc.add_edge(newNode,node,{'weight': G[best_c][node]['weight'], 'origU': best_c})
+            
+            edgesToC = [(node,c) for c in filter(lambda cNode: G.has_edge(node,cNode),C_nodes)]
+            if len(edgesToC) > 0:
+                bestScore = float('Inf') * (-1)
+                bestCnode = 0
+                for (node,c_node) in edgesToC:
+                    filtered = filter(lambda (u,v): v == c_node,C_edges)
+                    (c_u,_) = filtered[0]
+                    score = G[node][c_node]['weight'] - G[c_u][c_node]['weight']
+                    if score > bestScore:
+                        bestScore = score
+                        bestCnode = c_node
+                Gc.add_edge(node,newNode,{'weight': bestScore + scoreC, 'origV': bestCnode})
+        return {'G':Gc, 'newnode':newNode}
+    
+    def chuLiuEdmondsWrapper(self, n, w):
+        G = self.initGraph(n,w)
+        optG = self.chuLiuEdmonds(G)
+        return optG
+    
+    def chuLiuEdmonds(self,G):
+        edges = G.edges()
+        bestInEdges = []
+        for node in G.nodes():
+            if node == 0:
+                continue
+            allInNodes = [u for (u,_) in filter(lambda (u,v): v == node, edges)]
+            bestP = max(allInNodes, key = lambda u: G[u][node]['weight'])
+            bestInEdges.append((bestP,node,G.get_edge_data(bestP,node)))
+        newG = nx.DiGraph()
+        newG.add_nodes_from(G.nodes())
+        newG.add_edges_from(bestInEdges)
+        
+        # get the first cycle in newG
+        cs = list(nx.simple_cycles(newG))
+        if len(cs) == 0:
+            return newG
+        c = max(cs, key = lambda circle: len(circle))
+        C_edges = []
+        for c_node_index in range(len(c) - 1):
+            C_edges.append((c[c_node_index],c[c_node_index + 1]))
+        C_edges.append((c[-1],c[0]))
+        contractOutput = self.contract(G, C_edges)
+        Gc = contractOutput['G']
+        newNode = contractOutput['newnode']
+        Gopt = self.chuLiuEdmonds(Gc)
+        
+        # now we need to take care of the new graph:
+        # 1) remove the dummy node that was contracted
+        newNodeInEdge = filter(lambda (u,v): v == newNode,Gopt.edges())
+        if len(newNodeInEdge)==0:
+            print "oh no"
+        newNodeInEdgeU = newNodeInEdge[0][0]
+        newNodeInEdgeV = newNodeInEdge[0][1]
+        newNodeInEdgeData = Gc.get_edge_data(newNodeInEdgeU,newNodeInEdgeV)
+        
+        newNodeOutEdges = filter(lambda (u,v): u == newNode,Gopt.edges())
+        edgesToAdd = []
+        for i in range(len(newNodeOutEdges)):
+            newNodeOutEdgeU = newNodeOutEdges[i][0]
+            newNodeOutEdgeV = newNodeOutEdges[i][1]
+            newNodeOutEdgeData = Gc.get_edge_data(newNodeOutEdgeU,newNodeOutEdgeV)
+            edgesToAdd.append({'u':newNodeOutEdgeU, 'v':newNodeOutEdgeV, 'data': newNodeOutEdgeData})
+        
+        Gopt.remove_node(newNode)
+        
+        # 2) add the edges from C
+        for (u,v) in C_edges:
+            Gopt.add_edge(u,v,G.get_edge_data(u,v))
+        
+        # 3) remove the edge from C that cones just before the entry point to C in the 
+        # contracted graph, 
+        uToRemove = c[c.index(newNodeInEdgeData['origV']) - 1]
+        Gopt.remove_edge(uToRemove,newNodeInEdgeData['origV'])
+        
+        # 4) add the incoming edge to the contracted node back to the graph
+        Gopt.add_edge(newNodeInEdgeU, newNodeInEdgeData['origV'], G.get_edge_data(newNodeInEdgeU, newNodeInEdgeData['origV']))
+        
+        # 5) if there was an outgoing edge from the contracted node, add it as well
+        for edgeToAdd in edgesToAdd:
+            Gopt.add_edge(edgeToAdd['data']['origU'], edgeToAdd['v'], G.get_edge_data(edgeToAdd['data']['origU'], edgeToAdd['v']))
+        
+        return Gopt
+
+
 
 # unused functions 
 def allNonEmptySubsets(feature):
