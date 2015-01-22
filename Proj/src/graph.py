@@ -593,7 +593,102 @@ class LPMaker:
         
         return Gopt
 
-
+    def eisnerProjective(self,n,w):
+        G = self.initGraph(n,w)
+        right = "right"
+        left = "left"
+        complete = "complete"
+        incomplete = "incomplete"
+        minusInf = float('Inf')* (-1)
+        n = n + 1
+        C = {}
+        bp = {}
+        # handle span size 0
+        for u in range(0,n):
+            C[u] = {}
+            bp[u] = {}
+            C[u][u] = {}
+            C[u][u][right] = {}
+            C[u][u][left] = {}
+            C[u][u][right][complete] = 0.0
+#             C[u][u][right][incomplete] = 0.0
+            C[u][u][left][complete] = 0.0
+#             C[u][u][left][incomplete] = 0.0
+        
+        for spanSize in range(1,n):
+            for u in range(0,n):
+                rightIndex = u + spanSize
+                # right span 
+                if rightIndex < n:
+                    C[u][rightIndex] = {}
+                    C[u][rightIndex][right] = {}
+                    bp[u][rightIndex] = {}
+                    bp[u][rightIndex][right] = {}
+                                        
+                    # incomplete
+                    if G.has_edge(u, rightIndex):
+                        bestValIncomplete = C[u][u][right][complete] + C[rightIndex][u+1][left][complete] + G[u][rightIndex]['weight']
+                        bestBpIncomplete = u
+                        for q in range(u + 1,rightIndex):
+                            currValIncomplete = C[u][q][right][complete] + C[rightIndex][q + 1][left][complete] + G[u][rightIndex]['weight']
+                            if currValIncomplete > bestValIncomplete:
+                                bestValIncomplete = currValIncomplete
+                                bestBpIncomplete = q
+                    else:
+                        bestValIncomplete = minusInf
+                        bestBpIncomplete = -1
+                    # save the best
+                    C[u][rightIndex][right][incomplete] = bestValIncomplete
+                    bp[u][rightIndex][right][incomplete] = bestBpIncomplete
+                    
+                    # complete
+                    bestBpComplete = rightIndex
+                    bestValComplete = C[u][rightIndex][right][incomplete] + C[rightIndex][rightIndex][right][complete]
+                    for q in range(u + 1,rightIndex):
+                        currValComplete = C[u][q][right][incomplete] + C[q][rightIndex][right][complete]
+                        if currValComplete > bestValComplete:
+                            bestValComplete = currValComplete
+                            bestBpComplete = q
+                    # save the best
+                    C[u][rightIndex][right][complete] = bestValComplete
+                    bp[u][rightIndex][right][complete] = bestBpComplete
+                    
+                leftIndex = u - spanSize
+                # left span 
+                if leftIndex > 0:
+                    C[u][leftIndex] = {}
+                    C[u][leftIndex][left] = {}
+                    bp[u][leftIndex] = {}
+                    bp[u][leftIndex][left] = {}
+                    
+                    # incomplete
+                    if G.has_edge(u,leftIndex):
+                        bestValIncomplete = C[leftIndex][leftIndex][right][complete] + C[leftIndex + 1][u][left][complete] + G[u][leftIndex]['weight']
+                        bestBpIncomplete = leftIndex
+                        for q in range(leftIndex,u):
+                            currValIncomplete = C[leftIndex][q][right][complete] + C[q + 1][u][left][complete] + G[u][leftIndex]['weight']
+                            if currValIncomplete > bestValIncomplete:
+                                bestValIncomplete = currValIncomplete
+                                bestBpIncomplete = q
+                    else:
+                        bestValIncomplete = minusInf
+                        bestBpIncomplete = -1
+                    # save the best
+                    C[u][leftIndex][left][incomplete] = bestValIncomplete
+                    bp[u][leftIndex][left][incomplete] = bestBpIncomplete
+                    
+                    # complete
+                    bestBpComplete = rightIndex
+                    bestValComplete = C[leftIndex][leftIndex][left][complete] + C[u][leftIndex][left][incomplete]
+                    for q in range(leftIndex,u):
+                        currValComplete = C[q][leftIndex][left][complete] + C[u][q][left][incomplete]
+                        if currValComplete > bestValComplete:
+                            bestValComplete = currValComplete
+                            bestBpComplete = q
+                    # save the best
+                    C[u][leftIndex][left][complete] = bestValComplete
+                    bp[u][leftIndex][left][complete] = bestBpComplete
+        print "done"
 
 # unused functions 
 def allNonEmptySubsets(feature):

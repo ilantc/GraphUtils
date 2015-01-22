@@ -4,7 +4,7 @@ import csv
 import gurobipy as gp
 import os
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,isProjective):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./output_" + fileIndex + ".txt"
@@ -34,40 +34,60 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
     for (u,v) in lpm.newWeights.keys():
         w[u,v] = lpm.newWeights[u,v]
     
-    optG = lpm.chuLiuEdmondsWrapper(g.n, w)
+    if isProjective:
+        optG = lpm.eisnerProjective(g.n, w)
+    else:
+        optG = lpm.chuLiuEdmondsWrapper(g.n, w)
     
     if writeCsvFile:
         csvfile = open(outputFileName, 'wb')
-        fieldnames = ["childIndex","goldHead","optHead","LP Head"] 
+        fieldnames = ["childIndex","goldHead","highOrderOptHead","optHead","LP Head"] 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
     vals = {}
     optEdges = optG.edges()
     edgesFromLp = lpm.optEdges
-    nOptCorrect = 0
-    nLPCorrect = 0
+    nOptGoldCorrect = 0
+    nOptOrigOptCorrect = 0
+    nLPGoldCorrect = 0
     nLP_OPTCorrect = 0
+    nLP_OrigOptCorrect = 0
+    nOrigOptGoldCorrect = 0
     for i in range(0,g.n):
         v = i + 1
         goldu = int(g.optHeads[i])
+        origOptu = int(g.optHeads[i])
         optEdge = filter(lambda (u_j,v_j): v_j == v, optEdges)
         optU = optEdge[0][0]
         edgeFromLp = filter(lambda (u_j,v_j): v_j == v, edgesFromLp)
         LPU = edgeFromLp[0][0]
-        line = {"childIndex": v,"goldHead": goldu,"optHead": optU,"LP Head": LPU}
+        line = {"childIndex": v,"goldHead": goldu,"highOrderOptHead": origOptu, "optHead": optU,"LP Head": LPU}
 #         print line
         if writeCsvFile:
             writer.writerow(line)
         if optU == goldu:
-            nOptCorrect += 1 
+            nOptGoldCorrect += 1 
+        if optU == origOptu:
+            nOptOrigOptCorrect += 1
         if LPU == goldu:
-            nLPCorrect += 1
+            nLPGoldCorrect += 1
         if LPU == optU:
             nLP_OPTCorrect += 1
+        if LPU == origOptu:
+            nLP_OrigOptCorrect += 1
+        if origOptu == goldu:
+            nOrigOptGoldCorrect += 1
+        
     if writeCsvFile:
         csvfile.close
 #     print nOptCorrect,nLPCorrect,nLP_OPTCorrect
-    return {'nopt': float(nOptCorrect)/float(g.n), 'nLP': float(nLPCorrect)/float(g.n), 'n_LP_OPT': float(nLP_OPTCorrect)/float(g.n)}
+    normalizationFactor = float(g.n)
+    out = {'noptGold': float(nOptGoldCorrect), 'nLPGold': float(nLPGoldCorrect), 'n_LP_OPT': float(nLP_OPTCorrect), \
+           'norigOptGold': float(nOrigOptGoldCorrect), 'nOptOrigOpt': float(nOptOrigOptCorrect), 'nLpOrigOpt': nLP_OrigOptCorrect}
+    for k in out.keys():
+        out[k] = out[k]/normalizationFactor
+     
+    return out
 #     print bestTree, optG.edges()
 #     nCorrect = 0;
 #     for (u,v) in optG.edges():
@@ -105,30 +125,46 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
 if __name__ == '__main__':
     writeCsvFile = False
     verbose = False
-    applyPositiveSlacks = False
+    applyPositiveSlacks = True
+    isProjective = True
     currentDir = os.getcwd()
-    os.chdir('C:\\Users\\ilantc\\shared')
+    os.chdir('data')
     allFileData  = []
     nFiles = 1858
-    fileIds = range(0,nFiles)
     fileIdsToSkip = [629,1192,1759]
+#     nFiles = 5
+#     fileIdsToSkip = []
+    fileIds = range(0,nFiles)
+    fileIds = [6]
     nFiles -= len(fileIdsToSkip)
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, \
+          "isProjective =",isProjective
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,isProjective)
         print fileData
         allFileData.append(fileData)
-    nopt = 0.0
-    nLP = 0.0
-    LP_OPT = 0.0
+    
+    noptGold    = 0.0
+    nLPGold     = 0.0
+    LP_OPT      = 0.0
+    origOptGold = 0.0
+    optOrigOpt  = 0.0
+    LpOrigOpt   = 0.0
     for fileData in allFileData:
-        nopt += fileData['nopt']
-        nLP += fileData['nLP']
+        noptGold += fileData['noptGold']
+        nLPGold += fileData['nLPGold']
         LP_OPT += fileData['n_LP_OPT']
+        origOptGold += fileData['norigOptGold']
+        optOrigOpt += fileData['nOptOrigOpt']
+        LpOrigOpt += fileData['nLpOrigOpt']
     os.chdir(currentDir)
-    print 'positive slacks =', applyPositiveSlacks
-    print 'average opt vs gold =', nopt/nFiles
-    print 'average lp output vs gold =', nLP/nFiles
-    print 'average opt vs lp output =', LP_OPT/nFiles
+    print 'positive slacks           =', applyPositiveSlacks
+    print 'isProjective              =', isProjective, "\n"
+    print 'average opt vs gold       =', noptGold/nFiles
+    print 'average lp output vs gold =', nLPGold/nFiles
+    print 'average opt vs lp output  =', LP_OPT/nFiles
+    print 'average origOpt vs gold   =', origOptGold/nFiles
+    print 'average opt vs origOpt    =', optOrigOpt/nFiles
+    print 'average lpOpt vs origOpt  =', LpOrigOpt/nFiles
