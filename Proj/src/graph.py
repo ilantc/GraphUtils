@@ -678,7 +678,7 @@ class LPMaker:
                     bp[u][leftIndex][left][incomplete] = bestBpIncomplete
                     
                     # complete
-                    bestBpComplete = rightIndex
+                    bestBpComplete = leftIndex
                     bestValComplete = C[leftIndex][leftIndex][left][complete] + C[u][leftIndex][left][incomplete]
                     for q in range(leftIndex,u):
                         currValComplete = C[q][leftIndex][left][complete] + C[u][q][left][incomplete]
@@ -688,7 +688,42 @@ class LPMaker:
                     # save the best
                     C[u][leftIndex][left][complete] = bestValComplete
                     bp[u][leftIndex][left][complete] = bestBpComplete
-        print "done"
+        
+        uKey = 'u'
+        vKey = 'v'
+        directionKey = 'direction'
+        typeKey = 'type'
+        spansToCheck = [{uKey:0,vKey:n - 1,directionKey:right,typeKey:complete}]
+        Gopt = nx.DiGraph()
+        Gopt.add_nodes_from(range(n))
+        
+        while len(spansToCheck) > 0:
+            spanToCheck = spansToCheck.pop()
+            u = spanToCheck[uKey]
+            v = spanToCheck[vKey]
+            spanType = spanToCheck[typeKey]
+            direction = spanToCheck[directionKey]
+            otherDirection = right if direction == left else left
+            if u == v:
+                continue
+            q = bp[u][v][direction][spanType]
+            if spanType == complete:
+                if direction == right:
+                    spansToCheck.append({uKey:u,vKey:q,directionKey:direction,typeKey:incomplete})
+                    spansToCheck.append({uKey:q,vKey:v,directionKey:direction,typeKey:complete})
+                else:
+                    spansToCheck.append({uKey:q,vKey:v,directionKey:direction,typeKey:complete})
+                    spansToCheck.append({uKey:u,vKey:q,directionKey:direction,typeKey:incomplete})
+            else:
+                if direction == right:
+                    spansToCheck.append({uKey:u,vKey:q,directionKey:direction,typeKey:complete}) 
+                    spansToCheck.append({uKey:v,vKey:q+1,directionKey:otherDirection,typeKey:complete})
+                else:
+                    spansToCheck.append({uKey:v,vKey:q,directionKey:otherDirection,typeKey:complete})
+                    spansToCheck.append({uKey:u,vKey:q+1,directionKey:direction,typeKey:complete})
+                Gopt.add_edge(u, v, G.get_edge_data(u, v)) 
+            
+        return Gopt
 
 # unused functions 
 def allNonEmptySubsets(feature):
