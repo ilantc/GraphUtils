@@ -663,10 +663,10 @@ class LPMaker:
                     
                     # incomplete
                     if G.has_edge(u,leftIndex):
-                        bestValIncomplete = C[leftIndex][leftIndex][right][complete] + C[leftIndex + 1][u][left][complete] + G[u][leftIndex]['weight']
+                        bestValIncomplete = C[leftIndex][leftIndex][right][complete] + C[u][leftIndex + 1][left][complete] + G[u][leftIndex]['weight']
                         bestBpIncomplete = leftIndex
                         for q in range(leftIndex,u):
-                            currValIncomplete = C[leftIndex][q][right][complete] + C[q + 1][u][left][complete] + G[u][leftIndex]['weight']
+                            currValIncomplete = C[leftIndex][q][right][complete] + C[u][q + 1][left][complete] + G[u][leftIndex]['weight']
                             if currValIncomplete > bestValIncomplete:
                                 bestValIncomplete = currValIncomplete
                                 bestBpIncomplete = q

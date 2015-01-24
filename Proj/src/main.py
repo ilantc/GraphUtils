@@ -55,7 +55,7 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,isProjective):
     nOrigOptGoldCorrect = 0
     for i in range(0,g.n):
         v = i + 1
-        goldu = int(g.optHeads[i])
+        goldu = int(g.goldHeads[i])
         origOptu = int(g.optHeads[i])
         optEdge = filter(lambda (u_j,v_j): v_j == v, optEdges)
         optU = optEdge[0][0]
@@ -132,10 +132,10 @@ if __name__ == '__main__':
     allFileData  = []
     nFiles = 1858
     fileIdsToSkip = [629,1192,1759]
-#     nFiles = 5
-#     fileIdsToSkip = []
+    nFiles = 10
+    fileIdsToSkip = []
     fileIds = range(0,nFiles)
-    fileIds = [6]
+#     fileIds = [1007]
     nFiles -= len(fileIdsToSkip)
     print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, \
           "isProjective =",isProjective
