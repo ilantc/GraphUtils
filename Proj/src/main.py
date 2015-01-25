@@ -3,6 +3,7 @@ from graph import LPMaker
 import csv
 import gurobipy as gp
 import os
+import sys
 
 def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,isProjective):
     fileIndex = str(fileIndex)
@@ -123,17 +124,23 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,isProjective):
 
 
 if __name__ == '__main__':
+    if sys.argv[1] == '1':
+        isProjective = True
+    else:
+        isProjective = False
+    if sys.argv[2] == '1':
+        applyPositiveSlacks = True
+    else:
+        applyPositiveSlacks = False
     writeCsvFile = False
     verbose = False
-    applyPositiveSlacks = True
-    isProjective = True
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
     nFiles = 1858
     fileIdsToSkip = [629,1192,1759]
-    nFiles = 10
-    fileIdsToSkip = []
+#     nFiles = 10
+#     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
     nFiles -= len(fileIdsToSkip)
