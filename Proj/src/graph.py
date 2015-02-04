@@ -339,7 +339,7 @@ class LPMaker:
         model.update()
                 
         # define objective 
-        model.setObjective(gp.quicksum(z[u,v]*(wplus[u,v] - wminus[u,v])                     for (u,v) in edges)        - \
+        model.setObjective(gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)        - \
                            gp.quicksum(d[u,v]                                                for (u,v) in edges)        - \
                            gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        - \
                            gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) - \
@@ -485,7 +485,6 @@ class LPMaker:
             if node == 0:
                 continue
             model.addConstr(gp.quicksum(y[(u,t)] for (u,t) in edges.select('*',node)), gp.GRB.EQUAL,1,'%s_inEdge_%s' % (constName,node))
-
 
     def initGraph(self,n,w):
         G = nx.DiGraph()
@@ -726,6 +725,7 @@ class LPMaker:
         return Gopt
 
 # unused functions 
+
 def allNonEmptySubsets(feature):
     if len(feature) == 0:
         return
