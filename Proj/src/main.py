@@ -4,6 +4,7 @@ import csv
 import gurobipy as gp
 import os
 import sys
+import stats
 
 def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
     fileIndex = str(fileIndex)
@@ -119,7 +120,6 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
 # for c in lpm.model.getConstrs():
 #     if c.getAttr(gp.GRB.Attr.IISConstr) > 0:
 #         print c.getAttr(gp.GRB.Attr.ConstrName)
-        
 
 
 if __name__ == '__main__':
