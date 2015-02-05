@@ -133,9 +133,10 @@ if __name__ == '__main__':
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
-    nFiles = 1858
+    nFiles = 1699
 #     nFiles = 100
     fileIdsToSkip = [629,1192,1759]
+    fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
     print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles
