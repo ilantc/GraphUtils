@@ -6,19 +6,27 @@ import os
 import sys
 import stats
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
-    inputFile = "./output_" + fileIndex + ".txt"
+    inputFile = "./"
+    if fullModel:
+        inputFile += "full/"
+    else:
+        inputFile += "2ndOrder/"
+    inputFile += "output_" + fileIndex + ".txt"
     outputFileName = "./output/file_" + fileIndex + ".csv"
     g = DiGraph(inputFile)
     lpm = LPMaker(g, "try_input_" + fileIndex, "input_" + fileIndex + ".lp")
     
     bestTree = [];
     print "n =",g.n
+    gHeads = g.optHeads
+    if useGoldHeads:
+        gHeads = g.goldHeads
     for i in range(0,g.n):
         v = i + 1
-        u = int(g.goldHeads[i])
+        u = int(gHeads[i])
         bestTree.append((u,v))
         if verbose: 
             print "best tree added (" + str(u) + "," + str(v) + ")"
@@ -130,6 +138,8 @@ if __name__ == '__main__':
         applyPositiveSlacks = False
     writeCsvFile = False
     verbose = False
+    fullModel = False
+    useGoldHeads = False
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
@@ -139,12 +149,12 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " full model =",fullModel
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             nFiles -= 1
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads)
         print fileData
         allFileData.append(fileData)
     
@@ -153,7 +163,15 @@ if __name__ == '__main__':
     outputFileName = "res_"
     outputFileName += "allSlk_" if applyPositiveSlacks else "negSlk_"
     outputFileName += "nFiles_" + str(nFiles)
-    outputFileName += "_goldHeads.csv"
+    if fullModel:
+        outputFileName += "3rdOrderModel_"
+    else:
+        outputFileName += "2ndOrderModel_"
+    if useGoldHeads:
+        outputFileName += "_goldHeads"
+    else:
+        outputFileName += "_optHeads"
+    outputFileName += ".csv"
     
     csvfile = open(outputFileName, 'wb')
     fieldnames = ["proj inference","allSlk","opt / gold","opt / lp_output","lp_output / gold", \
@@ -184,6 +202,10 @@ if __name__ == '__main__':
                 "opt / highOrderOutput"     : optOrigOpt/nFiles  ,\
                 "lpOutput / highOrderOutput": LpOrigOpt/nFiles}
         print "\n"
+        orderString = '3rd order model' if fullModel else '2nd Order Model' 
+        print orderString
+        headsStr = 'used gold heads' if useGoldHeads else 'used high order opt heads' 
+        print headsStr
         print 'positive slacks           =', applyPositiveSlacks
         print 'isProjective              =', proj, "\n"
         print 'average opt vs gold       =', noptGold/nFiles

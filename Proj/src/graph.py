@@ -485,7 +485,90 @@ class LPMaker:
             if node == 0:
                 continue
             model.addConstr(gp.quicksum(y[(u,t)] for (u,t) in edges.select('*',node)), gp.GRB.EQUAL,1,'%s_inEdge_%s' % (constName,node))
+    
+    
+    def createAndSolveOriginalLP(self,projective):
+        
+        model = gp.Model(self.modelName)
+        graph = self.g.graph
+        partsManager = self.g.partsManager
+        edges = gp.tuplelist(graph.edges())
+        nodes = graph.nodes()
+        
+        M = 1000
+        # Create variables and objective
+        z = {}
+        sibs = {}
+        gpnt = {}
+        edge2val = {}
+        sibs2val = {}
+        gpnt2val = {}
+        # slack variables
+        for p in partsManager.getAllParts():
+            if p.type == 'arc':
+                u = p.u
+                v = p.v
+                z[u,v]       = model.addVar(vtype=gp.GRB.BINARY,     name=('z_%s_%s' % (u,v)))
+                edge2val[u,v] = p.val
+            elif p.type == 'sibl':
+                u = p.u
+                v1 = p.v1
+                v2 = p.v2
+                sibs[u,v1,v2] = model.addVar(vtype=gp.GRB.BINARY,     name=('sibs_%s_%s_%s' % (u,v1,v2)))
+                sibs2val[u,v1,v2] = p.val
+            elif p.type == 'grandParant':
+                g = p.g
+                u = p.u
+                v = p.v
+                gpnt[g,u,v] = model.addVar(vtype=gp.GRB.BINARY,     name=('gpnt_%s_%s_%s' % (g,u,v)))
+                gpnt2val[g,u,v] = p.val
+        model.update()
+        
+        # incoming edges constraints - every node except for 0 has one incoming edge
+        self.addIncomingEdgesConstrs(nodes,edges,model,z,'Z')        
+        
+        if (projective):
+            # projectivity + no circles constraints
+            self.addProjectiveConstrs(nodes,model,z,'Z',partsManager)
+        else:
+            # non proj constrs and vars
+            self.LPFlowVars = self.addNonProjectiveConstrs(nodes,edges,z,model,'Z')
+        
+        # high order parts
+        for (u,v1,v2) in sibs:
+            model.addConstr(sibs[u,v1,v2], gp.GRB.LESS_EQUAL,z[u,v1])
+            model.addConstr(sibs[u,v1,v2], gp.GRB.LESS_EQUAL,z[u,v2])
+            model.addConstr(sibs[u,v1,v2], gp.GRB.GREATER_EQUAL,z[u,v1] + z[u,v2] - 1)
+        
+        for (g,u,v) in gpnt:
+            model.addConstr(gpnt[g,u,v], gp.GRB.LESS_EQUAL,z[g,u])
+            model.addConstr(gpnt[g,u,v], gp.GRB.LESS_EQUAL,z[u,v])
+            model.addConstr(gpnt[g,u,v], gp.GRB.GREATER_EQUAL,z[g,u] + z[u,v] - 1)
+        
+        
+        model.update()
+                
+        # define objective 
+        model.setObjective(gp.quicksum(z[u,v]*edge2val[u,v]             for (u,v) in edges) + \
+                           gp.quicksum(sibs[u,v1,v2]*sibs2val[u,v1,v2]  for (u,v1,v2) in sibs2val.keys()) + \
+                           gp.quicksum(gpnt[u,v1,v2]*gpnt2val[u,v1,v2]  for (u,v1,v2) in gpnt2val.keys()) \
+                           ,gp.GRB.MAXIMIZE) 
+        
+        model.update()
+         
+        model.setParam('OutputFlag', False )
+        # solve the model
+        model.optimize()
 
+        if model.status == gp.GRB.status.OPTIMAL:
+            optEdges = []
+            for (u,v) in edges:
+                if z[u,v].x > 0:
+                    optEdges.append((u,v))    
+        return optEdges
+
+    
+    
     def initGraph(self,n,w):
         G = nx.DiGraph()
         # add all nodes and edges

@@ -4,7 +4,10 @@ import stats
 if __name__ == '__main__':
     data = []
     su = stats.statsUtils()
-    allSentences = su.readFile()
+    nFiles = 'all'
+    offset = 0
+    inputFile = "./data/sec2-21_dep.gold"
+    allSentences = su.readFile(nFiles,offset,inputFile)
     fileIndex = 0
     maxDegData = 9
     for goldHeads in allSentences:
