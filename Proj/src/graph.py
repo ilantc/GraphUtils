@@ -39,13 +39,13 @@ class DiGraph:
                 totalNumRemoved += 1;
 #                     print("removing edge: (" + str(u) + "," + str(v) + ")")
                 G.remove_edge(u,v)
-        print("removed " + str(totalNumRemoved) + " edges");
+        # print("removed " + str(totalNumRemoved) + " edges");
         return G
 
     def readFile(self,infile):
         ins = open( infile, "r" )
         logfile = open("log.txt", "w")
-        print(infile)
+        #print(infile)
         
         sentenceString = ins.next()
         sentence = sentenceString.split();

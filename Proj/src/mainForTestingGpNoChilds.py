@@ -16,7 +16,7 @@ def main(fileIndex,writeCsvFile,verbose):
     lpm = LPMaker(g, "try_input_" + fileIndex, "input_" + fileIndex + ".lp")
     
     bestTree = [];
-    print "n =",g.n
+#     print "n =",g.n
     for i in range(0,g.n):
         v = i + 1
         u = int(g.optHeads[i])
@@ -30,7 +30,6 @@ def main(fileIndex,writeCsvFile,verbose):
             nCorrect += 1
     allParts = lpm.g.partsManager.getAllParts()
     nGpPartNoGrandChild = filter(lambda part: part.type == 'grandParantNoGrandChild', allParts)
-    numParts = len(allParts)
     return {'ncorrect': nCorrect, 'n':g.n, 'nParts': len(allParts), 'nGPnoGC': len(nGpPartNoGrandChild)}
     
     
@@ -47,12 +46,19 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
+    totalAccuracy = 0.0
+    totalGpPer = 0.0
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             nFiles -= 1
             continue
         fileData = main(fileId,writeCsvFile,verbose)
-        print fileData
+        totalAccuracy += (float(fileData['ncorrect'])/float(fileData['n']))
+        totalGpPer += (float(fileData['nGPnoGC'])/float(fileData['nParts']))
+#         print (float(fileData['ncorrect'])/float(fileData['n']))
+        if (fileId % 250) == 0:
+#             print fileData
+            print "after iter",fileId + 1,"average correct =",totalAccuracy/(fileId + 1),"average Gp rate =",totalGpPer/(fileId + 1)
         allFileData.append(fileData)
     
     
