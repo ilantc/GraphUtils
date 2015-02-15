@@ -38,7 +38,7 @@ if __name__ == '__main__':
     writeCsvFile = False
     verbose = False
     currentDir = os.getcwd()
-    os.chdir('../../../../shared/')
+    os.chdir('./trainData2ndOrder/')
     allFileData  = []
     nFiles = 39832
 #     nFiles = 100

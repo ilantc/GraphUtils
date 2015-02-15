@@ -188,7 +188,7 @@ if __name__ == '__main__':
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
-    nFiles = 1699
+    nFiles = 2415 if useTestData else 1699
 #     nFiles = 100
     fileIdsToSkip = [629,1192,1759]
     fileIdsToSkip = []
