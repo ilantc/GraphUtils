@@ -263,7 +263,7 @@ class LPMaker:
         z = {}
         # weights
         wplus = {}
-        wminus = {}
+#         wminus = {}
         # diff edges counters
         d = {}
         # slack variables
@@ -274,7 +274,7 @@ class LPMaker:
                 v = p.v
                 z[u,v]       = model.addVar(vtype=gp.GRB.BINARY,     name=('z_%s_%s' % (u,v)))
                 wplus[u,v]   = model.addVar(vtype=gp.GRB.CONTINUOUS, name=('w+_%s_%s' % (u,v)), lb=-1e21)
-                wminus[u,v]  = model.addVar(vtype=gp.GRB.CONTINUOUS, name=('w-_%s_%s' % (u,v)), lb=-1e21)
+#                 wminus[u,v]  = model.addVar(vtype=gp.GRB.CONTINUOUS, name=('w-_%s_%s' % (u,v)), lb=-1e21)
                 d[u,v]       = model.addVar(vtype=gp.GRB.BINARY,     name=('d_%s_%s' % (u,v)))
             nonEdgeParts.append(p)
             slackVars[p] = model.addVar(vtype=gp.GRB.CONTINUOUS)
@@ -323,27 +323,31 @@ class LPMaker:
             if (len(allExistingEdges) + len(allNonExistingEdges) > 0):
 #                 print "adding constr '" + str(part) + "', allExisting edges are:",allExistingEdges,", all non existing edges are:",allNonExistingEdges
                 if allW < 0:
-                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) +\
-                                    gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) -\
-                                    slackVars[part],\
+                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) \
+#                                     + gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges)\
+                                    - slackVars[part],\
                                     operator,allW,str(part))
                 elif applyPositiveSlacks:
-                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) +\
-                                    gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) +\
-                                    slackVars[part],\
+                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) \
+#                                     + gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) \
+                                    + slackVars[part],\
                                     operator,allW,str(part))
                 else:
-                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) +\
-                                    gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges),\
-                                    operator,allW,str(part))
+                    model.addConstr(gp.quicksum(wplus[u,v] for (u,v) in allExistingEdges) \
+#                                     + gp.quicksum(wminus[u,v] for (u,v) in allNonExistingEdges) \
+                                    ,operator,allW,str(part))
         model.update()
                 
         # define objective 
-        model.setObjective(gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)        - \
-                           gp.quicksum(d[u,v]                                                for (u,v) in edges)        - \
-                           gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        - \
-                           gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) - \
-                           gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges) ,gp.GRB.MAXIMIZE) 
+        model.setObjective(
+#                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
+                           gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
+                           - gp.quicksum(d[u,v]                                                for (u,v) in edges)        \
+#                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
+                           - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
+                           - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
+                           - gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges)        \
+                           ,gp.GRB.MAXIMIZE) 
         
         model.update()
         
@@ -352,7 +356,7 @@ class LPMaker:
         self.edges  = edges
         self.nodes  = nodes
         self.wplus  = wplus
-        self.wminus = wminus
+#         self.wminus = wminus
         self.slack  = slackVars
               
     def solve(self,verbose,fileName=None):    
@@ -380,7 +384,8 @@ class LPMaker:
             optEdges = []
             for (u,v) in self.edges:
                 text = '(%s,%s)' % (u,v)
-                newW = self.wplus[u,v].x - self.wminus[u,v].x
+#                 newW = self.wplus[u,v].x - self.wminus[u,v].x
+                newW = self.wplus[u,v].x
                 text = text + ', w = %s' % (newW)
                 newWeights[u,v] = newW
                 if self.LPVars[u,v].x > 0:
