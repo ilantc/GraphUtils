@@ -5,15 +5,18 @@ import gurobipy as gp
 import os
 import sys
 import stats
+import getopt
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads,useTestData):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./"
     if fullModel:
         inputFile += "full/"
+    elif useTestData:
+        inputFile += "2ndOrder/test/"
     else:
-        inputFile += "2ndOrder/"
+        inputFile += "2ndOrder/dev/"
     inputFile += "output_" + fileIndex + ".txt"
     outputFileName = "./output/file_" + fileIndex + ".csv"
     g = DiGraph(inputFile)
@@ -129,17 +132,59 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHea
 #     if c.getAttr(gp.GRB.Attr.IISConstr) > 0:
 #         print c.getAttr(gp.GRB.Attr.ConstrName)
 
-
+def usage():
+    
+    print "-p <bool>: apply positive slacks"
+    print "-g <bool>: use gold heads"
+    print "-t <bool>: use test data"
+    
 if __name__ == '__main__':
+    
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+        
+    trueVals = ["1","true","True", "t", "T"]
+    falseVals = ["0", "false", "False", "F", "f"]
+    applyPositiveSlacks = False
+    useGoldHeads = False
+    useTestData = False
+    print "opts =", opts, "\nargs =", args
+    for o, a in opts:
+        if o == "-h":
+            usage()
+            sys.exit(0)
+        if o in ["-p", "--applyPositiveSlacks"]:
+            if a in trueVals:
+                applyPositiveSlacks = True 
+            elif a in falseVals:
+                applyPositiveSlacks = False
+            else:
+                assert False, "bad arg for parameter " + o + " : " + a
+        elif o in ("-g", "--useGoldenHeads"):
+            if a in trueVals:
+                useGoldHeads = True
+            elif a in falseVals:
+                useGoldHeads = False
+            else:
+                assert False, "bad arg for parameter " + o
+        elif o in ("-t", "--useTestData"):
+            if a in trueVals:
+                useTestData = True
+            elif a in falseVals:
+                useTestData = False
+            else:
+                assert False, "bad arg for parameter " + o
+        else:
+            assert False, "unhandled option : " + o
 
-    if sys.argv[1] == '1':
-        applyPositiveSlacks = True
-    else:
-        applyPositiveSlacks = False
     writeCsvFile = False
     verbose = False
     fullModel = False
-    useGoldHeads = False
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
@@ -149,15 +194,15 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " full model =",fullModel
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " full model =",fullModel, \
+          "use test data =",useTestData
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             nFiles -= 1
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads,useTestData)
         print fileData
         allFileData.append(fileData)
-    
     
     os.chdir(currentDir)
     outputFileName = "res_"
@@ -168,9 +213,9 @@ if __name__ == '__main__':
     else:
         outputFileName += "2ndOrderModel_"
     if useGoldHeads:
-        outputFileName += "_goldHeads"
+        outputFileName += "goldHeads_noNegW"
     else:
-        outputFileName += "_optHeads"
+        outputFileName += "optHeads_noNegW"
     outputFileName += ".csv"
     
     csvfile = open(outputFileName, 'wb')
