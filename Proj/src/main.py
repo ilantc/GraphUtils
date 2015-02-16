@@ -7,16 +7,23 @@ import sys
 import stats
 import getopt
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads,useTestData):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./"
-    if fullModel:
-        inputFile += "full/"
-    elif useTestData:
-        inputFile += "2ndOrder/test/"
+    if order == 3:
+        inputFile += "3rd/"
+    elif order == 2:
+        inputFile += "2nd/"
+    elif order == 1:
+        inputFile += "1st/"
     else:
-        inputFile += "2ndOrder/dev/"
+        assert False, "wrong model order, should be 1,2 or 3 - given: '" + str(order) + "'"
+    if useTestData:
+        inputFile += "test/"
+    else:
+        inputFile += "dev/"
+        
     inputFile += "output_" + fileIndex + ".txt"
     outputFileName = "./output/file_" + fileIndex + ".csv"
     g = DiGraph(inputFile)
@@ -137,11 +144,13 @@ def usage():
     print "-p <bool>: apply positive slacks"
     print "-g <bool>: use gold heads"
     print "-t <bool>: use test data"
+    print "-o <int>: model order (1, 2 or 3)"
+    
     
 if __name__ == '__main__':
     
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:o:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -153,6 +162,7 @@ if __name__ == '__main__':
     applyPositiveSlacks = False
     useGoldHeads = False
     useTestData = False
+    order = 2
     print "opts =", opts, "\nargs =", args
     for o, a in opts:
         if o == "-h":
@@ -179,12 +189,21 @@ if __name__ == '__main__':
                 useTestData = False
             else:
                 assert False, "bad arg for parameter " + o
+        elif o in ("-o", "--order"):
+            if a == "1":
+                order = 1
+            elif a == "2":
+                order = 2
+            elif a == "3":
+                order = 3
+            else:
+                assert False, "bad arg for parameter " + o
         else:
             assert False, "unhandled option : " + o
 
     writeCsvFile = False
     verbose = False
-    fullModel = False
+
     currentDir = os.getcwd()
     os.chdir('data')
     allFileData  = []
@@ -194,13 +213,13 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " full model =",fullModel, \
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder  =",order, \
           "use test data =",useTestData
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             nFiles -= 1
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads,useTestData)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData)
         if (fileId % 200) == 0:
             print "fileID =", fileId 
 #         print fileData
@@ -210,10 +229,12 @@ if __name__ == '__main__':
     outputFileName = "res_"
     outputFileName += "allSlk_" if applyPositiveSlacks else "negSlk_"
     outputFileName += "nFiles_" + str(nFiles)
-    if fullModel:
+    if order == 3:
         outputFileName += "3rdOrderModel_"
-    else:
+    elif order == 2:
         outputFileName += "2ndOrderModel_"
+    else:
+        outputFileName += "1stOrderModel_"
     if useGoldHeads:
         outputFileName += "goldHeads_noNegW"
     else:
@@ -251,10 +272,9 @@ if __name__ == '__main__':
                 "opt / highOrderOutput"     : optOrigOpt/nFiles  ,\
                 "lpOutput / highOrderOutput": LpOrigOpt/nFiles}
         print "\n"
-        orderString = '3rd order model' if fullModel else '2nd Order Model' 
-        print orderString
         headsStr = 'used gold heads' if useGoldHeads else 'used high order opt heads' 
         print headsStr
+        print 'modelOrder                =', order
         print 'positive slacks           =', applyPositiveSlacks
         print 'isProjective              =', proj, "\n"
         print 'average opt vs gold       =', noptGold/nFiles
