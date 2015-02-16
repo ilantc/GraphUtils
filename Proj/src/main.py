@@ -201,7 +201,9 @@ if __name__ == '__main__':
             nFiles -= 1
             continue
         fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,fullModel,useGoldHeads,useTestData)
-        print fileData
+        if (fileId % 200) == 0:
+            print "fileID =", fileId 
+#         print fileData
         allFileData.append(fileData)
     
     os.chdir(currentDir)
@@ -216,6 +218,8 @@ if __name__ == '__main__':
         outputFileName += "goldHeads_noNegW"
     else:
         outputFileName += "optHeads_noNegW"
+    if useTestData:
+        outputFileName += "_testData"
     outputFileName += ".csv"
     
     csvfile = open(outputFileName, 'wb')
