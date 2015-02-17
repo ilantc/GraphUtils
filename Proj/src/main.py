@@ -10,13 +10,13 @@ import getopt
 def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
-    inputFile = "./"
+    inputFile = "./data/"
     if order == 3:
-        inputFile += "3rd/"
+        inputFile += "3rdOrder/"
     elif order == 2:
-        inputFile += "2nd/"
+        inputFile += "2ndOrder/"
     elif order == 1:
-        inputFile += "1st/"
+        inputFile += "1stOrder/"
     else:
         assert False, "wrong model order, should be 1,2 or 3 - given: '" + str(order) + "'"
     if useTestData:
@@ -30,7 +30,7 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
     lpm = LPMaker(g, "try_input_" + fileIndex, "input_" + fileIndex + ".lp")
     
     bestTree = [];
-    print "n =",g.n
+#     print "n =",g.n
     gHeads = g.optHeads
     if useGoldHeads:
         gHeads = g.goldHeads
@@ -213,17 +213,6 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder  =",order, \
-          "use test data =",useTestData
-    for fileId in fileIds:
-        if (fileId in fileIdsToSkip):
-            nFiles -= 1
-            continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData)
-        if (fileId % 200) == 0:
-            print "fileID =", fileId 
-#         print fileData
-        allFileData.append(fileData)
     
     os.chdir(currentDir)
     outputFileName = "res_"
@@ -242,6 +231,17 @@ if __name__ == '__main__':
     if useTestData:
         outputFileName += "_testData"
     outputFileName += ".csv"
+
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder  =",order, \
+          "use test data =",useTestData, "outputFileName =", outputFileName
+    for fileId in fileIds:
+        if (fileId in fileIdsToSkip):
+            continue
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData)
+        if (fileId % 50) == 0:
+            print "fileID =", fileId 
+#         print fileData
+        allFileData.append(fileData)
     
     csvfile = open(outputFileName, 'wb')
     fieldnames = ["proj inference","allSlk","opt / gold","opt / lp_output","lp_output / gold", \
