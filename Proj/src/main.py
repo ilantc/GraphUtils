@@ -217,7 +217,7 @@ if __name__ == '__main__':
     os.chdir(currentDir)
     outputFileName = "res_"
     outputFileName += "allSlk_" if applyPositiveSlacks else "negSlk_"
-    outputFileName += "nFiles_" + str(nFiles)
+    outputFileName += "nFiles_" + str(nFiles) + "_"
     if order == 3:
         outputFileName += "3rdOrderModel_"
     elif order == 2:
