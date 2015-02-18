@@ -249,7 +249,7 @@ class LPMaker:
         self.lpFile = lpFile
         self.g = graph
 
-    def createLP(self,projective,setGraphEdges,applyPositiveSlacks):
+    def createLP(self,projective,setGraphEdges,applyPositiveSlacks,alpha):
         
         model = gp.Model(self.modelName)
         graph = self.g.graph
@@ -342,7 +342,7 @@ class LPMaker:
         model.setObjective(
 #                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
                            gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
-                           - gp.quicksum(d[u,v]                                                for (u,v) in edges)        \
+                           - gp.quicksum(d[u,v]*alpha                                          for (u,v) in edges)        \
 #                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
                            - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
                            - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
@@ -572,8 +572,6 @@ class LPMaker:
                     optEdges.append((u,v))    
         return optEdges
 
-    
-    
     def initGraph(self,n,w):
         G = nx.DiGraph()
         # add all nodes and edges

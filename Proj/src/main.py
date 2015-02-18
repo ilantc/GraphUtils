@@ -7,7 +7,7 @@ from graph import LPMaker
 import getopt
 from test.sortperf import flush
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees,alpha):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./data/"
@@ -40,7 +40,7 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
         bestTree.append((u,v))
         if verbose: 
             print "best tree added (" + str(u) + "," + str(v) + ")"
-    lpm.createLP(True, bestTree,applyPositiveSlacks)
+    lpm.createLP(True, bestTree,applyPositiveSlacks,alpha)
     lpm.lpFile = None
     lpm.solve(verbose)
     if lpm.model.status != gp.GRB.status.OPTIMAL:
@@ -103,11 +103,9 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
         if writeCsvFile:
             csvfile.close
     #     print nOptCorrect,nLPCorrect,nLP_OPTCorrect
-        normalizationFactor = float(g.n)
-        out[keyName] = {'noptGold': float(nOptGoldCorrect), 'nLPGold': float(nLPGoldCorrect), 'n_LP_OPT': float(nLP_OPTCorrect), \
-               'norigOptGold': float(nOrigOptGoldCorrect), 'nOptOrigOpt': float(nOptOrigOptCorrect), 'nLpOrigOpt': nLP_OrigOptCorrect}
-        for k in out[keyName].keys():
-            out[keyName][k] = out[keyName][k]/normalizationFactor
+#         normalizationFactor = float(g.n)
+        out[keyName] = {'noptGold': nOptGoldCorrect, 'nLPGold': nLPGoldCorrect, 'n_LP_OPT': nLP_OPTCorrect, \
+               'norigOptGold': nOrigOptGoldCorrect, 'nOptOrigOpt': nOptOrigOptCorrect, 'nLpOrigOpt': nLP_OrigOptCorrect, 'n': g.n}
         if getTrees:
             out['goldHeads'] = goldHeads
             out['highOrderOptHeads'] = origOptHeads
@@ -149,18 +147,21 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
 
 def usage():
     
-    print "-p <bool>: apply positive slacks"
-    print "-g <bool>: use gold heads"
-    print "-t <bool>: use test data"
-    print "-o <int>: model order (1, 2 or 3)"
-    print "-a <bool>: print out all tres to output csv file"
-    print "-n <int>: num sentences (override defaults for train/dev sets)"
+    print "option <type> [default]: description"
+    print "-s <bool> [t]: apply positive slacks"
+    print "-g <bool> [t]: use gold heads"
+    print "-t <bool> [f]: use test data"
+    print "-o <int>  [2]: model order (1, 2 or 3)"
+    print "-p <bool> [f]: print out all tres to output csv file" 
+    print "-a <float>[1]: alpha parameter for d in the objective function"
+    print "-n <int>     : num sentences (override defaults for train/dev sets)"
+    
     
     
 if __name__ == '__main__':
     
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:o:a:n:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "s:g:t:o:p:a:n:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees","alpha"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -169,12 +170,13 @@ if __name__ == '__main__':
         
     trueVals = ["1","true","True", "t", "T"]
     falseVals = ["0", "false", "False", "F", "f"]
-    applyPositiveSlacks = False
-    useGoldHeads = False
+    applyPositiveSlacks = True
+    useGoldHeads = True
     useTestData = False
     getTrees = False
     nSentences = None
     order = 2
+    alpha = 1.0
     print "opts =", opts, "\nargs =", args
     for o, a in opts:
         if o == "-h":
@@ -182,7 +184,7 @@ if __name__ == '__main__':
             sys.exit(0)
         if o == "-n":
             nSentences = int(a)
-        elif o in ["-p", "--applyPositiveSlacks"]:
+        elif o in ["-s", "--applyPositiveSlacks"]:
             if a in trueVals:
                 applyPositiveSlacks = True 
             elif a in falseVals:
@@ -196,7 +198,7 @@ if __name__ == '__main__':
                 useGoldHeads = False
             else:
                 assert False, "bad arg for parameter " + o
-        elif o in ("-a", "--getTrees"):
+        elif o in ("-p", "--getTrees"):
             if a in trueVals:
                 getTrees = True
             elif a in falseVals:
@@ -219,6 +221,8 @@ if __name__ == '__main__':
                 order = 3
             else:
                 assert False, "bad arg for parameter " + o
+        elif o in ("-a", "--alpha"):
+            alpha = float(a)
         else:
             assert False, "unhandled option : " + o
 
@@ -247,27 +251,36 @@ if __name__ == '__main__':
     else:
         outputFileName += "1stOrderModel_"
     if useGoldHeads:
-        outputFileName += "goldHeads_noNegW"
+        outputFileName += "goldHeads_"
     else:
-        outputFileName += "optHeads_noNegW"
+        outputFileName += "optHeads_"
+    outputFileName += "alpha_" + str(alpha)
     if useTestData:
         outputFileName += "_testData"
     outputFileName += ".csv"
 
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder =",order, \
-          "useTestData =",useTestData, "outputFileName =", outputFileName, "printTrees =",getTrees
+    print "writeCsv            =", writeCsvFile
+    print "verbose             =", verbose 
+    print "applyPositiveSlacks =", applyPositiveSlacks 
+    print "nFiles              =", nFiles
+    print "modelOrder          =", order
+    print "alpha               =", alpha
+    print "useTestData         =", useTestData
+    print "outputFileName      =", outputFileName
+    print "printTrees          =", getTrees
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees,alpha)
         if (fileId % 50) == 0:
             print "fileID =", fileId 
 #         print fileData
         allFileData.append(fileData)
     
     csvfile = open(outputFileName, 'wb')
-    fieldnames = ["proj inference","allSlk","opt / gold","opt / lp_output","lp_output / gold", \
-                  "highOrderOutput / gold","opt / highOrderOutput", "lpOutput / highOrderOutput"] 
+    fieldnames = ["opt / gold","opt / lp output","lp output / gold", \
+                  "highOrderOutput / gold","opt / highOrderOutput", "lpOutput / highOrderOutput","projective","allSlk",\
+                  "alpha","trained on gold or higher order opt"] 
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     
@@ -278,25 +291,30 @@ if __name__ == '__main__':
         origOptGold = 0.0
         optOrigOpt  = 0.0
         LpOrigOpt   = 0.0
+        n           = 0.0
         for fileData in allFileData:
-            noptGold    += fileData[proj]['noptGold']
-            nLPGold     += fileData[proj]['nLPGold']
-            LP_OPT      += fileData[proj]['n_LP_OPT']
-            origOptGold += fileData[proj]['norigOptGold']
-            optOrigOpt  += fileData[proj]['nOptOrigOpt']
-            LpOrigOpt   += fileData[proj]['nLpOrigOpt']
-        line = {"proj inference"            : proj               ,\
-                "allSlk"                    : applyPositiveSlacks,\
-                "opt / gold"                : noptGold/nFiles    ,\
-                "opt / lp_output"           : LP_OPT/nFiles      ,\
-                "lp_output / gold"          : nLPGold/nFiles     ,\
-                "highOrderOutput / gold"    : origOptGold/nFiles ,\
-                "opt / highOrderOutput"     : optOrigOpt/nFiles  ,\
-                "lpOutput / highOrderOutput": LpOrigOpt/nFiles}
+            noptGold    += float(fileData[proj]['noptGold'])
+            nLPGold     += float(fileData[proj]['nLPGold'])
+            LP_OPT      += float(fileData[proj]['n_LP_OPT'])
+            origOptGold += float(fileData[proj]['norigOptGold'])
+            optOrigOpt  += float(fileData[proj]['nOptOrigOpt'])
+            LpOrigOpt   += float(fileData[proj]['nLpOrigOpt'])
+            n           += float(fileData[proj]['n'])
+        line = {"projective"                            : proj                                      ,\
+                "allSlk"                                : applyPositiveSlacks                       ,\
+                "trained on gold or higher order opt"   : "gold" if useGoldHeads else "highOrderOpt",\
+                "alpha"                                 : alpha                                     ,\
+                "opt / gold"                            : noptGold/n                                ,\
+                "opt / lp output"                       : LP_OPT/n                                  ,\
+                "lp output / gold"                      : nLPGold/n                                 ,\
+                "highOrderOutput / gold"                : origOptGold/n                             ,\
+                "opt / highOrderOutput"                 : optOrigOpt/n                              ,\
+                "lpOutput / highOrderOutput"            : LpOrigOpt/n}
         print "\n"
         headsStr = 'used gold heads' if useGoldHeads else 'used high order opt heads' 
         print headsStr
         print 'modelOrder                =', order
+        print 'alpha                     =', alpha
         print 'positive slacks           =', applyPositiveSlacks
         print 'isProjective              =', proj, "\n"
         print 'average opt vs gold       =', noptGold/nFiles
