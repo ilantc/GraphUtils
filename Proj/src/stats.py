@@ -6,7 +6,7 @@ class statsUtils:
     def __init__(self):
         pass
     
-    def readFile(self,numSentences = 'all',offset = 0,inputFile = "./data/sec22_dep.gold"):
+    def readDepFile(self,numSentences = 'all',offset = 0,inputFile = "./data/sec22_dep.gold"):
         """ read input file """
         f = open(inputFile,'rt')
         allSentences = []
@@ -76,3 +76,27 @@ class treeStats:
         degs["depth"] = max(depths.itervalues())
         degs["n"] = len(self.heads)
         return degs
+
+class accuracyStats:
+    
+    def __init__(self,goldHeads,highOrderOptHeads,newHeads):
+        self.goldHeads          = goldHeads
+        self.highOrderOptHeads  = highOrderOptHeads
+        self.newHeads           = newHeads
+        self.n                  = len(goldHeads)
+    
+    def getNcorrect(self,heads1,heads2):
+        return sum(h1 == h2 for (h1,h2) in zip(heads1,heads2))
+    
+    def getAccuracy(self,heads1,heads2):
+        accuracy = self.getNcorrect(heads1, heads2)
+        return float(accuracy)/float(self.n)
+    
+    def get_HighOrderOpt_gold_accuracy(self):
+        return self.getAccuracy(self.goldHeads, self.highOrderOptHeads)
+    def get_HighOrderOpt_newHeads_accuracy(self):
+        return self.getAccuracy(self.newHeads, self.highOrderOptHeads)
+    def get_gold_newHeads_accuracy(self):
+        return self.getAccuracy(self.goldHeads, self.newHeads)
+        
+        

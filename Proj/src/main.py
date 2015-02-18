@@ -1,13 +1,13 @@
-from graph import DiGraph
-from graph import LPMaker
 import csv
 import gurobipy as gp
 import os
 import sys
-import stats
+from graph import DiGraph
+from graph import LPMaker
 import getopt
+from test.sortperf import flush
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./data/"
@@ -56,7 +56,9 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
     
     optGProj = lpm.eisnerProjective(g.n, w)
     optGNonProj = lpm.chuLiuEdmondsWrapper(g.n, w)
-    
+    goldHeads = map(lambda u: int(u), g.goldHeads)
+    origOptHeads = map(lambda u: int(u), g.optHeads)
+    outHeads = {'proj':[],'nonProj': []}
     if writeCsvFile:
         csvfile = open(outputFileName, 'wb')
         fieldnames = ["childIndex","goldHead","highOrderOptHead","optHead","LP Head"] 
@@ -74,10 +76,11 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
         nOrigOptGoldCorrect = 0
         for i in range(0,g.n):
             v = i + 1
-            goldu = int(g.goldHeads[i])
-            origOptu = int(g.optHeads[i])
+            goldu = goldHeads[i]
+            origOptu = origOptHeads[i]
             optEdge = filter(lambda (u_j,v_j): v_j == v, optEdges)
             optU = optEdge[0][0]
+            outHeads[keyName].append(optU)
             edgeFromLp = filter(lambda (u_j,v_j): v_j == v, edgesFromLp)
             LPU = edgeFromLp[0][0]
             line = {"childIndex": v,"goldHead": goldu,"highOrderOptHead": origOptu, "optHead": optU,"LP Head": LPU}
@@ -105,7 +108,12 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
                'norigOptGold': float(nOrigOptGoldCorrect), 'nOptOrigOpt': float(nOptOrigOptCorrect), 'nLpOrigOpt': nLP_OrigOptCorrect}
         for k in out[keyName].keys():
             out[keyName][k] = out[keyName][k]/normalizationFactor
-     
+        if getTrees:
+            out['goldHeads'] = goldHeads
+            out['highOrderOptHeads'] = origOptHeads
+            out['projOptHeads'] = outHeads['proj']
+            out['nonProjOptHeads'] = outHeads['nonProj']
+    
     return out
 #     print bestTree, optG.edges()
 #     nCorrect = 0;
@@ -145,12 +153,14 @@ def usage():
     print "-g <bool>: use gold heads"
     print "-t <bool>: use test data"
     print "-o <int>: model order (1, 2 or 3)"
+    print "-a <bool>: print out all tres to output csv file"
+    print "-n <int>: num sentences (override defaults for train/dev sets)"
     
     
 if __name__ == '__main__':
     
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:o:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "p:g:t:o:a:n:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -162,13 +172,17 @@ if __name__ == '__main__':
     applyPositiveSlacks = False
     useGoldHeads = False
     useTestData = False
+    getTrees = False
+    nSentences = None
     order = 2
     print "opts =", opts, "\nargs =", args
     for o, a in opts:
         if o == "-h":
             usage()
             sys.exit(0)
-        if o in ["-p", "--applyPositiveSlacks"]:
+        if o == "-n":
+            nSentences = int(a)
+        elif o in ["-p", "--applyPositiveSlacks"]:
             if a in trueVals:
                 applyPositiveSlacks = True 
             elif a in falseVals:
@@ -180,6 +194,13 @@ if __name__ == '__main__':
                 useGoldHeads = True
             elif a in falseVals:
                 useGoldHeads = False
+            else:
+                assert False, "bad arg for parameter " + o
+        elif o in ("-a", "--getTrees"):
+            if a in trueVals:
+                getTrees = True
+            elif a in falseVals:
+                getTrees = False
             else:
                 assert False, "bad arg for parameter " + o
         elif o in ("-t", "--useTestData"):
@@ -208,8 +229,9 @@ if __name__ == '__main__':
     os.chdir('data')
     allFileData  = []
     nFiles = 2415 if useTestData else 1699
+    if nSentences:
+        nFiles = nSentences
 #     nFiles = 100
-    fileIdsToSkip = [629,1192,1759]
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
@@ -232,12 +254,12 @@ if __name__ == '__main__':
         outputFileName += "_testData"
     outputFileName += ".csv"
 
-    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder  =",order, \
-          "use test data =",useTestData, "outputFileName =", outputFileName
+    print "writeCsv =", writeCsvFile, "verbose =", verbose, "applyPositiveSlacks =", applyPositiveSlacks, "nFiles =", nFiles, " modelOrder =",order, \
+          "useTestData =",useTestData, "outputFileName =", outputFileName, "printTrees =",getTrees
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees)
         if (fileId % 50) == 0:
             print "fileID =", fileId 
 #         print fileData
@@ -285,4 +307,16 @@ if __name__ == '__main__':
         print 'average lpOpt vs origOpt  =', LpOrigOpt/nFiles
         writer.writerow(line)
     csvfile.close
+    
+    if getTrees:
+        csvfile2 = open("allTrees.csv", 'wb')
+        flush()
+        for fileData in allFileData:
+            goldStr         = "gold,"           + ",".join(map(lambda t: str(t),fileData['goldHeads'])) + "\n"
+            highOrderOptStr = "highOrderOpt,"   + ",".join(map(lambda t: str(t),fileData['highOrderOptHeads'])) + "\n"
+            projOptStr      = "projOpt,"        + ",".join(map(lambda t: str(t),fileData['projOptHeads'])) + "\n"
+            nonProjStr      = "nonProjOpt,"     + ",".join(map(lambda t: str(t),fileData['nonProjOptHeads'])) + "\n"
+            emptyStr        = "\n"
+            csvfile2.writelines([goldStr,highOrderOptStr,projOptStr,nonProjStr,emptyStr])
+        csvfile2.close()
     
