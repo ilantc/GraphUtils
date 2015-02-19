@@ -1,0 +1,3 @@
+opt / gold,opt / lp output,lp output / gold,highOrderOutput / gold,opt / highOrderOutput,lpOutput / highOrderOutput,projective,allSlk,alpha,trained on gold or higher order opt
+0.873328009582751,0.9139299261329606,0.9289778398882013,0.9329456977440607,0.9083150329407067,0.9941854661609104,nonProj,True,3.0,highOrderOpt
+0.8770712717109204,0.916001197843881,0.9289778398882013,0.9329456977440607,0.9109852265921342,0.9941854661609104,proj,True,3.0,highOrderOpt

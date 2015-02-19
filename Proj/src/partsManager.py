@@ -1,23 +1,24 @@
-from parts import *
+import parts
+
 class partsManager:
     
-    partTypeToPartConstructor = {'arc':                     { 'ctor':part_DEPENDENCYPART_ARC,                   'args': ['u','v']},\
-                                 'sibl':                    { 'ctor':part_DEPENDENCYPART_SIBL,                  'args': ['u', 'v1', 'v2']},\
-                                 'nextSibl':                { 'ctor':part_DEPENDENCYPART_NEXTSIBL,              'args': ['u', 'v1', 'v2']},\
-                                 'lastSibl':                { 'ctor':part_DEPENDENCYPART_NEXTSIBL_LAST_SIB,     'args': ['u','v']},\
-                                 'firstSibl':               { 'ctor':part_DEPENDENCYPART_NEXTSIBL_FIRST_SIB,    'args': ['u','v']},\
-                                 'grandParant':             { 'ctor':part_DEPENDENCYPART_GRANDPAR,              'args': ['g','u','v']},\
-                                 'grandParantNoGrandChild': { 'ctor':part_DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD,'args': ['u','v']},\
-                                 'grandSibl':               { 'ctor':part_DEPENDENCYPART_GRANDSIBL,             'args': ['g','u','v1','v2']},\
-                                 'grandSiblFirstSibl':      { 'ctor':part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB,   'args': ['g','u','v']},\
-                                 'grandSiblLastSibl':       { 'ctor':part_DEPENDENCYPART_GRANDSIBL_LAST_SIB,    'args': ['g','u','v']},\
-                                 'grandSiblNoSibl':         { 'ctor':part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN, 'args': ['u','v']},\
-                                 'triSibl':                 { 'ctor':part_DEPENDENCYPART_TRISIBL,               'args': ['u','v1','v2','v3']},\
-                                 'triSiblFirstSibl':        { 'ctor':part_DEPENDENCYPART_TRISIBL_FIRST_SIBS,    'args': ['u','v1','v2']},\
-                                 'triSiblLastSibl':         { 'ctor':part_DEPENDENCYPART_TRISIBL_LAST_SIBS,     'args': ['u','v1','v2']},\
-                                 'triSiblOnlyChild':        { 'ctor':part_DEPENDENCYPART_TRISIBL_ONLY_CHILD,    'args': ['u','v']},\
-                                 'headBigram':              { 'ctor':part_DEPENDENCYPART_HEADBIGRAM,            'args': ['u','v','prev_u']},\
-                                 'nextSiblNoChild':         { 'ctor':part_DEPENDENCYPART_NEXTSIBL_NO_SIBS,      'args': ['u','v']}}
+    partTypeToPartConstructor = {'arc':                     { 'ctor':parts.part_DEPENDENCYPART_ARC,                   'args': ['u','v']},\
+                                 'sibl':                    { 'ctor':parts.part_DEPENDENCYPART_SIBL,                  'args': ['u', 'v1', 'v2']},\
+                                 'nextSibl':                { 'ctor':parts.part_DEPENDENCYPART_NEXTSIBL,              'args': ['u', 'v1', 'v2']},\
+                                 'lastSibl':                { 'ctor':parts.part_DEPENDENCYPART_NEXTSIBL_LAST_SIB,     'args': ['u','v']},\
+                                 'firstSibl':               { 'ctor':parts.part_DEPENDENCYPART_NEXTSIBL_FIRST_SIB,    'args': ['u','v']},\
+                                 'grandParant':             { 'ctor':parts.part_DEPENDENCYPART_GRANDPAR,              'args': ['g','u','v']},\
+                                 'grandParantNoGrandChild': { 'ctor':parts.part_DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD,'args': ['u','v']},\
+                                 'grandSibl':               { 'ctor':parts.part_DEPENDENCYPART_GRANDSIBL,             'args': ['g','u','v1','v2']},\
+                                 'grandSiblFirstSibl':      { 'ctor':parts.part_DEPENDENCYPART_GRANDSIBL_FIRST_SIB,   'args': ['g','u','v']},\
+                                 'grandSiblLastSibl':       { 'ctor':parts.part_DEPENDENCYPART_GRANDSIBL_LAST_SIB,    'args': ['g','u','v']},\
+                                 'grandSiblNoSibl':         { 'ctor':parts.part_DEPENDENCYPART_GRANDSIBL_NO_CHILDREN, 'args': ['u','v']},\
+                                 'triSibl':                 { 'ctor':parts.part_DEPENDENCYPART_TRISIBL,               'args': ['u','v1','v2','v3']},\
+                                 'triSiblFirstSibl':        { 'ctor':parts.part_DEPENDENCYPART_TRISIBL_FIRST_SIBS,    'args': ['u','v1','v2']},\
+                                 'triSiblLastSibl':         { 'ctor':parts.part_DEPENDENCYPART_TRISIBL_LAST_SIBS,     'args': ['u','v1','v2']},\
+                                 'triSiblOnlyChild':        { 'ctor':parts.part_DEPENDENCYPART_TRISIBL_ONLY_CHILD,    'args': ['u','v']},\
+                                 'headBigram':              { 'ctor':parts.part_DEPENDENCYPART_HEADBIGRAM,            'args': ['u','v','prev_u']},\
+                                 'nextSiblNoChild':         { 'ctor':parts.part_DEPENDENCYPART_NEXTSIBL_NO_SIBS,      'args': ['u','v']}}
     
 
     def __init__(self):

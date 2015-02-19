@@ -7,7 +7,7 @@ from graph import LPMaker
 import getopt
 from test.sortperf import flush
 
-def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees,alpha):
+def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees,alpha,proj):
     fileIndex = str(fileIndex)
 #     inputFile = "./data/output_" + fileIndex + ".txt"
     inputFile = "./data/"
@@ -40,10 +40,11 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
         bestTree.append((u,v))
         if verbose: 
             print "best tree added (" + str(u) + "," + str(v) + ")"
-    lpm.createLP(True, bestTree,applyPositiveSlacks,alpha)
+    lpm.createLP(proj, bestTree,applyPositiveSlacks,alpha)
     lpm.lpFile = None
     lpm.solve(verbose)
     if lpm.model.status != gp.GRB.status.OPTIMAL:
+        print "\n\nINFEASIBLE: file ID =", fileIndex
         lpm.model.computeIIS()
         for c in lpm.model.getConstrs():
             if c.getAttr(gp.GRB.Attr.IISConstr) > 0:
@@ -175,6 +176,7 @@ if __name__ == '__main__':
     useTestData = False
     getTrees = False
     nSentences = None
+    projective = False
     order = 2
     alpha = 1.0
     print "opts =", opts, "\nargs =", args
@@ -271,7 +273,8 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,useTestData,getTrees,alpha)
+        fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,\
+                        useTestData,getTrees,alpha,projective)
         if (fileId % 50) == 0:
             print "fileID =", fileId 
 #         print fileData
@@ -317,12 +320,12 @@ if __name__ == '__main__':
         print 'alpha                     =', alpha
         print 'positive slacks           =', applyPositiveSlacks
         print 'isProjective              =', proj, "\n"
-        print 'average opt vs gold       =', noptGold/nFiles
-        print 'average lp output vs gold =', nLPGold/nFiles
-        print 'average opt vs lp output  =', LP_OPT/nFiles
-        print 'average origOpt vs gold   =', origOptGold/nFiles
-        print 'average opt vs origOpt    =', optOrigOpt/nFiles
-        print 'average lpOpt vs origOpt  =', LpOrigOpt/nFiles
+        print 'average opt vs gold       =', noptGold/n
+        print 'average lp output vs gold =', nLPGold/n
+        print 'average opt vs lp output  =', LP_OPT/n
+        print 'average origOpt vs gold   =', origOptGold/n
+        print 'average opt vs origOpt    =', optOrigOpt/n
+        print 'average lpOpt vs origOpt  =', LpOrigOpt/n
         writer.writerow(line)
     csvfile.close
     

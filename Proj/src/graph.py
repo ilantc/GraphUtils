@@ -288,8 +288,7 @@ class LPMaker:
             self.addProjectiveConstrs(nodes,model,z,'Z',partsManager)
         else:
             # non proj constrs and vars
-            self.LPFlowVars = self.addNonProjectiveConstrs(nodes,edges,z,model,'Z')
-        
+            self.LPFlowVars = self.addNonProjectiveConstrs(nodes,edges,z,model,'Z',partsManager)
         # diff edges constraints
         for (u,v) in edges:
             isEdge = 0;
@@ -297,6 +296,11 @@ class LPMaker:
                 isEdge =1;
             model.addConstr(d[u,v] + z[u,v], gp.GRB.GREATER_EQUAL,isEdge,'d_z_y_%s_%s' % (u,v))
             model.addConstr(d[u,v] + isEdge, gp.GRB.GREATER_EQUAL,z[u,v],'d_y_z_%s_%s' % (u,v))
+        
+#         # for z to be the incoming graph 
+#         for (u,v) in setGraphEdges:
+#             if (u,v) in edges:
+#                 model.addConstr(z[u,v], gp.GRB.GREATER_EQUAL,1,'z_%s_%s_eq_1' % (u,v))
         
         # lower bounds on w constraints
         for part in partsManager.getAllParts():
@@ -491,7 +495,6 @@ class LPMaker:
                 continue
             model.addConstr(gp.quicksum(y[(u,t)] for (u,t) in edges.select('*',node)), gp.GRB.EQUAL,1,'%s_inEdge_%s' % (constName,node))
     
-    
     def createAndSolveOriginalLP(self,projective):
         
         model = gp.Model(self.modelName)
@@ -500,7 +503,6 @@ class LPMaker:
         edges = gp.tuplelist(graph.edges())
         nodes = graph.nodes()
         
-        M = 1000
         # Create variables and objective
         z = {}
         sibs = {}
