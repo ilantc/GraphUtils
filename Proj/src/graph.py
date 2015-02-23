@@ -343,15 +343,18 @@ class LPMaker:
         model.update()
                 
         # define objective 
-        model.setObjective(
-#                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
-                           gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
-                           - gp.quicksum(d[u,v]*alpha                                          for (u,v) in edges)        \
-#                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
-                           - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
-                           - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
-                           - gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges)        \
-                           ,gp.GRB.MAXIMIZE) 
+#         model.setObjective(
+# #                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
+#                             gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
+#                            - gp.quicksum(d[u,v]*alpha                                          for (u,v) in edges)        \
+# #                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
+#                            - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
+#                            - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
+#                            - gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges)        \
+#                            ,gp.GRB.MAXIMIZE) 
+
+        model.setObjective(- gp.quicksum(wplus[u,v]*wplus[u,v] for (u,v) in edges)\
+                           - gp.quicksum(M*slackVars[part]     for  part in nonEdgeParts),gp.GRB.MAXIMIZE)
         
         model.update()
         

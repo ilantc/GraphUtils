@@ -39,7 +39,22 @@ class statsUtils:
                 fields = line.split()
                 goldHeads.append(int(fields[6]))
         return allSentences
-
+    
+    def readTreesFile(self,treeFile):
+        f = open(treeFile,'rt')
+        allSentences = []
+        while True:
+            try:
+                sentence = {}
+                for _ in range(4):
+                    line = f.next()
+                    allFields = line.split(",")
+                    sentence[allFields[0]] = allFields[1:]
+                allSentences.append(sentence)
+                line = f.next()
+            except StopIteration:
+                return allSentences
+    
 class treeStats:
     
     def __init__(self,heads):
@@ -89,8 +104,7 @@ class accuracyStats:
         return sum(h1 == h2 for (h1,h2) in zip(heads1,heads2))
     
     def getAccuracy(self,heads1,heads2):
-        accuracy = self.getNcorrect(heads1, heads2)
-        return float(accuracy)/float(self.n)
+        return float(self.getNcorrect(heads1, heads2))/float(self.n)
     
     def get_HighOrderOpt_gold_accuracy(self):
         return self.getAccuracy(self.goldHeads, self.highOrderOptHeads)

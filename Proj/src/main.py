@@ -162,23 +162,26 @@ def usage():
 if __name__ == '__main__':
     
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "s:g:t:o:p:a:n:h", ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees","alpha"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "s:g:t:o:p:a:n:h", \
+                                       ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees","alpha"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
         
-    trueVals = ["1","true","True", "t", "T"]
-    falseVals = ["0", "false", "False", "F", "f"]
+    trueVals            = ["1","true","True", "t", "T"]
+    falseVals           = ["0", "false", "False", "F", "f"]
+    
     applyPositiveSlacks = True
-    useGoldHeads = True
-    useTestData = False
-    getTrees = False
-    nSentences = None
-    projective = False
-    order = 2
-    alpha = 1.0
+    useGoldHeads        = True
+    projective          = True
+    useTestData         = False
+    getTrees            = False
+    nSentences          = None
+    order               = 2
+    alpha               = 1.0
+    
     print "opts =", opts, "\nargs =", args
     for o, a in opts:
         if o == "-h":
@@ -247,11 +250,12 @@ if __name__ == '__main__':
     outputFileName += "allSlk_" if applyPositiveSlacks else "negSlk_"
     outputFileName += "nFiles_" + str(nFiles) + "_"
     if order == 3:
-        outputFileName += "3rdOrderModel_"
+        outputFileName += "3rd"
     elif order == 2:
-        outputFileName += "2ndOrderModel_"
+        outputFileName += "2nd"
     else:
-        outputFileName += "1stOrderModel_"
+        outputFileName += "1st"
+    outputFileName += "OrderModel_"
     if useGoldHeads:
         outputFileName += "goldHeads_"
     else:
@@ -270,6 +274,7 @@ if __name__ == '__main__':
     print "useTestData         =", useTestData
     print "outputFileName      =", outputFileName
     print "printTrees          =", getTrees
+    
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
