@@ -242,6 +242,28 @@ class DiGraph:
             outFile.write(part)
         outFile.close()
 
+    def greedyMinLoss(self):
+        arc2parts = {}
+        part2Arcs = {}
+        
+        for arc in self.partsManager.getArcs():
+            arc2parts[arc] = []
+            
+        for part in self.partsManager.getNonArcs():
+            part2Arcs[part] = []
+            allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
+            for arc in allArcs:
+                arcPart = partsManager.getArc(arc['u'], arc['v'])
+                arc2parts[arcPart].append(part)
+                part2Arcs[part].append(arcPart)
+        
+        bestScore = float('Inf')
+        bestPart = None
+        
+
+    def p(self):
+        pass
+
 class LPMaker:
     
     def __init__(self,graph,modelName = 'lpModel',lpFile=None):
@@ -303,7 +325,8 @@ class LPMaker:
 #                 model.addConstr(z[u,v], gp.GRB.GREATER_EQUAL,1,'z_%s_%s_eq_1' % (u,v))
         
         # lower bounds on w constraints
-        for part in partsManager.getAllParts():
+        for part in filter(lambda prt: prt.type in ["arc","grandParant"],partsManager.getAllParts()):
+            
             allSubparts = part.getAllSubParts()
             allW = part.val
             for p in allSubparts:
@@ -343,18 +366,18 @@ class LPMaker:
         model.update()
                 
         # define objective 
-#         model.setObjective(
-# #                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
-#                             gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
-#                            - gp.quicksum(d[u,v]*alpha                                          for (u,v) in edges)        \
-# #                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
-#                            - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
-#                            - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
-#                            - gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges)        \
-#                            ,gp.GRB.MAXIMIZE) 
+        model.setObjective(
+#                            gp.quicksum(2*z[u,v]*(wplus[u,v] - wminus[u,v])                   for (u,v) in edges)          \
+                            gp.quicksum(2*z[u,v]*wplus[u,v]                                     for (u,v) in edges)        \
+                           - gp.quicksum(d[u,v]*alpha                                          for (u,v) in edges)        \
+#                            - gp.quicksum((wplus[u,v] - wminus[u,v])*(wplus[u,v] - wminus[u,v]) for (u,v) in edges)        \
+                           - gp.quicksum(wplus[u,v]*wplus[u,v]                                 for (u,v) in edges)        \
+                           - gp.quicksum(M*slackVars[part]                                     for  part in nonEdgeParts) \
+                           - gp.quicksum(z[u,v]*z[u,v]                                         for (u,v) in edges)        \
+                           ,gp.GRB.MAXIMIZE) 
 
-        model.setObjective(- gp.quicksum(wplus[u,v]*wplus[u,v] for (u,v) in edges)\
-                           - gp.quicksum(M*slackVars[part]     for  part in nonEdgeParts),gp.GRB.MAXIMIZE)
+#         model.setObjective(- gp.quicksum(wplus[u,v]*wplus[u,v] for (u,v) in edges)\
+#                            - gp.quicksum(M*slackVars[part]     for  part in nonEdgeParts),gp.GRB.MAXIMIZE)
         
         model.update()
         

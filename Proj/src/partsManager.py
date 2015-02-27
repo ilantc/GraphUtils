@@ -54,15 +54,25 @@ class partsManager:
     def hasArc(self,u,v):
         return self.hasPart('arc', {'u': u, 'v': v})
     
+    def getArc(self,u,v):
+        return self.getPart('arc', {'u': u, 'v': v})
+    
     def getPart(self,partType,values):
         key = self.constructKey(partType, values)
         return self.mapping[partType][key]
     
-    def getAllParts(self):
+    def getArcs(self):
+        return self.mapping['arc'].values()
+    
+    def getNonArcs(self):
         allP = []
         for partType in self.mapping.keys():
-            allP = allP + self.mapping[partType].values()
+            if partType != 'arc':
+                allP = allP + self.mapping[partType].values()
         return allP
+        
+    def getAllParts(self):
+        return self.getArcs() + self.getNonArcs()
     
     def getKeyFields(self,partType):
         if not self.partTypeToPartConstructor.has_key(partType):

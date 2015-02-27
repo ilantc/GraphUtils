@@ -59,14 +59,14 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
     optGNonProj = lpm.chuLiuEdmondsWrapper(g.n, w)
     goldHeads = map(lambda u: int(u), g.goldHeads)
     origOptHeads = map(lambda u: int(u), g.optHeads)
-    outHeads = {'proj':[],'nonProj': []}
+    outHeads = {'projInference':[],'nonProj': []}
     if writeCsvFile:
         csvfile = open(outputFileName, 'wb')
         fieldnames = ["childIndex","goldHead","highOrderOptHead","optHead","LP Head"] 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
     out = {}
-    for (optG, keyName) in [(optGProj,'proj'), (optGNonProj,'nonProj')]: 
+    for (optG, keyName) in [(optGProj,'projInference'), (optGNonProj,'nonProj')]: 
         optEdges = optG.edges()
         edgesFromLp = lpm.optEdges
         nOptGoldCorrect = 0
@@ -110,7 +110,7 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
         if getTrees:
             out['goldHeads'] = goldHeads
             out['highOrderOptHeads'] = origOptHeads
-            out['projOptHeads'] = outHeads['proj']
+            out['projOptHeads'] = outHeads['projInference']
             out['nonProjOptHeads'] = outHeads['nonProj']
     
     return out
@@ -155,6 +155,7 @@ def usage():
     print "-o <int>  [2]: model order (1, 2 or 3)"
     print "-p <bool> [f]: print out all tres to output csv file" 
     print "-a <float>[1]: alpha parameter for d in the objective function"
+    print "-i <bool> [t]: use projective ILP formulation"
     print "-n <int>     : num sentences (override defaults for train/dev sets)"
     
     
@@ -162,8 +163,9 @@ def usage():
 if __name__ == '__main__':
     
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "s:g:t:o:p:a:n:h", \
-                                       ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", "getTrees","alpha"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "s:g:t:o:p:a:i:n:h", \
+                                       ["applyPositiveSlacks", "useGoldenHeads","useTestData", "order", \
+                                        "getTrees","alpha","projectiveILPConstraints"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -208,6 +210,13 @@ if __name__ == '__main__':
                 getTrees = True
             elif a in falseVals:
                 getTrees = False
+            else:
+                assert False, "bad arg for parameter " + o
+        elif o in ("-i", "--projectiveILPConstraints"):
+            if a in trueVals:
+                projective = True
+            elif a in falseVals:
+                projective = False
             else:
                 assert False, "bad arg for parameter " + o
         elif o in ("-t", "--useTestData"):
@@ -271,6 +280,7 @@ if __name__ == '__main__':
     print "nFiles              =", nFiles
     print "modelOrder          =", order
     print "alpha               =", alpha
+    print "projective ILP form =", projective
     print "useTestData         =", useTestData
     print "outputFileName      =", outputFileName
     print "printTrees          =", getTrees
@@ -287,12 +297,12 @@ if __name__ == '__main__':
     
     csvfile = open(outputFileName, 'wb')
     fieldnames = ["opt / gold","opt / lp output","lp output / gold", \
-                  "highOrderOutput / gold","opt / highOrderOutput", "lpOutput / highOrderOutput","projective","allSlk",\
-                  "alpha","trained on gold or higher order opt"] 
+                  "highOrderOutput / gold","opt / highOrderOutput", "lpOutput / highOrderOutput","projective inference","allSlk",\
+                  "alpha","trained on gold or higher order opt", "projective ILP formulation"] 
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     
-    for proj in ['nonProj','proj']:
+    for projInference in ['nonProj','projInference']:
         noptGold    = 0.0
         nLPGold     = 0.0
         LP_OPT      = 0.0
@@ -301,17 +311,18 @@ if __name__ == '__main__':
         LpOrigOpt   = 0.0
         n           = 0.0
         for fileData in allFileData:
-            noptGold    += float(fileData[proj]['noptGold'])
-            nLPGold     += float(fileData[proj]['nLPGold'])
-            LP_OPT      += float(fileData[proj]['n_LP_OPT'])
-            origOptGold += float(fileData[proj]['norigOptGold'])
-            optOrigOpt  += float(fileData[proj]['nOptOrigOpt'])
-            LpOrigOpt   += float(fileData[proj]['nLpOrigOpt'])
-            n           += float(fileData[proj]['n'])
-        line = {"projective"                            : proj                                      ,\
+            noptGold    += float(fileData[projInference]['noptGold'])
+            nLPGold     += float(fileData[projInference]['nLPGold'])
+            LP_OPT      += float(fileData[projInference]['n_LP_OPT'])
+            origOptGold += float(fileData[projInference]['norigOptGold'])
+            optOrigOpt  += float(fileData[projInference]['nOptOrigOpt'])
+            LpOrigOpt   += float(fileData[projInference]['nLpOrigOpt'])
+            n           += float(fileData[projInference]['n'])
+        line = {"projective inference"                  : projInference                             ,\
                 "allSlk"                                : applyPositiveSlacks                       ,\
                 "trained on gold or higher order opt"   : "gold" if useGoldHeads else "highOrderOpt",\
                 "alpha"                                 : alpha                                     ,\
+                "projective ILP formulation"            : projective                                ,\
                 "opt / gold"                            : noptGold/n                                ,\
                 "opt / lp output"                       : LP_OPT/n                                  ,\
                 "lp output / gold"                      : nLPGold/n                                 ,\
@@ -323,8 +334,9 @@ if __name__ == '__main__':
         print headsStr
         print 'modelOrder                =', order
         print 'alpha                     =', alpha
+        print "proj ILP formulation      =", projective
         print 'positive slacks           =', applyPositiveSlacks
-        print 'isProjective              =', proj, "\n"
+        print 'isProjectiveInference     =', projInference, "\n"
         print 'average opt vs gold       =', noptGold/n
         print 'average lp output vs gold =', nLPGold/n
         print 'average opt vs lp output  =', LP_OPT/n
