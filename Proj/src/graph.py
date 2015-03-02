@@ -253,7 +253,7 @@ class DiGraph:
             part2Arcs[part] = []
             allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
             for arc in allArcs:
-                arcPart = partsManager.getArc(arc['u'], arc['v'])
+                arcPart = self.partsManager.getArc(arc['u'], arc['v'])
                 arc2parts[arcPart].append(part)
                 part2Arcs[part].append(arcPart)
         
