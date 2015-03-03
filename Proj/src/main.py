@@ -4,6 +4,7 @@ import os
 import sys
 from graph import DiGraph
 from graph import LPMaker
+from inference import inference
 import getopt
 from test.sortperf import flush
 
@@ -55,8 +56,9 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
     for (u,v) in lpm.newWeights.keys():
         w[u,v] = lpm.newWeights[u,v]
     
-    optGProj = lpm.eisnerProjective(g.n, w)
-    optGNonProj = lpm.chuLiuEdmondsWrapper(g.n, w)
+    inf = inference(w,g.n);
+    optGProj = inf.eisnerProjective()
+    optGNonProj = inf.chuLiuEdmondsWrapper()
     goldHeads = map(lambda u: int(u), g.goldHeads)
     origOptHeads = map(lambda u: int(u), g.optHeads)
     outHeads = {'projInference':[],'nonProj': []}
