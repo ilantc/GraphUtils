@@ -245,20 +245,57 @@ class inference(object):
             
         return Gopt
 
+    def getLoss(self,G,u,v,w):
+        edgesLost = []
+        for otherU in w.keys():
+            if otherU == u:
+                continue
+            
+
     def greedyMinLoss(self):
-            arc2parts = {}
-            part2Arcs = {}
+        arc2parts = {}
+        part2Arcs = {}
+        
+        for arc in self.partsManager.getArcs():
+            arc2parts[arc] = []
             
-            for arc in self.partsManager.getArcs():
-                arc2parts[arc] = []
-                
-            for part in self.partsManager.getNonArcs():
-                part2Arcs[part] = []
-                allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
-                for arc in allArcs:
-                    arcPart = self.partsManager.getArc(arc['u'], arc['v'])
-                    arc2parts[arcPart].append(part)
-                    part2Arcs[part].append(arcPart)
-            
-            bestScore = float('Inf')
-            bestPart = Nonen
+        for part in self.partsManager.getNonArcs():
+            part2Arcs[part] = []
+            allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
+            for arc in allArcs:
+                arcPart = self.partsManager.getArc(arc['u'], arc['v'])
+                arc2parts[arcPart].append(part)
+                part2Arcs[part].append(arcPart)
+        
+        # update W:
+        w = {}
+        for (u,v) in self.w:
+            if not w.has_key(u):
+                w[u] = {}
+            w[u][v] = self.w[u,v]
+        
+        G = nx.DiGraph()
+        # add all nodes and edges
+        G.add_nodes_from(range(self.n + 1)) 
+        
+        for _ in range(self.n):
+            bestLoss = float('Inf')
+            bestu = None
+            bestv = None
+            for u in w.keys():
+                allV = w[u].keys()
+                if len(allV) == 1:
+                    bestu = u
+                    bestv = allV[0]
+                    break
+                for v in allV:
+                    loss = self.getLoss(G,u,v,w)
+                    if loss < bestLoss:
+                        bestLoss = loss
+                        bestu = u
+                        bestv = v
+            if bestu is None:
+                raise "could not find an arc to add"
+            G.add_edge(bestu, bestv, {'weight': w[bestu][bestv]})
+            del w[u]
+        

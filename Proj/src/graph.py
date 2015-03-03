@@ -37,9 +37,7 @@ class DiGraph:
         for (u,v) in G.edges():
             if not self.partsManager.hasArc(u,v):
                 totalNumRemoved += 1;
-#                     print("removing edge: (" + str(u) + "," + str(v) + ")")
                 G.remove_edge(u,v)
-        # print("removed " + str(totalNumRemoved) + " edges");
         return G
 
     def readFile(self,infile):
@@ -100,109 +98,66 @@ class DiGraph:
             partVals = {}
             if dependencyType in ["DEPENDENCYPART_ARC", "DEPENDENCYPART_NEXTSIBL_LAST_SIB", "DEPENDENCYPART_GRANDPAR_NO_GRANDCHILD",\
                                   "DEPENDENCYPART_GRANDSIBL_NO_CHILDREN", "DEPENDENCYPART_NEXTSIBL_NO_SIBS"]:
-                nodes = parseEdges([edges[0]])
-                partVals['u'] = nodes[0]
-                partVals['v'] = nodes[1]
+                nodes           = parseEdges([edges[0]])
+                partVals['u']   = nodes[0]
+                partVals['v']   = nodes[1]
             elif dependencyType in ["DEPENDENCYPART_SIBL", "DEPENDENCYPART_NEXTSIBL"]:
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                u = int(matchObj.group(1))
-                v1 = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v2 = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v1'] = v1
-                partVals['v2'] = v2
+                nodes           = parseEdges([edges[0],edges[1]])
+                partVals['u']   = nodes[0]
+                partVals['v1']  = nodes[1]
+                partVals['v2']  = nodes[3]
             elif dependencyType == "DEPENDENCYPART_NEXTSIBL_FIRST_SIB":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                u = int(matchObj.group(1))
-                v = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v'] = v
+                nodes           = parseEdges([edges[1]])
+                partVals['u']   = nodes[0]
+                partVals['v']   = nodes[1]
             elif dependencyType == "DEPENDENCYPART_GRANDPAR":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                g = int(matchObj.group(1))
-                u = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v = int(matchObj.group(2))
-                partVals['g'] = g
-                partVals['u'] = u
-                partVals['v'] = v
+                nodes           = parseEdges([edges[0],edges[1]])
+                partVals['g']   = nodes[0]
+                partVals['u']   = nodes[1]
+                partVals['v']   = nodes[3]
             elif dependencyType == "DEPENDENCYPART_GRANDSIBL":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                g = int(matchObj.group(1))
-                u = int(matchObj.group(2))
-                matchObj1 = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v1 = int(matchObj1.group(2))
-                matchObj2 = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[2])
-                v2 = int(matchObj2.group(2))
-                partVals['g'] = g
-                partVals['u'] = u
-                partVals['v1'] = v1
-                partVals['v2'] = v2
+                nodes           = parseEdges([edges[0],edges[1],edges[2]])
+                partVals['g']   = nodes[0]
+                partVals['u']   = nodes[1]
+                partVals['v1']  = nodes[3]
+                partVals['v2']  = nodes[5]
             elif dependencyType == "DEPENDENCYPART_GRANDSIBL_FIRST_SIB":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                g = int(matchObj.group(1))
-                u = int(matchObj.group(2))
-                matchObj1 = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[2])
-                v = int(matchObj1.group(2))
-                partVals['g'] = g
-                partVals['u'] = u
-                partVals['v'] = v
+                nodes           = parseEdges([edges[0],edges[2]])
+                partVals['g']   = nodes[0]
+                partVals['u']   = nodes[1]
+                partVals['v']   = nodes[3]
             elif dependencyType == "DEPENDENCYPART_GRANDSIBL_LAST_SIB":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                g = int(matchObj.group(1))
-                u = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v = int(matchObj.group(2))
-                partVals['g'] = g
-                partVals['u'] = u
-                partVals['v'] = v
+                nodes           = parseEdges([edges[0],edges[1]])
+                partVals['g']   = nodes[0]
+                partVals['u']   = nodes[1]
+                partVals['v']   = nodes[3]
             elif dependencyType == "DEPENDENCYPART_TRISIBL":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                u = int(matchObj.group(1))
-                v1 = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v2 = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[2])
-                v3 = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v1'] = v1
-                partVals['v2'] = v2
-                partVals['v3'] = v3
+                nodes           = parseEdges([edges[0],edges[1],edges[2]])
+                partVals['u']   = nodes[0]
+                partVals['v1']  = nodes[1]
+                partVals['v2']  = nodes[3]
+                partVals['v3']  = nodes[5]
             elif dependencyType == "DEPENDENCYPART_TRISIBL_LAST_SIBS":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                u = int(matchObj.group(1))
-                v1 = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                v2 = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v1'] = v1
-                partVals['v2'] = v2
+                nodes           = parseEdges([edges[0],edges[1]])
+                partVals['u']   = nodes[0]
+                partVals['v1']  = nodes[1]
+                partVals['v2']  = nodes[3]
             elif dependencyType == "DEPENDENCYPART_TRISIBL_FIRST_SIBS":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                u = int(matchObj.group(1))
-                v1 = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[2])
-                v2 = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v1'] = v1
-                partVals['v2'] = v2
+                nodes           = parseEdges([edges[1],edges[2]])
+                partVals['u']   = nodes[0]
+                partVals['v1']  = nodes[1]
+                partVals['v2']  = nodes[3]
             elif dependencyType == "DEPENDENCYPART_TRISIBL_ONLY_CHILD":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                u = int(matchObj.group(1))
-                v = int(matchObj.group(2))
-                partVals['u'] = u
-                partVals['v'] = v
+                nodes           = parseEdges([edges[1]])
+                partVals['u']   = nodes[0]
+                partVals['v']   = nodes[1]
             elif dependencyType == "DEPENDENCYPART_HEADBIGRAM":
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[0])
-                u = int(matchObj.group(1))
-                v = int(matchObj.group(2))
-                matchObj = re.match('^\s*\((\d+),(\d+)\)\s*$', edges[1])
-                prev_u = int(matchObj.group(1))
-                partVals['u'] = u
-                partVals['v'] = v
-                partVals['prev_u'] = prev_u
-                if (prev_u ==  v):
+                nodes               = parseEdges([edges[0],edges[1]])
+                partVals['u']       = nodes[0]
+                partVals['v']       = nodes[1]
+                partVals['prev_u']  = nodes[2]
+                # prev_u == v -> skip this part
+                if (nodes[2] ==  nodes[1]):
                     partVals = {}
             if partVals != {}:
                 partVals['val'] = val
