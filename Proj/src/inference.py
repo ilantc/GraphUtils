@@ -247,32 +247,58 @@ class inference(object):
 
     def getLoss(self,G,u,v,w):
         edgesLost = []
+        G.add_edge(u,v)
         for otherU in w.keys():
             if otherU == u:
                 continue
-            
-
+            for otherV in w[otherU].keys():
+                if otherV == v:
+                    edgesLost.append((otherU,otherV))
+                    continue
+                G.add_edge(otherU,otherV)
+                cs = list(nx.simple_cycles(G))
+                if len(cs) > 0:
+                    edgesLost.append((otherU,otherV))
+                G.remove_edge(otherU,otherV)
+        G.remove_edge(u,v)
+        loss = 0.0
+        for (otherU,otherV) in edgesLost:
+            loss += w[otherU][otherV]
+        return (loss,edgesLost)
+    
+    def updateW(self,G,w,w_rev,bestu,bestv,edgesLost):
+        G.add_edge(bestu, bestv, {'weight': w[bestu][bestv]})
+        del w[bestu][bestv]
+        del w_rev[bestv][bestu]
+        for (u,v) in edgesLost:
+            del w[u][v]
+            del w_rev[v][u]
+    
     def greedyMinLoss(self):
-        arc2parts = {}
-        part2Arcs = {}
+#         arc2parts = {}
+#         part2Arcs = {}
         
-        for arc in self.partsManager.getArcs():
-            arc2parts[arc] = []
-            
-        for part in self.partsManager.getNonArcs():
-            part2Arcs[part] = []
-            allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
-            for arc in allArcs:
-                arcPart = self.partsManager.getArc(arc['u'], arc['v'])
-                arc2parts[arcPart].append(part)
-                part2Arcs[part].append(arcPart)
+#         for arc in self.partsManager.getArcs():
+#             arc2parts[arc] = []
+#             
+#         for part in self.partsManager.getNonArcs():
+#             part2Arcs[part] = []
+#             allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
+#             for arc in allArcs:
+#                 arcPart = self.partsManager.getArc(arc['u'], arc['v'])
+#                 arc2parts[arcPart].append(part)
+#                 part2Arcs[part].append(arcPart)
         
         # update W:
+        w_reversed = {} 
         w = {}
         for (u,v) in self.w:
             if not w.has_key(u):
                 w[u] = {}
             w[u][v] = self.w[u,v]
+            if not w_reversed.has_key(v):
+                w_reversed[v] = {}
+            w_reversed[v][u] = self.w[u,v]
         
         G = nx.DiGraph()
         # add all nodes and edges
@@ -280,22 +306,32 @@ class inference(object):
         
         for _ in range(self.n):
             bestLoss = float('Inf')
+            bestEdgesLost = []
             bestu = None
             bestv = None
+            
+            foundCount1edge = False
+            for (v) in w_reversed.keys():
+                if len(w_reversed[v].keys()) == 1:
+                    foundCount1edge = True
+                    u = w_reversed[v].keys()[0]
+                    (_,bestEdgesLost) = self.getLoss(G,u,v,w)
+                    self.updateW(G, w, w_reversed, u, v, bestEdgesLost)
+                    break
+            if foundCount1edge:
+                continue
+            
             for u in w.keys():
                 allV = w[u].keys()
-                if len(allV) == 1:
-                    bestu = u
-                    bestv = allV[0]
-                    break
                 for v in allV:
-                    loss = self.getLoss(G,u,v,w)
+                    (loss,edgesLost) = self.getLoss(G,u,v,w)
                     if loss < bestLoss:
                         bestLoss = loss
                         bestu = u
                         bestv = v
+                        bestEdgesLost = edgesLost
             if bestu is None:
-                raise "could not find an arc to add"
-            G.add_edge(bestu, bestv, {'weight': w[bestu][bestv]})
-            del w[u]
+                raise Exception("could not find an arc to add")
+            self.updateW(G, w, w_reversed, bestu, bestv, bestEdgesLost)
+        return G
         
