@@ -266,13 +266,29 @@ class inference(object):
             loss += w[otherU][otherV]
         return (loss,edgesLost)
     
-    def updateW(self,G,w,w_rev,bestu,bestv,edgesLost):
-        G.add_edge(bestu, bestv, {'weight': w[bestu][bestv]})
-        del w[bestu][bestv]
-        del w_rev[bestv][bestu]
-        for (u,v) in edgesLost:
-            del w[u][v]
-            del w_rev[v][u]
+    def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost):
+        try:
+            G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
+            del w[bestu][bestv]
+            del w_rev[bestv][bestu]
+            for (u,v) in edgesLost:
+                del w[u][v]
+                del w_rev[v][u]
+                if possibleRoots[v].has_key(u):
+                    del possibleRoots[v][u]
+                else:
+                    uRoots = possibleRoots[u].keys() 
+                    if len(uRoots) == 1:
+                        uRoot = uRoots[0]
+                        if ((uRoot,v) not in edgesLost) and (not ((uRoot == bestu) and (v == bestv))):
+                            del possibleRoots[v][uRoot]
+            for v in possibleRoots.keys():
+                if possibleRoots[v].has_key(bestv):
+                    del possibleRoots[v][bestv]
+                    possibleRoots[v][bestu] = None
+            print "(" + str(bestu) + "," + str(bestv) + ")", map(lambda v: len(w_rev[v].keys()),w_rev.keys()) ,edgesLost
+        except KeyError:
+            print "ilan"
     
     def greedyMinLoss(self):
 #         arc2parts = {}
@@ -290,7 +306,8 @@ class inference(object):
 #                 part2Arcs[part].append(arcPart)
         
         # update W:
-        w_reversed = {} 
+        w_reversed = {}
+        possibleRoots = {} 
         w = {}
         for (u,v) in self.w:
             if not w.has_key(u):
@@ -298,11 +315,17 @@ class inference(object):
             w[u][v] = self.w[u,v]
             if not w_reversed.has_key(v):
                 w_reversed[v] = {}
+                possibleRoots[v] = {}
             w_reversed[v][u] = self.w[u,v]
+            possibleRoots[v][u] = None
         
         G = nx.DiGraph()
         # add all nodes and edges
         G.add_nodes_from(range(self.n + 1)) 
+        
+        print "heads:"
+        for v in w_reversed.keys():
+            print str(v) + ":",w_reversed[v].keys()
         
         for _ in range(self.n):
             bestLoss = float('Inf')
@@ -311,12 +334,17 @@ class inference(object):
             bestv = None
             
             foundCount1edge = False
-            for (v) in w_reversed.keys():
-                if len(w_reversed[v].keys()) == 1:
+            for (v) in possibleRoots.keys():
+                if (len(possibleRoots[v].keys()) == 1) and (G.in_degree() == 0):
                     foundCount1edge = True
-                    u = w_reversed[v].keys()[0]
-                    (_,bestEdgesLost) = self.getLoss(G,u,v,w)
-                    self.updateW(G, w, w_reversed, u, v, bestEdgesLost)
+                    bestv = v
+                    for u in w_reversed[v].keys():
+                        (loss,edgesLost) = self.getLoss(G,u,bestv,w)
+                        if loss < bestLoss:
+                            bestLoss = loss
+                            bestu = u
+                            bestEdgesLost = edgesLost
+                    self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost)
                     break
             if foundCount1edge:
                 continue
@@ -332,6 +360,6 @@ class inference(object):
                         bestEdgesLost = edgesLost
             if bestu is None:
                 raise Exception("could not find an arc to add")
-            self.updateW(G, w, w_reversed, bestu, bestv, bestEdgesLost)
+            self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost)
         return G
         
