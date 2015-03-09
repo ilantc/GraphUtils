@@ -144,7 +144,7 @@ class inference(object):
                     C[u][rightIndex][right] = {}
                     bp[u][rightIndex] = {}
                     bp[u][rightIndex][right] = {}
-                                        
+
                     # incomplete
                     if G.has_edge(u, rightIndex):
                         bestValIncomplete = C[u][u][right][complete] + C[rightIndex][u+1][left][complete] + G[u][rightIndex]['weight']
@@ -267,6 +267,15 @@ class inference(object):
         return (loss,edgesLost)
     
     def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost):
+        
+        def getRoot(u,possibleRoots):
+            if u == 0:
+                return u
+            uRoots = possibleRoots[u].keys()
+            if len(uRoots) == 1:
+                return uRoots[0]
+            else:
+                return u
         try:
             G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
             del w[bestu][bestv]
@@ -274,21 +283,35 @@ class inference(object):
             for (u,v) in edgesLost:
                 del w[u][v]
                 del w_rev[v][u]
-                if possibleRoots[v].has_key(u):
-                    del possibleRoots[v][u]
-                else:
-                    uRoots = possibleRoots[u].keys() 
-                    if len(uRoots) == 1:
-                        uRoot = uRoots[0]
-                        if ((uRoot,v) not in edgesLost) and (not ((uRoot == bestu) and (v == bestv))):
-                            del possibleRoots[v][uRoot]
+                uRoot = getRoot(u, possibleRoots)
+                # corner case
+                if u == bestv:
+                    uRoot = u
+                if uRoot in possibleRoots[v].keys():
+                    del possibleRoots[v][uRoot]
+            # make sure v,uRoot is in
+            uRoot = getRoot(bestu,possibleRoots)
+            possibleRoots[bestv][uRoot] = None
+                
             for v in possibleRoots.keys():
                 if possibleRoots[v].has_key(bestv):
                     del possibleRoots[v][bestv]
-                    possibleRoots[v][bestu] = None
-            print "(" + str(bestu) + "," + str(bestv) + ")", map(lambda v: len(w_rev[v].keys()),w_rev.keys()) ,edgesLost
+                    possibleRoots[v][uRoot] = None
+            
+            def rootInfo(root,possibleRoots):
+                ks = possibleRoots[root].keys()
+                if len(ks) == 1:
+                    return str(ks[0])
+                return len(ks)
+            def printRoots(possibleRoots):
+                for v in possibleRoots.keys():
+                    print v,":",possibleRoots[v].keys()
+            
+            print "(" + str(bestu) + "," + str(bestv) + ")", map(lambda v: len(w_rev[v].keys()),w_rev.keys()) ,edgesLost,\
+                    map(lambda x: rootInfo(x, possibleRoots),possibleRoots.keys())
+            printRoots(possibleRoots)
         except KeyError:
-            print "ilan"
+            raise
     
     def greedyMinLoss(self):
 #         arc2parts = {}
@@ -307,7 +330,7 @@ class inference(object):
         
         # update W:
         w_reversed = {}
-        possibleRoots = {} 
+        possibleRoots = {}
         w = {}
         for (u,v) in self.w:
             if not w.has_key(u):
@@ -333,9 +356,15 @@ class inference(object):
             bestu = None
             bestv = None
             
+            if (len(w[0].keys()) == 1) and G.out_degree(0) == 0:
+                v = w[0].keys()[0]
+                (_,edgesLost) = self.getLoss(G,0,v,w)
+                self.updateW(G, w, w_reversed, possibleRoots, 0, v, edgesLost)
+                continue
+            
             foundCount1edge = False
             for (v) in possibleRoots.keys():
-                if (len(possibleRoots[v].keys()) == 1) and (G.in_degree() == 0):
+                if (len(possibleRoots[v].keys()) == 1) and (G.in_degree(v) == 0):
                     foundCount1edge = True
                     bestv = v
                     for u in w_reversed[v].keys():
@@ -344,6 +373,8 @@ class inference(object):
                             bestLoss = loss
                             bestu = u
                             bestEdgesLost = edgesLost
+                    if bestu == None:
+                        raise Exception()
                     self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost)
                     break
             if foundCount1edge:
