@@ -35,8 +35,8 @@ def main(fileIndex,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,u
     gHeads = g.optHeads
     if useGoldHeads:
         gHeads = g.goldHeads
-    if g.n > 15:
-        return
+#     if g.n > 15:
+#         return
     for i in range(0,g.n):
         v = i + 1
         u = int(gHeads[i])
@@ -293,9 +293,10 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
+        fileId = 21
         fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,\
                         useTestData,getTrees,alpha,projective)
-        if (fileId % 50) == 0:
+        if (fileId % 1) == 0:
             print "fileID =", fileId 
 #         print fileData
         allFileData.append(fileData)
