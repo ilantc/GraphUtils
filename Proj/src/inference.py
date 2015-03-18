@@ -245,6 +245,8 @@ class inference(object):
             
         return Gopt
 
+
+####################################################################
     def getRoot(self,u,possibleRoots):
         if u == 0:
             return u
@@ -254,36 +256,47 @@ class inference(object):
         else:
             return u
 
-    def getLoss(self,G,u,v,w,possibleRoots,w_rev):
+    def getLoss(self,G,u,v,w,possibleRoots,w_rev,iterNum):
+        
+        def addToEdgesLost(lostU,lostV,loss,edgesLost,w,u,v):
+            if (lostU,lostV) == (u,v):
+                raise Exception("trying to add (u,v)=(" + str(u) + "," + str(v) + ") to edgesLost")
+            loss += w[lostU][lostV]
+            edgesLost.append((lostU,lostV))
+            return loss
+            
+        if (iterNum == 19) and ((u,v) == (4,3)):
+            print "break now!"
         edgesLost = []
         loss = 0.0
-#         G.add_edge(u,v)
         uRoot = self.getRoot(u, possibleRoots)
+        vRoot = self.getRoot(v, possibleRoots)
         for s in w.keys():
             sRoot = self.getRoot(s, possibleRoots)
-            if sRoot == v:
-                if s == u:
-                    raise Exception('bad root')
-                for t in w[s].keys():
-                    tRoot = self.getRoot(t, possibleRoots)
-                    if tRoot == uRoot:
-                        try:
-                            if (s,t) not in edgesLost:
-                                loss += w[s][t]
-                                edgesLost.append((s,t))
-                        except KeyError:
-                            raise
-            if sRoot == uRoot:
-                try:
-                    if (v,s) not in edgesLost:
-                        loss += w[v][s]
-                        edgesLost.append((v,s))
-                except KeyError:
-                    pass
+            if sRoot == vRoot:
+#                 if s == u:
+#                     raise Exception(str(u) + ' root is ' + str(v) + ', but (' + str(u) + ',' + str(v) + ') was not removed')
+                if uRoot in w[s].keys():
+                    if (s,uRoot) not in edgesLost:
+                        loss = addToEdgesLost(s,uRoot,loss,edgesLost,w,u,v)
+#                 for t in w[s].keys():
+#                     tRoot = self.getRoot(t, possibleRoots)
+#                     if tRoot == uRoot:
+#                         try:
+#                             if (s,t) not in edgesLost:
+#                                 loss = addToEdgesLost(s,t,loss,edgesLost,w,u,v)
+#                         except KeyError:
+#                             raise Exception("key error - when adding (" + str(s) + ',' + str(t) + ") to edges lost with (u,v) = (" + str(u) + "," + str(v) +")")
+            if s != 0 and (s == uRoot):
+                if v in w_rev[s] and (v,s) not in edgesLost:
+                    try:
+                        loss = addToEdgesLost(v,s,loss,edgesLost,w,u,v)
+                    except KeyError:
+                        raise Exception("key error - when adding (" + str(v) + ',' + str(s) + ") to edges lost with (u,v) = (" + str(u) + "," + str(v) +")")
+            
         for s in w_rev[v].keys():
             if s != u and (s,v) not in edgesLost:
-                edgesLost.append((s,v))
-                loss += w[s][v]
+                loss = addToEdgesLost(s,v,loss,edgesLost,w,u,v)
 #         for otherU in w.keys():
 #             if otherU == u:
 #                 continue
@@ -302,8 +315,10 @@ class inference(object):
 #             loss += w[otherU][otherV]
         return (loss,edgesLost)
     
-    def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost):
+    def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost,iterNum):
         
+        if (bestu,bestv) == (4,3):
+            print "Ilna"
         G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
          
         del w[bestu][bestv]
@@ -317,17 +332,24 @@ class inference(object):
                 if u == bestv:
                     uRoot = u
                 if uRoot in possibleRoots[v].keys():
-                    del possibleRoots[v][uRoot]
+                    if possibleRoots[v][uRoot] == 1:
+                        del possibleRoots[v][uRoot]
+                    else:
+                        possibleRoots[v][uRoot] -= 1
             except KeyError:
                 raise
         # make sure v,uRoot is in
         uRoot = self.getRoot(bestu,possibleRoots)
-        possibleRoots[bestv][uRoot] = None
+        possibleRoots[bestv][uRoot] = 1
             
         for v in possibleRoots.keys():
             if possibleRoots[v].has_key(bestv):
+                n = possibleRoots[v][bestv]
                 del possibleRoots[v][bestv]
-                possibleRoots[v][uRoot] = None
+                try:
+                    possibleRoots[v][uRoot] += n
+                except KeyError:
+                    possibleRoots[v][uRoot] = n
         
         def rootInfo(root,possibleRoots):
             ks = possibleRoots[root].keys()
@@ -336,9 +358,10 @@ class inference(object):
             return len(ks)
         def printRoots(possibleRoots):
             for v in possibleRoots.keys():
-                print v,":",possibleRoots[v].keys()
-        
-#         print "(" + str(bestu) + "," + str(bestv) + ")", map(lambda v: len(w_rev[v].keys()),w_rev.keys()) ,edgesLost,\
+                print v,":",possibleRoots[v]
+         
+        print "i=" + str(iterNum) + ", (" + str(bestu) + "," + str(bestv) + ")" \
+#                     ,map(lambda v: len(w_rev[v].keys()), w_rev.keys()) ,edgesLost,\
 #                 map(lambda x: rootInfo(x, possibleRoots),possibleRoots.keys())
 #         printRoots(possibleRoots)
     
@@ -369,7 +392,7 @@ class inference(object):
                 w_reversed[v] = {}
                 possibleRoots[v] = {}
             w_reversed[v][u] = self.w[u,v]
-            possibleRoots[v][u] = None
+            possibleRoots[v][u] = 1
         
         G = nx.DiGraph()
         # add all nodes and edges
@@ -379,7 +402,7 @@ class inference(object):
 #         for v in w_reversed.keys():
 #             print str(v) + ":",w_reversed[v].keys()
         
-        for _ in range(self.n):
+        for iterNum in range(self.n):
             bestLoss = float('Inf')
             bestEdgesLost = []
             bestu = None
@@ -388,8 +411,8 @@ class inference(object):
             rootModifiers = w[0].keys()
             if (len(rootModifiers) == 1) and G.out_degree(0) == 0:
                 v = rootModifiers[0]
-                (_,edgesLost) = self.getLoss(G,0,v,w,possibleRoots,w_reversed)
-                self.updateW(G, w, w_reversed, possibleRoots, 0, v, edgesLost)
+                (_,edgesLost) = self.getLoss(G,0,v,w,possibleRoots,w_reversed,iterNum)
+                self.updateW(G, w, w_reversed, possibleRoots, 0, v, edgesLost,iterNum)
                 continue
             
             foundCount1edge = False
@@ -398,14 +421,14 @@ class inference(object):
                     foundCount1edge = True
                     bestv = v
                     for u in w_reversed[v].keys():
-                        (loss,edgesLost) = self.getLoss(G,u,bestv,w,possibleRoots,w_reversed)
+                        (loss,edgesLost) = self.getLoss(G,u,bestv,w,possibleRoots,w_reversed,iterNum)
                         if loss < bestLoss:
                             bestLoss = loss
                             bestu = u
                             bestEdgesLost = edgesLost
                     if bestu == None:
                         raise Exception()
-                    self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost)
+                    self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost,iterNum)
                     break
             if foundCount1edge:
                 continue
@@ -413,7 +436,7 @@ class inference(object):
             for u in w.keys():
                 allV = w[u].keys()
                 for v in allV:
-                    (loss,edgesLost) = self.getLoss(G,u,v,w,possibleRoots,w_reversed)
+                    (loss,edgesLost) = self.getLoss(G,u,v,w,possibleRoots,w_reversed,iterNum)
                     if loss < bestLoss:
                         bestLoss = loss
                         bestu = u
@@ -421,6 +444,6 @@ class inference(object):
                         bestEdgesLost = edgesLost
             if bestu is None:
                 raise Exception("could not find an arc to add")
-            self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost)
+            self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost,iterNum)
         return G
         
