@@ -265,8 +265,8 @@ class inference(object):
             edgesLost.append((lostU,lostV))
             return loss
             
-        if (iterNum == 19) and ((u,v) == (4,3)):
-            print "break now!"
+#         if (iterNum == 19) and ((u,v) == (4,3)):
+#             print "break now!"
         edgesLost = []
         loss = 0.0
         uRoot = self.getRoot(u, possibleRoots)
@@ -317,40 +317,15 @@ class inference(object):
     
     def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost,iterNum):
         
-        if (bestu,bestv) == (4,3):
-            print "Ilna"
-        G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
-         
-        del w[bestu][bestv]
-        del w_rev[bestv][bestu]
-        for (u,v) in edgesLost:
-            try:
-                del w[u][v]
-                del w_rev[v][u]
-                uRoot = self.getRoot(u, possibleRoots)
-                # corner case
-                if u == bestv:
-                    uRoot = u
-                if uRoot in possibleRoots[v].keys():
-                    if possibleRoots[v][uRoot] == 1:
-                        del possibleRoots[v][uRoot]
-                    else:
-                        possibleRoots[v][uRoot] -= 1
-            except KeyError:
-                raise
-        # make sure v,uRoot is in
-        uRoot = self.getRoot(bestu,possibleRoots)
-        possibleRoots[bestv][uRoot] = 1
-            
-        for v in possibleRoots.keys():
-            if possibleRoots[v].has_key(bestv):
-                n = possibleRoots[v][bestv]
-                del possibleRoots[v][bestv]
-                try:
-                    possibleRoots[v][uRoot] += n
-                except KeyError:
-                    possibleRoots[v][uRoot] = n
-        
+        def updatePossibleRoots(oldU,newU,possibleRoots):
+            for v in possibleRoots.keys():
+                if possibleRoots[v].has_key(bestv):
+                    n = possibleRoots[v][bestv]
+                    del possibleRoots[v][bestv]
+                    try:
+                        possibleRoots[v][uRoot] += n
+                    except KeyError:
+                        possibleRoots[v][uRoot] = n
         def rootInfo(root,possibleRoots):
             ks = possibleRoots[root].keys()
             if len(ks) == 1:
@@ -359,8 +334,54 @@ class inference(object):
         def printRoots(possibleRoots):
             for v in possibleRoots.keys():
                 print v,":",possibleRoots[v]
+        
+        
+        
+#         if (bestu,bestv) == (3,5):
+#             print "Ilan - make sure possibleRoots[5] = 3"
+        G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
          
-        print "i=" + str(iterNum) + ", (" + str(bestu) + "," + str(bestv) + ")" \
+        del w[bestu][bestv]
+        del w_rev[bestv][bestu]
+        possibleRootsUpdates = []
+        for (u,v) in edgesLost:
+            try:
+                del w[u][v]
+                del w_rev[v][u]
+                uRoot = self.getRoot(u, possibleRoots)
+                # corner case
+#                 if u == bestv:
+#                     uRoot = u
+                if uRoot in possibleRoots[v].keys():
+                    if possibleRoots[v][uRoot] == 1:
+                        del possibleRoots[v][uRoot]
+                        vRoots = possibleRoots[v].keys()
+                        if len(vRoots) == 1:
+                            possibleRootsUpdates.append({'oldU':v, 'newU': vRoots[0]})
+                    else:
+                        possibleRoots[v][uRoot] -= 1
+            except KeyError:
+                raise
+        # make sure v,uRoot is in
+        uRoot = self.getRoot(bestu,possibleRoots)
+#         possibleRoots[bestv][uRoot] = 1
+        possibleRootsUpdates.append({'oldU':bestv, 'newU': uRoot})
+        sortedPossibleRoots = []
+        nIter = len(possibleRootsUpdates)
+        for _ in range(nIter):
+            nUnsorted = len(possibleRootsUpdates)
+            for currIndex in range(nUnsorted):
+                currData = possibleRootsUpdates[currIndex]
+                currOldU = currData['oldU']
+                nOldUAppearsAsNewU = filter(lambda data: data['newU'] == currOldU, possibleRootsUpdates)
+                if len(nOldUAppearsAsNewU) == 0:
+                    sortedPossibleRoots.append(currData)
+                    possibleRootsUpdates.remove(currData)
+                    break
+        for PRData in possibleRootsUpdates: 
+            updatePossibleRoots(PRData['oldU'],PRData['newU'],possibleRoots)
+         
+#         print "i=" + str(iterNum) + ", (" + str(bestu) + "," + str(bestv) + ")" \
 #                     ,map(lambda v: len(w_rev[v].keys()), w_rev.keys()) ,edgesLost,\
 #                 map(lambda x: rootInfo(x, possibleRoots),possibleRoots.keys())
 #         printRoots(possibleRoots)

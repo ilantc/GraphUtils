@@ -293,7 +293,7 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileId = 21
+#         fileId = 21
         fileData = main(fileId,writeCsvFile,verbose,applyPositiveSlacks,order,useGoldHeads,\
                         useTestData,getTrees,alpha,projective)
         if (fileId % 1) == 0:
