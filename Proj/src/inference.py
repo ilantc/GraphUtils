@@ -304,33 +304,23 @@ class inference(object):
             for v in possibleRoots.keys():
                 print v,":",possibleRoots[v]
         
-        
-        
-#         if (bestu,bestv) == (3,5):
-#             print "Ilan - make sure possibleRoots[5] = 3"
         G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
          
         del w[bestu][bestv]
         del w_rev[bestv][bestu]
         possibleRootsUpdates = []
         for (u,v) in edgesLost:
-            try:
-                del w[u][v]
-                del w_rev[v][u]
-                uRoot = self.getRoot(u, possibleRoots)
-                # corner case
-#                 if u == bestv:
-#                     uRoot = u
-                if uRoot in possibleRoots[v].keys():
-                    if possibleRoots[v][uRoot] == 1:
-                        del possibleRoots[v][uRoot]
-                        vRoots = possibleRoots[v].keys()
-                        if len(vRoots) == 1:
-                            possibleRootsUpdates.append({'oldU':v, 'newU': vRoots[0]})
-                    else:
-                        possibleRoots[v][uRoot] -= 1
-            except KeyError:
-                raise
+            del w[u][v]
+            del w_rev[v][u]
+            uRoot = self.getRoot(u, possibleRoots)
+            if uRoot in possibleRoots[v].keys():
+                if possibleRoots[v][uRoot] == 1:
+                    del possibleRoots[v][uRoot]
+                    vRoots = possibleRoots[v].keys()
+                    if len(vRoots) == 1:
+                        possibleRootsUpdates.append({'oldU':v, 'newU': vRoots[0]})
+                else:
+                    possibleRoots[v][uRoot] -= 1
         # make sure v,uRoot is in
         uRoot = self.getRoot(bestu,possibleRoots)
 #         possibleRoots[bestv][uRoot] = 1
@@ -393,14 +383,8 @@ class inference(object):
                 if (len(w_reversed[v].keys()) == 1):
                     foundCount1edge = True
                     bestv = v
-                    for u in w_reversed[v].keys():
-                        (loss,edgesLost) = self.getLoss(G,u,bestv,w,possibleRoots,w_reversed,iterNum)
-                        if loss < bestLoss:
-                            bestLoss = loss
-                            bestu = u
-                            bestEdgesLost = edgesLost
-                    if bestu == None:
-                        raise Exception()
+                    bestu = w_reversed[v].keys()[0]
+                    (_,bestEdgesLost) = self.getLoss(G,bestu,bestv,w,possibleRoots,w_reversed,iterNum)
                     self.updateW(G, w, w_reversed, possibleRoots, bestu, bestv, bestEdgesLost,iterNum)
                     break
             if foundCount1edge:
