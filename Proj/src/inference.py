@@ -258,15 +258,6 @@ class inference(object):
 
     def getLoss(self,G,u,v,w,possibleRoots,w_rev,iterNum):
         
-        def addToEdgesLost(lostU,lostV,loss,edgesLost,w,u,v):
-            if (lostU,lostV) == (u,v):
-                raise Exception("trying to add (u,v)=(" + str(u) + "," + str(v) + ") to edgesLost")
-            loss += w[lostU][lostV]
-            edgesLost.append((lostU,lostV))
-            return loss
-            
-#         if (iterNum == 19) and ((u,v) == (4,3)):
-#             print "break now!"
         edgesLost = []
         loss = 0.0
         uRoot = self.getRoot(u, possibleRoots)
@@ -274,45 +265,23 @@ class inference(object):
         for s in w.keys():
             sRoot = self.getRoot(s, possibleRoots)
             if sRoot == vRoot:
-#                 if s == u:
-#                     raise Exception(str(u) + ' root is ' + str(v) + ', but (' + str(u) + ',' + str(v) + ') was not removed')
                 if uRoot in w[s].keys():
                     if (s,uRoot) not in edgesLost:
-                        loss = addToEdgesLost(s,uRoot,loss,edgesLost,w,u,v)
-#                 for t in w[s].keys():
-#                     tRoot = self.getRoot(t, possibleRoots)
-#                     if tRoot == uRoot:
-#                         try:
-#                             if (s,t) not in edgesLost:
-#                                 loss = addToEdgesLost(s,t,loss,edgesLost,w,u,v)
-#                         except KeyError:
-#                             raise Exception("key error - when adding (" + str(s) + ',' + str(t) + ") to edges lost with (u,v) = (" + str(u) + "," + str(v) +")")
+                        loss += w[s][uRoot]
+                        edgesLost.append((s,uRoot))
             if s != 0 and (s == uRoot):
                 if v in w_rev[s] and (v,s) not in edgesLost:
                     try:
-                        loss = addToEdgesLost(v,s,loss,edgesLost,w,u,v)
+                        loss += w[v][s]
+                        edgesLost.append((v,s))
                     except KeyError:
                         raise Exception("key error - when adding (" + str(v) + ',' + str(s) + ") to edges lost with (u,v) = (" + str(u) + "," + str(v) +")")
             
         for s in w_rev[v].keys():
             if s != u and (s,v) not in edgesLost:
-                loss = addToEdgesLost(s,v,loss,edgesLost,w,u,v)
-#         for otherU in w.keys():
-#             if otherU == u:
-#                 continue
-#             for otherV in w[otherU].keys():
-#                 if otherV == v:
-#                     edgesLost.append((otherU,otherV))
-#                     continue
-#                 G.add_edge(otherU,otherV)
-#                 cs = list(nx.simple_cycles(G))
-#                 if len(cs) > 0:
-#                     edgesLost.append((otherU,otherV))
-#                 G.remove_edge(otherU,otherV)
-# #         G.remove_edge(u,v)
-#         loss = 0.0
-#         for (otherU,otherV) in edgesLost:
-#             loss += w[otherU][otherV]
+                loss += w[s][v]
+                edgesLost.append((s,v))
+
         return (loss,edgesLost)
     
     def updateW(self,G,w,w_rev,possibleRoots,bestu,bestv,edgesLost,iterNum):
@@ -387,19 +356,6 @@ class inference(object):
 #         printRoots(possibleRoots)
     
     def greedyMinLoss(self):
-#         arc2parts = {}
-#         part2Arcs = {}
-        
-#         for arc in self.partsManager.getArcs():
-#             arc2parts[arc] = []
-#             
-#         for part in self.partsManager.getNonArcs():
-#             part2Arcs[part] = []
-#             allArcs = filter(lambda subPart: subPart[type] == 'arc', part.getAllSubParts())
-#             for arc in allArcs:
-#                 arcPart = self.partsManager.getArc(arc['u'], arc['v'])
-#                 arc2parts[arcPart].append(part)
-#                 part2Arcs[part].append(arcPart)
         
         # update W:
         w_reversed = {}
@@ -419,10 +375,6 @@ class inference(object):
         # add all nodes and edges
         G.add_nodes_from(range(self.n + 1)) 
         
-#         print "heads:"
-#         for v in w_reversed.keys():
-#             print str(v) + ":",w_reversed[v].keys()
-        
         for iterNum in range(self.n):
             bestLoss = float('Inf')
             bestEdgesLost = []
@@ -437,8 +389,8 @@ class inference(object):
                 continue
             
             foundCount1edge = False
-            for (v) in possibleRoots.keys():
-                if (len(possibleRoots[v].keys()) == 1) and (G.in_degree(v) == 0):
+            for (v) in w_reversed.keys():
+                if (len(w_reversed[v].keys()) == 1):
                     foundCount1edge = True
                     bestv = v
                     for u in w_reversed[v].keys():
