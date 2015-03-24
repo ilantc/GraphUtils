@@ -37,10 +37,10 @@ def main(fileIndex,useTestData,getTrees):
         w[arc.u,arc.v] = arc.val
     
     inf                 = inference(w,g.n);
-#     t1                  = time.clock()
-#     optGProj            = inf.eisnerProjective()
-#     t2                  = time.clock()
-#     optGNonProj         = inf.chuLiuEdmondsWrapper()
+    t1                  = time.clock()
+    optGProj            = inf.eisnerProjective()
+    t2                  = time.clock()
+    optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
     optGgreedyMinLoss   = inf.greedyMinLoss()
     t4                  = time.clock() 
@@ -49,8 +49,8 @@ def main(fileIndex,useTestData,getTrees):
     optHeads            = map(lambda u: int(u), optHeads)
     outHeads = {'projInference':[],'nonProj': [], 'minLoss': []}
     out = {}
-#     inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)]
-    inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
+    inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)]
+#     inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
     for (optG, keyName,t) in inferenceTypes: 
         optEdges            = optG.edges()
         nInfGoldCorrect     = 0
@@ -71,7 +71,7 @@ def main(fileIndex,useTestData,getTrees):
         out[keyName] = {'ninfGold': nInfGoldCorrect, 'ninfOpt': nInfOptCorrect, 'n': g.n, 'inferenceTime': t}
         if getTrees:
             out['goldHeads']        = goldHeads
-            out['optHeads']         = goldHeads
+            out['optHeads']         = optHeads
             out['projOptHeads']     = outHeads['projInference']
             out['nonProjOptHeads']  = outHeads['nonProj']
             out['greedyOptHeads']   = outHeads['minLoss']
@@ -154,8 +154,9 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
+#         fileId = 244
         fileData = main(fileId,useTestData,getTrees)
-        if (fileId % 200) == 0:
+        if (fileId % 1) == 0:
             print "fileID =", fileId 
         allFileData.append(fileData)
     
