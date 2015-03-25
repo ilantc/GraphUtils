@@ -43,13 +43,16 @@ def main(fileIndex,useTestData,getTrees):
     optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
     optGgreedyMinLoss   = inf.greedyMinLoss()
-    t4                  = time.clock() 
+    t4                  = time.clock()
+    optGtwoSidedMinLoss = inf.twoSidedMinLoss()
+    t5                  = time.clock()
     
     goldHeads           = map(lambda u: int(u), goldHeads)
     optHeads            = map(lambda u: int(u), optHeads)
-    outHeads = {'projInference':[],'nonProj': [], 'minLoss': []}
+    outHeads = {'projInference':[],'nonProj': [], 'minLoss': [],'2SidedMinLoss': []}
     out = {}
-    inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)]
+    inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)\
+                      , (optGtwoSidedMinLoss,'2SidedMinLoss',t5 - t4)]
 #     inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
     for (optG, keyName,t) in inferenceTypes: 
         optEdges            = optG.edges()
@@ -181,7 +184,7 @@ if __name__ == '__main__':
                 "num inference / opt"   : ninfOpt/n     ,\
                 "average time"          : totalTime/n}
         print "\n"
-        print 'inferenceType             =', inferenceType, "\n"
+        print 'inferenceType             =', inferenceType
         print 'average inference vs gold =', ninfGold/n
         print 'average inference vs opt  =', ninfOpt/n
         print 'average inference time    =', totalTime/n

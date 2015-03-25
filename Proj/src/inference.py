@@ -412,12 +412,12 @@ class inference(object):
         w = {}
         w_reversed = {}
         leftNodes   = {0:None}
-        RightNodes  = {}
+        rightNodes  = {}
         for i in range(self.n + 1):
             w[i]            = {}
             w_reversed[i]   = {}
-            RightNodes[i]   = None
-        del RightNodes[0]
+            rightNodes[i]   = None
+        del rightNodes[0]
         
         for (u,v) in self.w:
             w[u][v] = self.w[u,v]
@@ -427,7 +427,7 @@ class inference(object):
         # add all nodes and edges
         G.add_nodes_from(range(self.n + 1)) 
         
-        for iterNum in range(self.n):
+        for _ in range(self.n):
             bestLoss = float('Inf')
             bestEdgesLost = []
             bestu = None
@@ -435,6 +435,20 @@ class inference(object):
             
             for u in leftNodes:
                 for v in w[u].keys():
-                    (loss,edgesLost) = self.getLoss(G,u,v,w,nodes,allSubTrees,w_reversed,iterNum)
-            
-         
+                    edgesLost = w_reversed[v].keys()
+                    loss = sum(map(lambda r: w_reversed[v][r], edgesLost))
+                    loss -= 2 * w_reversed[v][u]
+                    if loss < bestLoss:
+                        bestLoss = loss
+                        bestu = u
+                        bestv = v
+                        bestEdgesLost = edgesLost
+            if bestu is None: 
+                raise Exception("could not find an arc to add")
+            G.add_edge(bestu, bestv, {'weight':w[bestu][bestv]})
+            leftNodes[bestv] = None
+            del rightNodes[bestv]
+            for u in bestEdgesLost:
+                del w_reversed[bestv][u]
+                del w[u][bestv]
+        return G
