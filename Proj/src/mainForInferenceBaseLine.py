@@ -37,23 +37,23 @@ def main(fileIndex,useTestData,getTrees):
         w[arc.u,arc.v] = arc.val
     
     inf                 = inference(w,g.n);
-    t1                  = time.clock()
-    optGProj            = inf.eisnerProjective()
-    t2                  = time.clock()
-    optGNonProj         = inf.chuLiuEdmondsWrapper()
+#     t1                  = time.clock()
+#     optGProj            = inf.eisnerProjective()
+#     t2                  = time.clock()
+#     optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
     optGgreedyMinLoss   = inf.greedyMinLoss()
     t4                  = time.clock()
-    optGtwoSidedMinLoss = inf.twoSidedMinLoss()
-    t5                  = time.clock()
+#     optGtwoSidedMinLoss = inf.twoSidedMinLoss()
+#     t5                  = time.clock()
     
     goldHeads           = map(lambda u: int(u), goldHeads)
     optHeads            = map(lambda u: int(u), optHeads)
     outHeads = {'projInference':[],'nonProj': [], 'minLoss': [],'2SidedMinLoss': []}
     out = {}
-    inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)\
-                      , (optGtwoSidedMinLoss,'2SidedMinLoss',t5 - t4)]
-#     inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
+#     inferenceTypes = [(optGProj,'projInference',t2 - t1), (optGNonProj,'nonProj',t3 - t2), (optGgreedyMinLoss,'minLoss', t4 - t3)\
+#                       , (optGtwoSidedMinLoss,'2SidedMinLoss',t5 - t4)]
+    inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
     for (optG, keyName,t) in inferenceTypes: 
         optEdges            = optG.edges()
         nInfGoldCorrect     = 0
@@ -141,7 +141,9 @@ if __name__ == '__main__':
     fileIdsToSkip = []
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
-    
+#     Ids = [85,89,99,173,244, 287]
+#     fileIdsToSkip += Ids
+    # 244 
     os.chdir(currentDir)
     outputFileName = "1stOrderInferenceBaseLine_"
     outputFileName += "nFiles_" + str(nFiles) + "_1stOrderModel_"
@@ -157,7 +159,8 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-#         fileId = 244
+        fileId = 85
+        
         fileData = main(fileId,useTestData,getTrees)
         if (fileId % 1) == 0:
             print "fileID =", fileId 

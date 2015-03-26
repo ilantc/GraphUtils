@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="graph.css">
+    <title></title> 
+</head>
+<body ng-app>
+    <div id="canvasContainer" ng-controller="nodesCtrl">
+        <canvas id="graphCanvas"></canvas>
+
+        <div ng-repeat="node in nodes" class="nodeContainer">
+            <div class="nodeText">{{node.text}}</div>
+            <input type="number" class="nodeParentInput" id="node{{node.id}}" ng-model="parent" ng-change="updateCanvas({{node.id}})">
+        </div>
+        <br><br>
+        <span id="treeScore">Tree Score is {{treeVal}}</span>
+        <br><br>
+        <input type="text" ng-model="randText" placeholder="insert text for random model" id="randTextBox">
+		<button id="rand" ng-click="generateRandomModel()">Random model</button>
+		<br>
+		<br>
+		<input type="text" ng-model="edgesToAdd" placeholder="insert edges to add" id="edgesToAddTextBox">
+		<button id="addEdges" ng-click="addEdgesFromInput()">add edges</button>
+		<input type="radio" name="color" value="0" checked>Red
+		<input type="radio" name="color" value="1">Black
+		<br>
+		<br>
+		<input type="text" ng-model="edgesToRemove" placeholder="insert edges to remove" id="edgesToremoveTextBox">
+		<button id="removeEdges" ng-click="removeEdgesFromInput()">remove edges</button>
+		<br>
+        <input type="file" id="inputFile">
+    </div>
+    <script src="jquery.min.js"></script>
+    <script src="angular.min.js"></script>
+    <script src="graph.js"></script>
+</body>
+</html>

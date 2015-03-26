@@ -249,35 +249,44 @@ class inference(object):
 ####################################################################
 
     class node:
-        nodeName = None
-        root = None
         def __init__(self,name,root=None):
             self.nodeName = name
             if root is None:
                 self.root = name
             else:
                 self.root = root 
-
-    def getLoss(self,G,u,v,w,nodes,allSubTrees,w_rev,iterNum):
+    
+    class cluster:
+        
+        def __init__(self,root,subNodes = []):
+            self.subNodes = {root:None}
+            for node in subNodes:
+                self.subNodes[node] = None
+            self.root = root
+             
+    
+    def getLoss(self,G,u,v,w,nodes,allClusters,w_rev,iterNum):
         
         edgesLost = {}
         uRoot = nodes[u].root
-        vRoot = nodes[v].root
         
+        # clear all incoming edges to v
+        for s in w_rev[v].keys():
+            edgesLost[(s,v)] = w[s][v]
+            
         # clear path from v sub tree to uRoot
-        for t in allSubTrees[v]:
-            try:
-                edgesLost[(t,uRoot)] = w[t][uRoot]
-            except KeyError:
-                pass 
-        # if any node had [v,uRoot] as roots - remove all edges from 
-        # that node's sub tree back to uRoot
-        if vRoot != uRoot:
+        if v in allClusters:
+            for t in allClusters[v].subNodes:
+                if t in w:
+                    if uRoot in w[t]:
+                        edgesLost[(t,uRoot)] = w[t][uRoot]
+            # if any node had [v,uRoot] as roots - remove all edges from 
+            # that node's sub tree back to uRoot
             for t in w[v].keys():
                 uRootInTroots = False
                 otherRoot = False
                 for s in w_rev[t]:
-                    if nodes[s].root not in [vRoot,uRoot]:
+                    if nodes[s].root not in [v,uRoot]:
                         otherRoot = True
                         break
                     if nodes[s].root == uRoot:
@@ -286,12 +295,11 @@ class inference(object):
                     # some other root available for t
                     continue
                 # clear path from t sub tree to uRoot
-                for r in allSubTrees[t]:
-                    if r in w_rev[uRoot].keys():
+                for r in allClusters[t].subNodes:
+                    if r in w_rev[uRoot]:
                         edgesLost[(r,uRoot)] = w[r][uRoot] 
 
-        for s in w_rev[v].keys():
-            edgesLost[(s,v)] = w[s][v]
+
         
         edgeVal = edgesLost[(u,v)]
         del edgesLost[(u,v)]
@@ -303,54 +311,84 @@ class inference(object):
         
         return (loss,edges)
     
-    def updateW(self,G,w,w_rev,nodes,allSubTrees,bestu,bestv,edgesLost,iterNum):
+    def updateW(self,G,w,w_rev,nodes,allClusters,bestu,bestv,edgesLost,iterNum):
         
-#         print "iter ", iterNum, "len w_rev[4] =", len(w_rev[4]), "root_4 =", nodes[4].root, "len w_rev[5] =", len(w_rev[5]), "(u,v) = (" + str(bestu) + "," + str(bestv) + ")"
-        
+#         if iterNum == 20:
+#             print ""
+#         print "iter ", iterNum, "len w_rev[10] =", len(w_rev[10]), "root_10 =", nodes[10].root, "len w_rev[5] =", len(w_rev[5]), "(u,v) = (" + str(bestu) + "," + str(bestv) + ")"
+#         print "(" + str(bestu) + "," + str(bestv) + ")"
+#         print edgesLost
         G.add_edge(bestu, bestv , {'weight': w[bestu][bestv]})
-         
+        
+        
         del w[bestu][bestv]
         del w_rev[bestv][bestu]
-        nodes[bestv].root = nodes[bestu].root
         for (u,v) in edgesLost:
             del w[u][v]
             del w_rev[v][u]
         
         # update v sub tree to be rooted at uRoot
-        for t in allSubTrees[bestv]:
-            nodes[t].root = nodes[bestu].root
+        if bestv in allClusters:
+            for t in allClusters[bestv].subNodes:
+                nodes[t].root = nodes[bestu].root
+#             allClusters[bestu].subNodes += allClusters[bestv].subNodes
+            allClusters[nodes[bestu].root].subNodes.update(allClusters[bestv].subNodes)
+            del allClusters[bestv]
         
-        allSubTrees[bestu] += allSubTrees[bestv]
-        allSubTrees[bestv]
-        
-        for v in w_rev.keys():
-            if v == nodes[v].root:
-                singlePossibleRoot = True
-                allRoots = w_rev[v].keys()
-                if allRoots == []:
-                    continue
+        # update root data
+        allClusterKeys = allClusters.keys()
+        for c in allClusterKeys:
+            if allClusters[c].root == 0:
+                continue
+            allRoots = w_rev[allClusters[c].root].keys()
+            try:
                 possibleRoot = allRoots.pop()
-                possibleRoot = nodes[possibleRoot].root
-                for otherPossibleRoot in allRoots:
-                    if nodes[otherPossibleRoot].root != possibleRoot:
-                        singlePossibleRoot = False
-                        break
-                if singlePossibleRoot:
-                    nodes[v].root = possibleRoot
-                    
+            except IndexError:
+                print "Ilan"
+                raise
+            possibleRoot = nodes[possibleRoot].root
+            singlePossibleRoot = True
+            for otherPossibleRoot in allRoots:
+                if nodes[otherPossibleRoot].root != possibleRoot:
+                    singlePossibleRoot = False
+                    break
+            if singlePossibleRoot:
+                for node in allClusters[c].subNodes:
+                    nodes[node].root = possibleRoot
+                    if possibleRoot in w[node]:
+                        raise Exception("backEdge from " + str(node) + " to " + str(possibleRoot))
+                allClusters[possibleRoot].subNodes.update(allClusters[c].subNodes)
+                del allClusters[c]
+
+         
+#         for v in w_rev.keys():
+#             if v == nodes[v].root:
+#                 singlePossibleRoot = True
+#                 allRoots = w_rev[v].keys()
+#                 if allRoots == []:
+#                     continue
+#                 possibleRoot = allRoots.pop()
+#                 possibleRoot = nodes[possibleRoot].root
+#                 for otherPossibleRoot in allRoots:
+#                     if nodes[otherPossibleRoot].root != possibleRoot:
+#                         singlePossibleRoot = False
+#                         break
+#                 if singlePossibleRoot:
+#                     nodes[v].root = possibleRoot
+#                     
     
     def greedyMinLoss(self):
-        
+        print self.n
         # update W:
         w = {}
         w_reversed = {0:{}}
         nodes = {}
-        allSubTrees = {}
+        allClusters = {}
         for i in range(self.n + 1):
-            nodes[i]        = inference.node(i)
-            allSubTrees[i]  = [i]
-            w[i]            = {}
-            w_reversed[i]   = {}
+            nodes[i]                = inference.node(i)
+            allClusters[i]          = inference.cluster(i)
+            w[i]                    = {}
+            w_reversed[i]           = {}
         
         for (u,v) in self.w:
             w[u][v] = self.w[u,v]
@@ -369,26 +407,28 @@ class inference(object):
             rootModifiers = w[0].keys()
             if (len(rootModifiers) == 1) and G.out_degree(0) == 0:
                 v = rootModifiers[0]
-                (_,edgesLost) = self.getLoss(G,0,v,w,nodes,allSubTrees,w_reversed,iterNum)
-                self.updateW(G, w, w_reversed, nodes,allSubTrees, 0, v, edgesLost,iterNum)
+                (_,edgesLost) = self.getLoss(G,0,v,w,nodes,allClusters,w_reversed,iterNum)
+                self.updateW(G, w, w_reversed, nodes,allClusters, 0, v, edgesLost,iterNum)
                 continue
             
             foundCount1edge = False
-            for (v) in w_reversed.keys():
+            for v in w_reversed:
+                if v in allClusters:
+                    continue
                 allU = w_reversed[v].keys()
-                if (len(allU) > 0)  and nodes[v].root != v:
+                if len(allU) > 0:
                     foundCount1edge = True
                     bestv = v
                     bestu = None
                     bestLoss = float('Inf')
                     bestEdgesLost = []
                     for u in allU:
-                        (loss,edgesLost) = self.getLoss(G,u,bestv,w,nodes,allSubTrees,w_reversed,iterNum)
+                        (loss,edgesLost) = self.getLoss(G,u,bestv,w,nodes,allClusters,w_reversed,iterNum)
                         if loss < bestLoss:
                             bestLoss = loss
                             bestu = u
                             bestEdgesLost = edgesLost
-                    self.updateW(G, w, w_reversed, nodes,allSubTrees, bestu, bestv, bestEdgesLost,iterNum)
+                    self.updateW(G, w, w_reversed, nodes,allClusters, bestu, bestv, bestEdgesLost,iterNum)
                     break
             if foundCount1edge:
                 continue
@@ -396,7 +436,7 @@ class inference(object):
             for u in w.keys():
                 allV = w[u].keys()
                 for v in allV:
-                    (loss,edgesLost) = self.getLoss(G,u,v,w,nodes,allSubTrees,w_reversed,iterNum)
+                    (loss,edgesLost) = self.getLoss(G,u,v,w,nodes,allClusters,w_reversed,iterNum)
                     if loss < bestLoss:
                         bestLoss = loss
                         bestu = u
@@ -404,7 +444,7 @@ class inference(object):
                         bestEdgesLost = edgesLost
             if bestu is None:
                 raise Exception("could not find an arc to add")
-            self.updateW(G, w, w_reversed, nodes, allSubTrees, bestu, bestv, bestEdgesLost,iterNum)
+            self.updateW(G, w, w_reversed, nodes, allClusters, bestu, bestv, bestEdgesLost,iterNum)
         return G
     #####################################
     

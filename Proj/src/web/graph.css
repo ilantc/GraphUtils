@@ -1,0 +1,68 @@
+html,body{
+    height:100%
+}
+
+#canvasContainer {
+    display: inline-block;
+    width: 75%;
+    height: 70%;
+    border: solid 1px;
+    margin: 2% 10%;
+    padding: 2%;
+}
+
+#treeScore {
+    border:solid darkslategrey 1px;
+    padding: 4px;
+}
+
+#graphCanvas {
+    height: 60%;
+    width: 100%;
+    color: transparent;
+    border: solid 1px red;
+    z-index: 1;
+}
+
+.nodeContainer {
+    margin: 5px;
+    display: inline-block;
+    bottom: 10px;
+	padding-right: 40px
+}
+
+.nodeText {
+    text-align: center;
+}
+
+.nodeParentInput {
+    width: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    z-index: 2;
+}
+
+#randTextBox {
+
+    width: 60%;
+}
+
+#edgesToAddTextBox {
+
+    width: 60%;
+}
+
+#edgesToremoveTextBox {
+
+    width: 60%;
+}
+
+#rand {
+    display: inline;
+}
+
+#inputFile {
+    display: inline;
+    padding: 2%;
+}
