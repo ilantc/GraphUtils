@@ -492,3 +492,106 @@ class inference(object):
                 del w_reversed[bestv][u]
                 del w[u][bestv]
         return G
+    
+    def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
+                   edge2clustersMerged,edge2edgesLost_rev):
+        
+        def delEdgeSimple(u,v,E,E_rev,V):
+            del E[u][v]
+            del E_rev[v][u]
+            del V[u,v]
+        
+        # del u,v from structures:
+        delEdgeSimple(u, v, E, E_rev, V)
+        
+        # del all edges lost from all structures
+        for (u2,v2) in edge2edgesLost[u,v]:
+            delEdgeSimple(u2,v2,E,E_rev,V)
+            for (u3,v3) in edge2edgesLost_rev[u2,v2]:
+                del edge2edgesLost[u3,v3][u2,v2]
+            del edge2edgesLost[u2,v2]
+        
+        # remove mapping from u,v to edges lost
+        del edge2edgesLost[u,v]
+        
+        # update the clusters
+        for (cTo,cFrom) in edge2clustersMerged[u,v]:
+            cRoot = allNodes[cTo].root
+            for s in allClusters[cFrom].subNodes:
+                allNodes[s].root = cRoot
+                allClusters[cRoot].subNodes.append(s)
+            del allClusters[cFrom]
+            
+                
+        
+        
+    
+    def greedyMinLossTake2(self):
+        E                   = {}
+        E_rev               = {}
+        V                   = {}
+        cluster2cluster     = {}
+        cluster2cluster_rev = {}
+        allClusters         = {}
+        allNodes            = {}
+        edge2edgesLost      = {}
+        edge2clustersMerged = {}
+        edge2edgesLost_rev  = {}
+        for i in range(self.n + 1):
+            E[i]                    = {}
+            E_rev[i]                = {}
+            cluster2cluster[i]      = {}
+            cluster2cluster_rev[i]  = {}
+            allNodes[i]             = inference.node(i)
+            allClusters[i]          = inference.cluster(i)
+            
+        for (u,v) in self.w:
+            V[(u,v)]                    = self.w[u,v]
+            edge2edgesLost[(u,v)]       = {}
+            edge2clustersMerged[(u,v)]  = [(u,v)]
+            edge2edgesLost_rev[(u,v)]   = []
+            E[u][v]                     = None
+            E_rev[v][u]                 = None
+            cluster2cluster[u][v]       = None
+            cluster2cluster_rev[v][u]   = None
+        
+        for (u,v) in V:
+            for otheru in E_rev[v]:
+                if otheru != u:
+                    edge2edgesLost[(u,v)][(otheru,v)] = None
+                    edge2edgesLost_rev[(otheru,v)].append((u,v))
+            if u in E[v]:
+                edge2edgesLost[(u,v)][(v,u)] = None
+                edge2edgesLost_rev[(v,u)].append((u,v))
+        
+                    
+        
+        G = nx.DiGraph()
+        # add all nodes and edges
+        G.add_nodes_from(range(self.n + 1)) 
+        
+        for _ in range(self.n):
+            bestLoss = float('Inf')
+            bestEdgesLost = []
+            bestu = None
+            bestv = None
+            
+            for u in leftNodes:
+                for v in w[u].keys():
+                    edgesLost = w_reversed[v].keys()
+                    loss = sum(map(lambda r: w_reversed[v][r], edgesLost))
+                    loss -= 2 * w_reversed[v][u]
+                    if loss < bestLoss:
+                        bestLoss = loss
+                        bestu = u
+                        bestv = v
+                        bestEdgesLost = edgesLost
+            if bestu is None: 
+                raise Exception("could not find an arc to add")
+            G.add_edge(bestu, bestv, {'weight':w[bestu][bestv]})
+            leftNodes[bestv] = None
+            del rightNodes[bestv]
+            for u in bestEdgesLost:
+                del w_reversed[bestv][u]
+                del w[u][bestv]
+        return G    
