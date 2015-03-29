@@ -493,6 +493,8 @@ class inference(object):
                 del w[u][bestv]
         return G
     
+    ###################################################
+    
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
                    edge2clustersMerged,edge2edgesLost_rev):
         
@@ -501,18 +503,35 @@ class inference(object):
             del E_rev[v][u]
             del V[u,v]
         
+        uRoot = allNodes[u].root
+        
         # del u,v from structures:
         delEdgeSimple(u, v, E, E_rev, V)
         
         # del all edges lost from all structures
-        for (u2,v2) in edge2edgesLost[u,v]:
+        edgesLost = edge2edgesLost[u,v].keys()
+        for (u2,v2) in edgesLost:
             delEdgeSimple(u2,v2,E,E_rev,V)
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
-                del edge2edgesLost[u3,v3][u2,v2]
+                if (u3,v3) not in edgesLost:
+                    print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
+                    del edge2edgesLost[u3,v3][u2,v2]
             del edge2edgesLost[u2,v2]
+            del edge2edgesLost_rev[u2,v2]
         
         # remove mapping from u,v to edges lost
         del edge2edgesLost[u,v]
+        del edge2edgesLost_rev[u,v]
+
+        # update new edges lost for all E_rev[u] and E[v]
+        for s in allClusters[v].subNodes:
+            for t in E[s]:
+                for tNode in allClusters[t].subNodes:
+                    if uRoot in E[tNode]:
+                        edge2edgesLost[s,t][tNode,uRoot] = None
+                        edge2edgesLost_rev[tNode,uRoot].append((s,t))                                 
+                        edge2edgesLost[tNode,uRoot][s,t] = None
+                        edge2edgesLost_rev[s,t].append((tNode,uRoot))                
         
         # update the clusters
         for (cTo,cFrom) in edge2clustersMerged[u,v]:
@@ -520,11 +539,15 @@ class inference(object):
             for s in allClusters[cFrom].subNodes:
                 allNodes[s].root = cRoot
                 allClusters[cRoot].subNodes.append(s)
-            del allClusters[cFrom]
+            del allClusters[cFrom]        
+#     
+#         # check if we can infer more cluster merges
+#         for s in E[v]:
+#             vRoot = allNodes[v].root
+#             if vRoot not in clustersEntringU:
+#                 clustersEntringU[vRoot] = []
+#             clustersEntringU[vRoot].append(v)
             
-                
-        
-        
     
     def greedyMinLossTake2(self):
         E                   = {}
@@ -572,26 +595,12 @@ class inference(object):
         
         for _ in range(self.n):
             bestLoss = float('Inf')
-            bestEdgesLost = []
-            bestu = None
-            bestv = None
-            
-            for u in leftNodes:
-                for v in w[u].keys():
-                    edgesLost = w_reversed[v].keys()
-                    loss = sum(map(lambda r: w_reversed[v][r], edgesLost))
-                    loss -= 2 * w_reversed[v][u]
-                    if loss < bestLoss:
-                        bestLoss = loss
-                        bestu = u
-                        bestv = v
-                        bestEdgesLost = edgesLost
-            if bestu is None: 
-                raise Exception("could not find an arc to add")
-            G.add_edge(bestu, bestv, {'weight':w[bestu][bestv]})
-            leftNodes[bestv] = None
-            del rightNodes[bestv]
-            for u in bestEdgesLost:
-                del w_reversed[bestv][u]
-                del w[u][bestv]
+            (bestu,bestv) = (None,None)
+            for (u,v) in edge2edgesLost:
+                currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v]))
+                if currLoss < bestLoss:
+                    bestLoss = currLoss
+                    (bestu,bestv) = (u,v)
+            self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev)
+                     
         return G    
