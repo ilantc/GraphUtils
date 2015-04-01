@@ -1,4 +1,5 @@
 import networkx as nx 
+from distutils.command import upload
 
 class inference(object):
 
@@ -496,12 +497,21 @@ class inference(object):
     ###################################################
     
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
-                   edge2clustersMerged,edge2edgesLost_rev):
+                   edge2clustersMerged,edge2edgesLost_rev, G):
         
         def delEdgeSimple(u,v,E,E_rev,V):
             del E[u][v]
             del E_rev[v][u]
             del V[u,v]
+        
+        def list2set(ls):
+            uniq = set([])
+            for l in ls:
+                if l not in uniq:
+                    uniq.add(l)
+            return uniq
+        
+        G.add_edge(u, v, {'weight': E[u][v]})
         
         uRoot = allNodes[u].root
         
@@ -514,8 +524,9 @@ class inference(object):
             delEdgeSimple(u2,v2,E,E_rev,V)
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
                 if (u3,v3) not in edgesLost:
-                    print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
+#                     print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
                     del edge2edgesLost[u3,v3][u2,v2]
+                    del edge2edgesLost_rev[u3,v3][u2,v2]
             del edge2edgesLost[u2,v2]
             del edge2edgesLost_rev[u2,v2]
         
@@ -524,22 +535,41 @@ class inference(object):
         del edge2edgesLost_rev[u,v]
 
         # update new edges lost for all E_rev[u] and E[v]
+        uRootPossibleRoots = map(lambda uParent: allNodes[uParent].root, E_rev[uRoot])
+        uniqRoots = list(list2set(uRootPossibleRoots))
+        uniqRootsLen = len(uniqRoots)
+        
         for s in allClusters[v].subNodes:
             for t in E[s]:
+                otherPar = None
+                if uniqRootsLen == 2 and (t in uniqRoots):
+                    otherPar = uniqRoots[0]
+                    if otherPar == t:
+                        otherPar = uniqRoots[1]
+                    edge2clustersMerged[s,t].append((otherPar,uRoot))
                 for tNode in allClusters[t].subNodes:
                     if uRoot in E[tNode]:
                         edge2edgesLost[s,t][tNode,uRoot] = None
-                        edge2edgesLost_rev[tNode,uRoot].append((s,t))                                 
+                        edge2edgesLost_rev[tNode,uRoot][(s,t)] = None                          
                         edge2edgesLost[tNode,uRoot][s,t] = None
-                        edge2edgesLost_rev[s,t].append((tNode,uRoot))                
-        
+                        edge2edgesLost_rev[s,t][(tNode,uRoot)] = None
+                        if (otherPar is not None) and (otherPar in E[tNode]):
+                            edge2edgesLost[s,t][tNode,otherPar] = None
+                            edge2edgesLost_rev[tNode,otherPar][s,t] = None
+                            edge2edgesLost[tNode,otherPar][s,t] = None
+                            edge2edgesLost_rev[s,t][tNode,otherPar] = None 
+                    
+                
+                
         # update the clusters
-        for (cTo,cFrom) in edge2clustersMerged[u,v]:
-            cRoot = allNodes[cTo].root
-            for s in allClusters[cFrom].subNodes:
-                allNodes[s].root = cRoot
-                allClusters[cRoot].subNodes.append(s)
-            del allClusters[cFrom]        
+        for (cFrom,cTo) in edge2clustersMerged[u,v]:
+            cFromRoot = allNodes[cFrom].root
+            cToRoot = allNodes[cTo].root
+            if cToRoot != cFromRoot: 
+                for s in allClusters[cTo].subNodes:
+                    allNodes[s].root = cFromRoot
+                    allClusters[cFromRoot].subNodes[s] = None 
+                del allClusters[cTo]        
 #     
 #         # check if we can infer more cluster merges
 #         for s in E[v]:
@@ -572,7 +602,7 @@ class inference(object):
             V[(u,v)]                    = self.w[u,v]
             edge2edgesLost[(u,v)]       = {}
             edge2clustersMerged[(u,v)]  = [(u,v)]
-            edge2edgesLost_rev[(u,v)]   = []
+            edge2edgesLost_rev[(u,v)]   = {}
             E[u][v]                     = None
             E_rev[v][u]                 = None
             cluster2cluster[u][v]       = None
@@ -582,10 +612,10 @@ class inference(object):
             for otheru in E_rev[v]:
                 if otheru != u:
                     edge2edgesLost[(u,v)][(otheru,v)] = None
-                    edge2edgesLost_rev[(otheru,v)].append((u,v))
+                    edge2edgesLost_rev[(otheru,v)][(u,v)] = None
             if u in E[v]:
                 edge2edgesLost[(u,v)][(v,u)] = None
-                edge2edgesLost_rev[(v,u)].append((u,v))
+                edge2edgesLost_rev[(v,u)][(u,v)] = None
         
                     
         
@@ -593,14 +623,24 @@ class inference(object):
         # add all nodes and edges
         G.add_nodes_from(range(self.n + 1)) 
         
-        for _ in range(self.n):
+        for iterNum in range(self.n):
             bestLoss = float('Inf')
             (bestu,bestv) = (None,None)
-            for (u,v) in edge2edgesLost:
-                currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v]))
-                if currLoss < bestLoss:
-                    bestLoss = currLoss
-                    (bestu,bestv) = (u,v)
-            self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev)
+            cluster_0_nodes = allClusters[0].subNodes
+            cluster_0_outEdges = []
+            for node in cluster_0_nodes:
+                cluster_0_outEdges += [(node,v) for v in E[node].keys()]
+            if len(cluster_0_outEdges) == 1:
+                (bestu,bestv) = (cluster_0_outEdges[0][0],cluster_0_outEdges[0][1])
+            else:
+                for (u,v) in edge2edgesLost:
+                    currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v]))
+                    if currLoss < bestLoss:
+                        bestLoss = currLoss
+                        (bestu,bestv) = (u,v)
+            print "iter =",iterNum,"(u,v) = (",bestu,",",bestv,")"
+            if bestu == None:
+                print ""
+            self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev, G)
                      
         return G    

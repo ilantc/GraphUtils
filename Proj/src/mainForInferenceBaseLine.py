@@ -160,7 +160,7 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileId = 85
+#         fileId = 85
         
         fileData = main(fileId,useTestData,getTrees)
         if (fileId % 1) == 0:
