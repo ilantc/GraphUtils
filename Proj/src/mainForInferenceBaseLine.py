@@ -20,6 +20,8 @@ def main(fileIndex,useTestData,getTrees):
     inputFile += "output_" + fileIndex + ".txt"
     g = DiGraph(inputFile)
     
+    print "iter Num =", fileIndex, "n =", g.n
+    
     optTree = [];
     goldTree = [];
     optHeads = g.optHeads
@@ -160,10 +162,12 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-#         fileId = 85
-        
-        fileData = main(fileId,useTestData,getTrees)
-        if (fileId % 1) == 0:
+        fileId = 266
+        try:
+            fileData = main(fileId,useTestData,getTrees)
+        except Exception:
+            print "\t\t## file ID =", fileId
+        if (fileId % 10000) == 0:
             print "fileID =", fileId 
         allFileData.append(fileData)
     

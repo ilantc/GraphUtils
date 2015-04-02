@@ -609,6 +609,8 @@ class inference(object):
             cluster2cluster_rev[v][u]   = None
         
         for (u,v) in V:
+#             if (u,v) == (1,3):
+#                 print ""
             for otheru in E_rev[v]:
                 if otheru != u:
                     edge2edgesLost[(u,v)][(otheru,v)] = None
@@ -634,11 +636,11 @@ class inference(object):
                 (bestu,bestv) = (cluster_0_outEdges[0][0],cluster_0_outEdges[0][1])
             else:
                 for (u,v) in edge2edgesLost:
-                    currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v]))
+                    currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v])) - V[u,v]
                     if currLoss < bestLoss:
                         bestLoss = currLoss
                         (bestu,bestv) = (u,v)
-            print "iter =",iterNum,"(u,v) = (",bestu,",",bestv,")"
+#             print "iter =",iterNum,"(u,v) = (",bestu,",",bestv,")"
             if bestu == None:
                 print ""
             self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev, G)
