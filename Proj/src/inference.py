@@ -539,25 +539,26 @@ class inference(object):
         uniqRoots = list(list2set(uRootPossibleRoots))
         uniqRootsLen = len(uniqRoots)
         
-        for s in allClusters[v].subNodes:
-            for t in E[s]:
-                otherPar = None
-                if uniqRootsLen == 2 and (t in uniqRoots):
-                    otherPar = uniqRoots[0]
-                    if otherPar == t:
-                        otherPar = uniqRoots[1]
-                    edge2clustersMerged[s,t].append((otherPar,uRoot))
-                for tNode in allClusters[t].subNodes:
-                    if uRoot in E[tNode]:
-                        edge2edgesLost[s,t][tNode,uRoot] = None
-                        edge2edgesLost_rev[tNode,uRoot][(s,t)] = None                          
-                        edge2edgesLost[tNode,uRoot][s,t] = None
-                        edge2edgesLost_rev[s,t][(tNode,uRoot)] = None
-                        if (otherPar is not None) and (otherPar in E[tNode]):
-                            edge2edgesLost[s,t][tNode,otherPar] = None
-                            edge2edgesLost_rev[tNode,otherPar][s,t] = None
-                            edge2edgesLost[tNode,otherPar][s,t] = None
-                            edge2edgesLost_rev[s,t][tNode,otherPar] = None 
+        if v in allClusters:
+            for s in allClusters[v].subNodes:
+                for t in E[s]:
+                    otherPar = None
+                    if uniqRootsLen == 2 and (t in uniqRoots):
+                        otherPar = uniqRoots[0]
+                        if otherPar == t:
+                            otherPar = uniqRoots[1]
+                        edge2clustersMerged[s,t].append((otherPar,uRoot))
+                    for tNode in allClusters[t].subNodes:
+                        if uRoot in E[tNode]:
+                            edge2edgesLost[s,t][tNode,uRoot] = None
+                            edge2edgesLost_rev[tNode,uRoot][(s,t)] = None                          
+                            edge2edgesLost[tNode,uRoot][s,t] = None
+                            edge2edgesLost_rev[s,t][(tNode,uRoot)] = None
+                            if (otherPar is not None) and (otherPar in E[tNode]):
+                                edge2edgesLost[s,t][tNode,otherPar] = None
+                                edge2edgesLost_rev[tNode,otherPar][s,t] = None
+                                edge2edgesLost[tNode,otherPar][s,t] = None
+                                edge2edgesLost_rev[s,t][tNode,otherPar] = None 
                     
                 
                 

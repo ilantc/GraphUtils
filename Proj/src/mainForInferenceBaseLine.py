@@ -162,11 +162,12 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileId = 266
+        fileId = 244
         try:
             fileData = main(fileId,useTestData,getTrees)
         except Exception:
             print "\t\t## file ID =", fileId
+            raise
         if (fileId % 10000) == 0:
             print "fileID =", fileId 
         allFileData.append(fileData)
