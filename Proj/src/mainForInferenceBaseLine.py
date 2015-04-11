@@ -1,9 +1,7 @@
 import csv
-import gurobipy as gp
 import os
 import sys
 from graph import DiGraph
-from graph import LPMaker
 from inference import inference
 import getopt
 import time
@@ -162,12 +160,12 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileId = 244
+#         fileId = 173
         try:
             fileData = main(fileId,useTestData,getTrees)
         except Exception:
             print "\t\t## file ID =", fileId
-            raise
+#             raise
         if (fileId % 10000) == 0:
             print "fileID =", fileId 
         allFileData.append(fileData)

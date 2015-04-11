@@ -8,6 +8,18 @@ class inference(object):
         self.w = w
         self.n = n
     
+    def printMatrix(self, V,n):
+        for i in range(n + 1):
+            rowStr = ""
+            for j in range(n):
+                if (i,j) in V:
+                    rowStr += "1,"
+                else:
+                    rowStr += " ,"
+            if (i,n) in V:
+                rowStr += "1"
+            print rowStr
+        
     def initGraph(self,n,w):
         G = nx.DiGraph()
         # add all nodes and edges
@@ -520,6 +532,8 @@ class inference(object):
         
         # del all edges lost from all structures
         edgesLost = edge2edgesLost[u,v].keys()
+        if (5,1) in edgesLost:
+            x = 23
         for (u2,v2) in edgesLost:
             delEdgeSimple(u2,v2,E,E_rev,V)
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
@@ -540,8 +554,12 @@ class inference(object):
         uniqRootsLen = len(uniqRoots)
         
         if v in allClusters:
+            if v == 2:
+                x = 4
             for s in allClusters[v].subNodes:
                 for t in E[s]:
+                    if t not in allClusters:
+                        continue
                     otherPar = None
                     if uniqRootsLen == 2 and (t in uniqRoots):
                         otherPar = uniqRoots[0]
@@ -620,12 +638,20 @@ class inference(object):
                 edge2edgesLost[(u,v)][(v,u)] = None
                 edge2edgesLost_rev[(v,u)][(u,v)] = None
         
-                    
+        for v in E_rev:
+            if len(E_rev[v]) == 2:
+                u1 = E_rev[v].keys()[0]
+                u2 = E_rev[v].keys()[1]
+                if (u1,u2) in V:
+                    edge2clustersMerged[u1,u2].append((u1,v))
+                if (u2,u1) in V:
+                    edge2clustersMerged[u2,u1].append((u2,v))                    
         
         G = nx.DiGraph()
         # add all nodes and edges
         G.add_nodes_from(range(self.n + 1)) 
         
+        unAssignedHeads = set(range(1,self.n + 1))
         for iterNum in range(self.n):
             bestLoss = float('Inf')
             (bestu,bestv) = (None,None)
@@ -636,14 +662,34 @@ class inference(object):
             if len(cluster_0_outEdges) == 1:
                 (bestu,bestv) = (cluster_0_outEdges[0][0],cluster_0_outEdges[0][1])
             else:
-                for (u,v) in edge2edgesLost:
-                    currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v])) - V[u,v]
-                    if currLoss < bestLoss:
-                        bestLoss = currLoss
-                        (bestu,bestv) = (u,v)
+                for v in unAssignedHeads:
+                    # if v is a leaf - assigne it now
+                    vIsLeaf = False
+                    if len(E[v]) == 0:
+                        vIsLeaf = True
+                        bestLoss = float('Inf')
+                        (bestu,bestv) = (None,None)
+                    vHeads = E_rev[v].keys()
+                    singleHead = False
+                    parentClusters = set(map(lambda t: allNodes[t].root,vHeads))
+                    if len(parentClusters) == 1:
+                        bestLoss = float('Inf')
+                        (bestu,bestv) = (None,None)
+                        singleHead = True
+                    for u in vHeads:
+                        currLoss = sum(map(lambda e: V[e], edge2edgesLost[u,v])) - V[u,v]
+                        if currLoss < bestLoss:
+                            bestLoss = currLoss
+                            (bestu,bestv) = (u,v)
+                    if singleHead or vIsLeaf:
+                        break
 #             print "iter =",iterNum,"(u,v) = (",bestu,",",bestv,")"
             if bestu == None:
-                print ""
+                x = 1
+            if (bestu,bestv) == (2,1):
+                x = 1
+#             print bestu,bestv
+            unAssignedHeads.remove(bestv)
             self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev, G)
                      
         return G    
