@@ -688,7 +688,7 @@ class inference(object):
                 x = 1
             if (bestu,bestv) == (2,1):
                 x = 1
-#             print bestu,bestv
+            print bestu,bestv
             unAssignedHeads.remove(bestv)
             self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2clustersMerged, edge2edgesLost_rev, G)
                      
