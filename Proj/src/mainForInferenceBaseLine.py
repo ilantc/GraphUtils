@@ -139,7 +139,7 @@ if __name__ == '__main__':
     if nSentences:
         nFiles = nSentences
 #     nFiles = 100
-    fileIdsToSkip = []
+    fileIdsToSkip = [85,287,360]
     fileIds = range(0,nFiles)
 #     fileIds = [1007]
 #     Ids = [85,89,99,173,244, 287]
@@ -160,12 +160,12 @@ if __name__ == '__main__':
     for fileId in fileIds:
         if (fileId in fileIdsToSkip):
             continue
-        fileId = 85
+#         fileId = 16
         try:
             fileData = main(fileId,useTestData,getTrees)
         except Exception:
             print "\t\t## file ID =", fileId
-#             raise
+            raise
         if (fileId % 10000) == 0:
             print "fileID =", fileId 
         allFileData.append(fileData)
