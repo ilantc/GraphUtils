@@ -1,12 +1,12 @@
 import networkx as nx 
-from distutils.command import upload
 
 class inference(object):
 
 
-    def __init__(self, w,n):
+    def __init__(self, w,n,partsManager = None):
         self.w = w
         self.n = n
+        self.partsManager = partsManager
     
     def printMatrix(self, V,n):
         for i in range(n + 1):
@@ -277,7 +277,6 @@ class inference(object):
                 self.subNodes[node] = None
             self.root = root
              
-    
     def getLoss(self,G,u,v,w,nodes,allClusters,w_rev,iterNum):
         
         edgesLost = {}
@@ -509,7 +508,7 @@ class inference(object):
     ###################################################
     
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
-                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G):
+                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, singleEdgeLossFn):
         
         def delEdgeSimple(u,v,E,E_rev,V):
             del E[u][v]
@@ -536,7 +535,7 @@ class inference(object):
                 if (u3,v3) not in edgesLost:
 #                     print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
                     del edge2edgesLost[u3,v3][u2,v2]
-                    edge2Loss[u3,v3] -= V[u2,v2]
+                    edge2Loss[u3,v3] -= singleEdgeLossFn((u2,v2))
                     del edge2edgesLost_rev[u3,v3][u2,v2]
             del edge2edgesLost[u2,v2]
             del edge2Loss[u2,v2]
@@ -573,18 +572,18 @@ class inference(object):
                         if uRoot in E[tNode]:
                             if (tNode,uRoot) not in edge2edgesLost[s,t]:
                                 edge2edgesLost[s,t][tNode,uRoot] = None
-                                edge2Loss[s,t] += V[tNode,uRoot]
+                                edge2Loss[s,t] += singleEdgeLossFn((tNode,uRoot))
                                 edge2edgesLost_rev[tNode,uRoot][s,t] = None                          
                                 edge2edgesLost[tNode,uRoot][s,t] = None
-                                edge2Loss[tNode,uRoot] += V[s,t]
+                                edge2Loss[tNode,uRoot] += singleEdgeLossFn((s,t))
                                 edge2edgesLost_rev[s,t][(tNode,uRoot)] = None                            
                             if (otherPar is not None) and (otherPar in E[tNode]):
                                 if (tNode,otherPar) not in edge2edgesLost[s,t]:
                                     edge2edgesLost[s,t][tNode,otherPar] = None
-                                    edge2Loss[s,t] += V[tNode,otherPar]
+                                    edge2Loss[s,t] += singleEdgeLossFn((tNode,otherPar))
                                     edge2edgesLost_rev[tNode,otherPar][s,t] = None
                                     edge2edgesLost[tNode,otherPar][s,t] = None
-                                    edge2Loss[tNode,otherPar] += V[s,t]
+                                    edge2Loss[tNode,otherPar] += singleEdgeLossFn((s,t))
                                     edge2edgesLost_rev[s,t][tNode,otherPar] = None 
                 
                 
@@ -606,7 +605,7 @@ class inference(object):
 #             clustersEntringU[vRoot].append(v)
             
     
-    def greedyMinLossTake2(self):
+    def greedyMinLossTake2(self,order):
         E                   = {}
         E_rev               = {}
         V                   = {}
@@ -618,6 +617,11 @@ class inference(object):
         edge2clustersMerged = {}
         edge2edgesLost_rev  = {}
         edge2Loss           = {}
+        
+        getSingleEdgeLoss = lambda e: V[e]
+        if order == 2:
+            getSingleEdgeLoss
+        
         for i in range(self.n + 1):
             E[i]                    = {}
             E_rev[i]                = {}
@@ -629,7 +633,7 @@ class inference(object):
         for (u,v) in self.w:
             V[(u,v)]                    = self.w[u,v]
             edge2edgesLost[(u,v)]       = {}
-            edge2Loss[u,v]              = -1 * V[(u,v)] 
+            edge2Loss[u,v]              = -1 * getSingleEdgeLoss((u,v)) 
             edge2clustersMerged[(u,v)]  = [(u,v)]
             edge2edgesLost_rev[(u,v)]   = {}
             E[u][v]                     = None
@@ -643,11 +647,11 @@ class inference(object):
             for otheru in E_rev[v]:
                 if otheru != u:
                     edge2edgesLost[(u,v)][(otheru,v)] = None
-                    edge2Loss[u,v] += V[otheru,v]
+                    edge2Loss[u,v] += getSingleEdgeLoss((otheru,v))
                     edge2edgesLost_rev[(otheru,v)][(u,v)] = None
             if u in E[v]:
                 edge2edgesLost[(u,v)][(v,u)] = None
-                edge2Loss[u,v] += V[v,u]
+                edge2Loss[u,v] += getSingleEdgeLoss((v,u))
                 edge2edgesLost_rev[(v,u)][(u,v)] = None
         
         for v in E_rev:
@@ -703,15 +707,8 @@ class inference(object):
                             (bestu,bestv) = (u,v)
                     if singleHead: #or vIsLeaf:
                         break
-#             print "iter =",iterNum,"(u,v) = (",bestu,",",bestv,")"
-            if bestu == None:
-                x = 1
-            if (bestu,bestv) == (2,1):
-                x = 1
-            if iterNum == 30:
-                x = 1
 #             print bestu,bestv
             unAssignedHeads.remove(bestv)
-            self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G)
+            self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G, getSingleEdgeLoss)
                      
         return G    

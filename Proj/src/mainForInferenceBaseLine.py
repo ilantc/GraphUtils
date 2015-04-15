@@ -7,9 +7,13 @@ import getopt
 import time
 from test.sortperf import flush
 
-def main(fileIndex,useTestData,getTrees):
+def main(fileIndex,useTestData,getTrees,order = 1):
     fileIndex = str(fileIndex)
-    inputFile = "./data/1stOrder/"
+    inputFile = ""
+    if order == 1:
+        inputFile += "./data/1stOrder/"
+    elif order == 2:
+        inputFile += "./data/2ndOrder/"
     if useTestData:
         inputFile += "test/"
     else:
@@ -36,14 +40,15 @@ def main(fileIndex,useTestData,getTrees):
     for arc in g.partsManager.getArcs():
         w[arc.u,arc.v] = arc.val
     
-    inf                 = inference(w,g.n);
+    inf                 = inference(w,g.n,g.partsManager);
 #     t1                  = time.clock()
 #     optGProj            = inf.eisnerProjective()
 #     t2                  = time.clock()
 #     optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
 #     optGgreedyMinLoss   = inf.greedyMinLoss()
-    optGgreedyMinLoss   = inf.greedyMinLossTake2()
+    order = 2
+    optGgreedyMinLoss   = inf.greedyMinLossTake2(order)
     t4                  = time.clock()
 #     optGtwoSidedMinLoss = inf.twoSidedMinLoss()
 #     t5                  = time.clock()
