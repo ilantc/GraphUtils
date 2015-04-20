@@ -527,16 +527,14 @@ class inference(object):
         uRoot = allNodes[u].root
         
         # del all edges lost from all structures
-        edgesLost = edge2edgesLost[u,v].keys()
-        if (5,1) in edgesLost:
-            x = 23
+        edgesLost = edge2edgesLost[u,v].copy()
         for (u2,v2) in edgesLost:
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
                 if (u3,v3) not in edgesLost:
 #                     print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
-                    del edge2edgesLost[u3,v3][u2,v2]
+                    edge2edgesLost[u3,v3].remove((u2,v2))
                     edge2Loss[u3,v3] -= singleEdgeLossFn((u2,v2))
-                    del edge2edgesLost_rev[u3,v3][u2,v2]
+                    edge2edgesLost_rev[u3,v3].remove((u2,v2))
             del edge2edgesLost[u2,v2]
             del edge2Loss[u2,v2]
             del edge2edgesLost_rev[u2,v2]
@@ -571,20 +569,20 @@ class inference(object):
                     for tNode in allClusters[t].subNodes:
                         if uRoot in E[tNode]:
                             if (tNode,uRoot) not in edge2edgesLost[s,t]:
-                                edge2edgesLost[s,t][tNode,uRoot] = None
+                                edge2edgesLost[s,t].add((tNode,uRoot))
                                 edge2Loss[s,t] += singleEdgeLossFn((tNode,uRoot))
-                                edge2edgesLost_rev[tNode,uRoot][s,t] = None                          
-                                edge2edgesLost[tNode,uRoot][s,t] = None
+                                edge2edgesLost_rev[tNode,uRoot].add((s,t))                          
+                                edge2edgesLost[tNode,uRoot].add((s,t))
                                 edge2Loss[tNode,uRoot] += singleEdgeLossFn((s,t))
-                                edge2edgesLost_rev[s,t][(tNode,uRoot)] = None                            
+                                edge2edgesLost_rev[s,t].add((tNode,uRoot))                            
                             if (otherPar is not None) and (otherPar in E[tNode]):
                                 if (tNode,otherPar) not in edge2edgesLost[s,t]:
-                                    edge2edgesLost[s,t][tNode,otherPar] = None
+                                    edge2edgesLost[s,t].add((tNode,otherPar))
                                     edge2Loss[s,t] += singleEdgeLossFn((tNode,otherPar))
-                                    edge2edgesLost_rev[tNode,otherPar][s,t] = None
-                                    edge2edgesLost[tNode,otherPar][s,t] = None
+                                    edge2edgesLost_rev[tNode,otherPar].add((s,t))
+                                    edge2edgesLost[tNode,otherPar].add((s,t))
                                     edge2Loss[tNode,otherPar] += singleEdgeLossFn((s,t))
-                                    edge2edgesLost_rev[s,t][tNode,otherPar] = None 
+                                    edge2edgesLost_rev[s,t].add((tNode,otherPar)) 
                 
                 
         # update the clusters
@@ -617,6 +615,7 @@ class inference(object):
         edge2clustersMerged = {}
         edge2edgesLost_rev  = {}
         edge2Loss           = {}
+        edge2Parts          = {}
         
         getSingleEdgeLoss = lambda e: V[e]
         if order == 2:
@@ -632,27 +631,36 @@ class inference(object):
             
         for (u,v) in self.w:
             V[(u,v)]                    = self.w[u,v]
-            edge2edgesLost[(u,v)]       = {}
+            edge2edgesLost[u,v]         = set([])
             edge2Loss[u,v]              = -1 * getSingleEdgeLoss((u,v)) 
             edge2clustersMerged[(u,v)]  = [(u,v)]
-            edge2edgesLost_rev[(u,v)]   = {}
+            edge2edgesLost_rev[(u,v)]   = set([])
             E[u][v]                     = None
             E_rev[v][u]                 = None
             cluster2cluster[u][v]       = None
             cluster2cluster_rev[v][u]   = None
+            edge2Parts[u,v]             = set([])
         
-        for (u,v) in V:
+        
+        for p in self.partsManager.getAllParts():
+            edges = p.getAllExistingEdges()
+            for e in edges:
+                edge2Parts[e].add(p)
+        
+        edges = self.partsManager.getArcs()
+        for edge in edges:
+            (u,v) = (edge.u,edge.v)
 #             if (u,v) == (1,3):
 #                 print ""
             for otheru in E_rev[v]:
                 if otheru != u:
-                    edge2edgesLost[(u,v)][(otheru,v)] = None
+                    edge2edgesLost[u,v].add((otheru,v))
                     edge2Loss[u,v] += getSingleEdgeLoss((otheru,v))
-                    edge2edgesLost_rev[(otheru,v)][(u,v)] = None
+                    edge2edgesLost_rev[otheru,v].add((u,v))
             if u in E[v]:
-                edge2edgesLost[(u,v)][(v,u)] = None
+                edge2edgesLost[u,v].add((v,u))
                 edge2Loss[u,v] += getSingleEdgeLoss((v,u))
-                edge2edgesLost_rev[(v,u)][(u,v)] = None
+                edge2edgesLost_rev[v,u].add((u,v))
         
         for v in E_rev:
             if len(E_rev[v]) == 2:
