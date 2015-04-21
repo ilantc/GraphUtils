@@ -61,6 +61,9 @@ def main(fileIndex,useTestData,getTrees,order = 1):
 #                       , (optGtwoSidedMinLoss,'2SidedMinLoss',t5 - t4)]
     inferenceTypes = [(optGgreedyMinLoss,'minLoss', t4 - t3)]
     for (optG, keyName,t) in inferenceTypes: 
+        if optG is None:
+            out[keyName] = None
+            continue
         optEdges            = optG.edges()
         nInfGoldCorrect     = 0
         nInfOptCorrect      = 0
@@ -167,7 +170,8 @@ if __name__ == '__main__':
             continue
 #         fileId = 16
         try:
-            fileData = main(fileId,useTestData,getTrees)
+            order = 2
+            fileData = main(fileId,useTestData,getTrees,order)
         except Exception:
             print "\t\t## file ID =", fileId
             raise
@@ -186,7 +190,11 @@ if __name__ == '__main__':
         ninfOpt   = 0.0
         n         = 0.0
         totalTime = 0.0
+        nFailed   = 0
         for fileData in allFileData:
+            if fileData[inferenceType] is None:
+                nFailed += 1
+                continue
             ninfGold    += float(fileData[inferenceType]['ninfGold'])
             ninfOpt     += float(fileData[inferenceType]['ninfOpt'])
             n           += float(fileData[inferenceType]['n'])
@@ -200,6 +208,7 @@ if __name__ == '__main__':
         print 'average inference vs gold =', ninfGold/n
         print 'average inference vs opt  =', ninfOpt/n
         print 'average inference time    =', totalTime/n
+        print 'number failed             =', nFailed
         writer.writerow(line)
     csvfile.close
     
