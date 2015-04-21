@@ -1,0 +1,7 @@
+# _root_ جَلال الماشطة
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),0.308857 # DEPENDENCYPART_ARC
+(0,2),0.458687 # DEPENDENCYPART_ARC
+(1,2),-0.187078 # DEPENDENCYPART_ARC
+(2,1),2.07089 # DEPENDENCYPART_ARC

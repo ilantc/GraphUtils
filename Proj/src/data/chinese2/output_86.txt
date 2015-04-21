@@ -1,0 +1,4 @@
+# _root_ 敘利亞
+#goldHeads=0,
+#predictedHeads=0,
+(0,1),-1.3427 # DEPENDENCYPART_ARC

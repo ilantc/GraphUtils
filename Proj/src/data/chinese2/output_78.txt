@@ -1,0 +1,4 @@
+# _root_ Ｄｒｅｉｋｏｎｉｇｓｋｉｒｃｈｅ
+#goldHeads=0,
+#predictedHeads=0,
+(0,1),-1.50033 # DEPENDENCYPART_ARC

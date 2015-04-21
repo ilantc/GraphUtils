@@ -1,0 +1,6 @@
+# _root_ 郵政總局 宣布
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,2),-0.246425 # DEPENDENCYPART_ARC
+(2,1),0.535261 # DEPENDENCYPART_ARC
+(0,2),(2,1),0.464482 # DEPENDENCYPART_GRANDPAR

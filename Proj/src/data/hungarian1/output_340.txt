@@ -1,0 +1,6 @@
+# _root_ A megaláztatásnak .
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-2.85072 # DEPENDENCYPART_ARC
+(2,1),2.63567 # DEPENDENCYPART_ARC
+(2,3),-0.451627 # DEPENDENCYPART_ARC

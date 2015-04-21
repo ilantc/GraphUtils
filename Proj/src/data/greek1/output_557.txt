@@ -1,0 +1,7 @@
+# _root_ Εκδηλώσεις μνήμης
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),0.369674 # DEPENDENCYPART_ARC
+(0,2),-0.142323 # DEPENDENCYPART_ARC
+(1,2),2.51066 # DEPENDENCYPART_ARC
+(2,1),-0.150931 # DEPENDENCYPART_ARC

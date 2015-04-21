@@ -1,0 +1,7 @@
+# _root_ politické spektrum
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-0.641393 # DEPENDENCYPART_ARC
+(0,2),-0.205324 # DEPENDENCYPART_ARC
+(1,2),-1.51977 # DEPENDENCYPART_ARC
+(2,1),4.19995 # DEPENDENCYPART_ARC

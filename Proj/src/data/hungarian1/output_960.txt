@@ -1,0 +1,5 @@
+# _root_ Ennyi .
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-2.63182 # DEPENDENCYPART_ARC
+(1,2),1.05267 # DEPENDENCYPART_ARC

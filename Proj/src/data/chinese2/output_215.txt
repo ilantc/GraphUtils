@@ -1,0 +1,6 @@
+# _root_ 想想 看
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-1.14533 # DEPENDENCYPART_ARC
+(1,2),-0.528074 # DEPENDENCYPART_ARC
+(0,1),(1,2),0.561007 # DEPENDENCYPART_GRANDPAR

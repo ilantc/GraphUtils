@@ -1,0 +1,6 @@
+# _root_ — Szigorú .
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-2.02466 # DEPENDENCYPART_ARC
+(2,1),1.18545 # DEPENDENCYPART_ARC
+(2,3),0.645461 # DEPENDENCYPART_ARC

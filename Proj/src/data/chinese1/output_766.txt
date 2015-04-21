@@ -1,0 +1,7 @@
+# _root_ 科技 要 會 運用
+#goldHeads=4,4,4,0,
+#predictedHeads=4,4,4,0,
+(0,4),-3.87739 # DEPENDENCYPART_ARC
+(4,1),2.59504 # DEPENDENCYPART_ARC
+(4,2),3.89185 # DEPENDENCYPART_ARC
+(4,3),3.72934 # DEPENDENCYPART_ARC

@@ -1,0 +1,4 @@
+# _root_ Školení
+#goldHeads=0,
+#predictedHeads=0,
+(0,1),0.119086 # DEPENDENCYPART_ARC

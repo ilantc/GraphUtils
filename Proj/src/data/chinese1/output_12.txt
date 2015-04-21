@@ -1,0 +1,6 @@
+# _root_ 訪客 來 了
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-3.74731 # DEPENDENCYPART_ARC
+(2,1),2.43492 # DEPENDENCYPART_ARC
+(2,3),3.2896 # DEPENDENCYPART_ARC

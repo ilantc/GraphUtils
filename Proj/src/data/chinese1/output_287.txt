@@ -1,0 +1,5 @@
+# _root_ 你 看
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,2),-3.49983 # DEPENDENCYPART_ARC
+(2,1),2.58419 # DEPENDENCYPART_ARC

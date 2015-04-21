@@ -1,0 +1,6 @@
+# _root_ 卻 苦尋不到 土地
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-2.75393 # DEPENDENCYPART_ARC
+(2,1),3.42381 # DEPENDENCYPART_ARC
+(2,3),2.88438 # DEPENDENCYPART_ARC

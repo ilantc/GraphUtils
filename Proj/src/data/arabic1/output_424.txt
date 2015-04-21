@@ -1,0 +1,7 @@
+# _root_ زُهَيْر قُصَيْباتِيّ
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),0.483605 # DEPENDENCYPART_ARC
+(0,2),0.321243 # DEPENDENCYPART_ARC
+(1,2),-0.0632132 # DEPENDENCYPART_ARC
+(2,1),2.36402 # DEPENDENCYPART_ARC

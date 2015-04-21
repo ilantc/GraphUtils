@@ -1,0 +1,5 @@
+# _root_ Barcelona .
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-6.71774 # DEPENDENCYPART_ARC
+(1,2),1.58772 # DEPENDENCYPART_ARC

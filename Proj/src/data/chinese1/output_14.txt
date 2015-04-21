@@ -1,0 +1,6 @@
+# _root_ 我們 自立自強
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-5.74595 # DEPENDENCYPART_ARC
+(0,2),-3.7585 # DEPENDENCYPART_ARC
+(2,1),1.82911 # DEPENDENCYPART_ARC

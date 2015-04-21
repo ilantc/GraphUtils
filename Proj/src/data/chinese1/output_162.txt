@@ -1,0 +1,7 @@
+# _root_ Ｍａｎｇｉｌａｏ 球場
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-5.72877 # DEPENDENCYPART_ARC
+(0,2),-4.77817 # DEPENDENCYPART_ARC
+(1,2),1.21679 # DEPENDENCYPART_ARC
+(2,1),3.06604 # DEPENDENCYPART_ARC

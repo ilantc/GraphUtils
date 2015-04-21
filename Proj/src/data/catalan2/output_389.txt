@@ -1,0 +1,6 @@
+# _root_ Barcelona .
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-3.82771 # DEPENDENCYPART_ARC
+(1,2),-0.583991 # DEPENDENCYPART_ARC
+(0,1),(1,2),2.04362 # DEPENDENCYPART_GRANDPAR

@@ -1,0 +1,7 @@
+# _root_ 收藏 雖然 豐富
+#goldHeads=3,3,0,
+#predictedHeads=3,3,0,
+(0,1),-5.47528 # DEPENDENCYPART_ARC
+(0,3),-3.33646 # DEPENDENCYPART_ARC
+(3,1),1.51523 # DEPENDENCYPART_ARC
+(3,2),2.19912 # DEPENDENCYPART_ARC

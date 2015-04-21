@@ -1,0 +1,6 @@
+# _root_ 內容 如下
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,2),-0.241668 # DEPENDENCYPART_ARC
+(2,1),0.641703 # DEPENDENCYPART_ARC
+(0,2),(2,1),0.497565 # DEPENDENCYPART_GRANDPAR

@@ -1,0 +1,7 @@
+# _root_ omenaldia liburuari
+#goldHeads=0,0,
+#predictedHeads=0,1,
+(0,1),0.12479 # DEPENDENCYPART_ARC
+(0,2),-0.857924 # DEPENDENCYPART_ARC
+(1,2),-0.483271 # DEPENDENCYPART_ARC
+(2,1),-0.692971 # DEPENDENCYPART_ARC
