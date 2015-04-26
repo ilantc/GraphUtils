@@ -650,6 +650,8 @@ class inference(object):
         edge2Loss           = {}
         edge2Parts          = {}
         
+        self.partsManager.mapping['grandParantNoGrandChild'] = {}
+        
         getSingleEdgeLoss = lambda e: V[e]
         if order == 2:
             getSingleEdgeLoss = lambda e: V[e]

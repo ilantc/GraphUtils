@@ -168,8 +168,10 @@ if __name__ == '__main__':
         
 #     nFiles = 100
     languages = [english] 
+    orders    = [1,2]
+    orders    = [2]
     summary = ""
-    for order in [1,2]:
+    for order in orders:
         for language in languages:
             allFileData  = []
             fileIdsToSkip = []
@@ -195,15 +197,18 @@ if __name__ == '__main__':
             for fileId in fileIds:
                 if (fileId in fileIdsToSkip):
                     continue
-        #         fileId = 16
+#                 fileId = 589
                 try:
 #                     (fileId,language,order) = (266,english,2)
                     fileData = main(fileId,useTestData,getTrees,order,language)
+#                     sys.exit()
                 except Exception:
                     print "\t\t## file ID =", fileId
                     raise
                 if (fileId % 200) == 0:
                     print "fileID =", fileId 
+                if fileData['minLoss'] == None:
+                    print "## ", fileId
                 allFileData.append(fileData)
             
             csvfile = open(outputFileName, 'wb')
@@ -266,7 +271,7 @@ if __name__ == '__main__':
     #                     lines           = [goldStr,highOrderOptStr,projOptStr,nonProjStr,emptyStr]
                         lines           = [goldStr,highOrderOptStr,minLossStr,emptyStr]
                         csvfile2.writelines(lines)
-                csvfile2.close()
+                        csvfile2.close()
                 
             csvfile.close
             
