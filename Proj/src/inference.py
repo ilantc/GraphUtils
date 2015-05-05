@@ -1,4 +1,5 @@
 import networkx as nx 
+import math
 
 class inference(object):
 
@@ -506,24 +507,46 @@ class inference(object):
         return G
     
     ###################################################
+    def calcEdgeProbability(self,u,v,E_rev,edgesLost, V):
+        sumEdges = 0
+        n = 0
+        minVal = 0
+        for u_ in E_rev[v]:
+            sumEdges += math.exp(V[u_,v])
+            n += 1
+#             minVal = min(minVal, V[u_,v])
+#         return 1/n
+        return math.exp(V[u,v]) / sumEdges
+        return (V[u,v] - (2 * minVal)) / (sumEdges - (2 * n * minVal))
+        
     
-    def calcLossPerEdge(self,u,v,edge2edgesLost, edge2Parts, unAssignedHeads):
-            partsLost = set([])
-            for e in edge2edgesLost[u,v]:
-                for p in edge2Parts[e]:
-                    partsLost.add(p)
+    def calcLossPerEdge(self,u,v,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, E_rev, V):
+        partsLost = set([])
+        for e in edge2edgesLost[u,v]:
+            for p in edge2Parts[e]:
+                partsLost.add(p)
+        
+        gain = 0
+        for p in edge2Parts[u,v]:
+            if p in partsLost:
+                continue
+            pMissingEdges = filter(lambda (u_,v_): v_ in unAssignedHeads, p.getAllExistingEdges())
             
-            partsAdded = set([])
-            for p in edge2Parts[u,v]:
-                pHeads = set([v2 for (_,v2) in p.getAllExistingEdges()])
-                # if only v is in the intersection - i.e. v completes the part
-                if len(pHeads.intersection(unAssignedHeads)) == 1:
-                    partsAdded.add(p)
+            # calculate the probability to complete this part
+            pr = 1
+            for (u_,v_) in pMissingEdges:
+                if (u_,v_) == (u,v):
+                    continue
+                if (u_,v_) not in edgeProbabilities:
+                    edgeProbabilities[u_,v_] = self.calcEdgeProbability(u_,v_, E_rev, edge2edgesLost[u_,v_], V)
+                pr *= edgeProbabilities[u_,v_]
             
-            loss = sum(map(lambda p: p.val,partsLost))
-            gain = sum(map(lambda p: p.val,partsAdded))
+            gain += (pr * p.val)     
             
-            return (loss - gain)
+        
+        loss = sum(map(lambda p: p.val,partsLost))
+        
+        return (loss - gain)
     
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
                    edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, singleEdgeLossFn, edge2Parts, unAssignedHeads):
@@ -611,10 +634,11 @@ class inference(object):
                                     edge2edgesLost[tNode,otherPar].add((s,t))
                                     edge2Loss[tNode,otherPar] += singleEdgeLossFn((s,t))
                                     edge2edgesLost_rev[s,t].add((tNode,otherPar)) 
-                
+        
+        edgeProbabilities = {}     
         for (u2,v2) in edge2Loss:
 #             loss = edge2Loss[u2,v2]
-            edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads)
+            edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, E_rev, V)
 #             if abs(edge2Loss[u2,v2] - loss) > 0.0000001:
 #                 print "diff loss:", u2, v2, edge2Loss[u2,v2], loss
         
@@ -698,8 +722,9 @@ class inference(object):
                 edge2edgesLost_rev[v,u].add((u,v))
         
         unAssignedHeads = set(range(1,self.n + 1))
+        edgeProbabilities = {}
         for (u,v) in edge2Loss:
-            edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads)
+            edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,edgeProbabilities,E_rev, V)
         
         for v in E_rev:
             if len(E_rev[v]) == 2:
