@@ -167,9 +167,9 @@ if __name__ == '__main__':
         nFiles[english] = nSentences
         
 #     nFiles = 100
-    languages = [english] 
+#     languages = [english] 
     orders    = [1,2]
-    orders    = [2]
+#     orders    = [2]
     summary = ""
     for order in orders:
         for language in languages:

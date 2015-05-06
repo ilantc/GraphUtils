@@ -518,13 +518,30 @@ class inference(object):
 #         return 1/n
         return math.exp(V[u,v]) / sumEdges
         return (V[u,v] - (2 * minVal)) / (sumEdges - (2 * n * minVal))
-        
     
-    def calcLossPerEdge(self,u,v,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, E_rev, V):
+    def calcPartProbability(self,part,E_rev,V, edgeProbabilities, unAssignedHeads):
+        p = 1
+        for (u,v) in part.getAllExistingEdges():
+            if v in unAssignedHeads:
+                if (u,v) not in edgeProbabilities:
+                    edgeProbabilities[u,v] = self.calcEdgeProbability(u, v, E_rev, None, V)
+                p *= edgeProbabilities[u,v]
+        return p
+    
+    def calcLossPerEdge(self,u,v,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V):
         partsLost = set([])
+        loss = 0
         for e in edge2edgesLost[u,v]:
             for p in edge2Parts[e]:
-                partsLost.add(p)
+                if p not in partsLost:
+                    partsLost.add(p)
+                    if p not in partsProbabilities:
+                        try:
+                            partsProbabilities[p] = self.calcPartProbability(p, E_rev, V, edgeProbabilities, unAssignedHeads)
+                        except KeyError:
+                            print p,"\n",u,v,"\n",e,p.getAllExistingEdges()
+                            raise
+                    loss += partsProbabilities[p] * p.val
         
         gain = 0
         for p in edge2Parts[u,v]:
@@ -544,7 +561,7 @@ class inference(object):
             gain += (pr * p.val)     
             
         
-        loss = sum(map(lambda p: p.val,partsLost))
+#         loss = sum(map(lambda p: p.val,partsLost))
         
         return (loss - gain)
     
@@ -635,10 +652,11 @@ class inference(object):
                                     edge2Loss[tNode,otherPar] += singleEdgeLossFn((s,t))
                                     edge2edgesLost_rev[s,t].add((tNode,otherPar)) 
         
-        edgeProbabilities = {}     
+        edgeProbabilities = {}
+        partsProbabilities = {}
         for (u2,v2) in edge2Loss:
 #             loss = edge2Loss[u2,v2]
-            edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, E_rev, V)
+            edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
 #             if abs(edge2Loss[u2,v2] - loss) > 0.0000001:
 #                 print "diff loss:", u2, v2, edge2Loss[u2,v2], loss
         
@@ -723,8 +741,9 @@ class inference(object):
         
         unAssignedHeads = set(range(1,self.n + 1))
         edgeProbabilities = {}
+        partsProbabilities = {}
         for (u,v) in edge2Loss:
-            edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,edgeProbabilities,E_rev, V)
+            edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,edgeProbabilities,partsProbabilities,E_rev, V)
         
         for v in E_rev:
             if len(E_rev[v]) == 2:
