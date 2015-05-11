@@ -167,9 +167,9 @@ if __name__ == '__main__':
         nFiles[english] = nSentences
         
 #     nFiles = 100
-#     languages = [english] 
     orders    = [1,2]
-#     orders    = [2]
+#     languages = [english]
+#     orders    = [2] 
     summary = ""
     for order in orders:
         for language in languages:
@@ -205,7 +205,7 @@ if __name__ == '__main__':
                 except Exception:
                     print "\t\t## file ID =", fileId
                     raise
-                if (fileId % 200) == 0:
+                if (fileId % 30) == 0:
                     print "fileID =", fileId 
                 if fileData['minLoss'] == None:
                     print "## ", fileId

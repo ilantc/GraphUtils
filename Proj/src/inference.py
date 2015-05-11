@@ -515,7 +515,7 @@ class inference(object):
             sumEdges += math.exp(V[u_,v])
             n += 1
 #             minVal = min(minVal, V[u_,v])
-#         return 1/n
+        return 1/n
         return math.exp(V[u,v]) / sumEdges
         return (V[u,v] - (2 * minVal)) / (sumEdges - (2 * n * minVal))
     
