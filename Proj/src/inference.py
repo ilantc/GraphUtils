@@ -509,7 +509,7 @@ class inference(object):
     ###################################################
     def calcEdgeProbability(self,u,v,E_rev,edgesLost, V):
         sumEdges = 0
-        n = 0
+        n = 0.0
         minVal = 0
         for u_ in E_rev[v]:
             sumEdges += math.exp(V[u_,v])
@@ -552,11 +552,10 @@ class inference(object):
             # calculate the probability to complete this part
             pr = 1
             for (u_,v_) in pMissingEdges:
-                if (u_,v_) == (u,v):
-                    continue
                 if (u_,v_) not in edgeProbabilities:
                     edgeProbabilities[u_,v_] = self.calcEdgeProbability(u_,v_, E_rev, edge2edgesLost[u_,v_], V)
-                pr *= edgeProbabilities[u_,v_]
+                if (u_,v_) != (u,v):
+                    pr *= edgeProbabilities[u_,v_]
             
             gain += (pr * p.val)     
             
@@ -566,26 +565,32 @@ class inference(object):
         return (loss - gain)
     
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
-                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, singleEdgeLossFn, edge2Parts, unAssignedHeads):
-        
-
+                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, singleEdgeLossFn, edge2Parts, unAssignedHeads,\
+                   edgeProbabilities,partsProbabilities):
         
         def delEdgeSimple(u,v,E,E_rev,V):
             del E[u][v]
             del E_rev[v][u]
             del V[u,v]
         
-        def delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev,edge2Parts,edgeWasAddedToGraph = False):
+        def delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev,edge2Parts,edgeWasAddedToGraph = False, edgeProbability = None, partsProbabilities = None):
             del edge2edgesLost[u,v]
             del edge2Loss[u,v]
             del edge2edgesLost_rev[u,v]
             allParts = edge2Parts[u,v].copy()
-            if not edgeWasAddedToGraph:
+            if edgeWasAddedToGraph:
+                for part in edge2Parts[u,v]:
+                    try:
+                        partsProbabilities[part] /= edgeProbability
+                    except KeyError:
+                        raise
+            else:
                 for part in allParts:
                     edges = part.getAllExistingEdges()
                     for e in edges:
                         edge2Parts[e].remove(part)
                 del edge2Parts[u,v]
+            
                 
         def list2set(ls):
             uniq = set([])
@@ -599,8 +604,10 @@ class inference(object):
         uRoot = allNodes[u].root
         
         # del all edges lost from all structures
+        changedHeads = set([])
         edgesLost = edge2edgesLost[u,v].copy()
         for (u2,v2) in edgesLost:
+            changedHeads.add(v2)
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
                 if (u3,v3) not in edgesLost:
 #                     print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
@@ -610,8 +617,23 @@ class inference(object):
             delEdge(u2,v2,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts)
             delEdgeSimple(u2,v2,E,E_rev,V)
         
+        # update probability
+        for lostV in changedHeads:
+            if lostV == v:
+                continue
+            nHeads = len(E_rev[lostV])
+            newP = 1.0/nHeads
+            for head in E_rev[lostV]:
+                e = (head,lostV)
+                oldP = edgeProbabilities[e]
+                ratio = newP/oldP
+                edgeProbabilities[e] = newP
+                for part in edge2Parts[e]:
+                    partsProbabilities[part] *= ratio
+        
         # remove mapping from u,v to edges lost
-        delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts,True)
+#         print edgeProbabilities[u,v]
+        delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts,True, edgeProbabilities[u,v],partsProbabilities)
         
         # del u,v from structures:
         delEdgeSimple(u, v, E, E_rev, V)
@@ -652,11 +674,11 @@ class inference(object):
                                     edge2Loss[tNode,otherPar] += singleEdgeLossFn((s,t))
                                     edge2edgesLost_rev[s,t].add((tNode,otherPar)) 
         
-        edgeProbabilities = {}
-        partsProbabilities = {}
-        for (u2,v2) in edge2Loss:
-#             loss = edge2Loss[u2,v2]
-            edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
+#         edgeProbabilities = {}
+#         partsProbabilities = {}
+#         for (u2,v2) in edge2Loss:
+# #             loss = edge2Loss[u2,v2]
+#             edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
 #             if abs(edge2Loss[u2,v2] - loss) > 0.0000001:
 #                 print "diff loss:", u2, v2, edge2Loss[u2,v2], loss
         
@@ -744,7 +766,7 @@ class inference(object):
         partsProbabilities = {}
         for (u,v) in edge2Loss:
             edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,edgeProbabilities,partsProbabilities,E_rev, V)
-        
+
         for v in E_rev:
             if len(E_rev[v]) == 2:
                 u1 = E_rev[v].keys()[0]
@@ -801,7 +823,8 @@ class inference(object):
 #             print bestu,bestv
             if bestv is not None:
                 unAssignedHeads.remove(bestv)
-                self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G, getSingleEdgeLoss, edge2Parts, unAssignedHeads)
+#                 print edgeProbabilities[bestu, bestv]
+                self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G, getSingleEdgeLoss, edge2Parts, unAssignedHeads, edgeProbabilities,partsProbabilities)
             else:
                 print "\t",iterNum, self.n - 1
                 G = None

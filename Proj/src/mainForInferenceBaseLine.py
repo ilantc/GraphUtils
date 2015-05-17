@@ -60,6 +60,8 @@ def main(fileIndex,useTestData,getTrees,order = 1,language = english):
 #     optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
 #     optGgreedyMinLoss   = inf.greedyMinLoss()
+    if fileIndex == '42':
+        print "0,2"
     optGgreedyMinLoss   = inf.greedyMinLossTake2(order)
     t4                  = time.clock()
 #     optGtwoSidedMinLoss = inf.twoSidedMinLoss()
@@ -168,8 +170,8 @@ if __name__ == '__main__':
         
 #     nFiles = 100
     orders    = [1,2]
-#     languages = [english]
-#     orders    = [2] 
+    languages = [english]
+    orders    = [2] 
     summary = ""
     for order in orders:
         for language in languages:
@@ -271,7 +273,7 @@ if __name__ == '__main__':
     #                     lines           = [goldStr,highOrderOptStr,projOptStr,nonProjStr,emptyStr]
                         lines           = [goldStr,highOrderOptStr,minLossStr,emptyStr]
                         csvfile2.writelines(lines)
-                        csvfile2.close()
+                    csvfile2.close()
                 
             csvfile.close
             
