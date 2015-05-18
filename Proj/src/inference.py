@@ -554,13 +554,8 @@ class inference(object):
             for (u_,v_) in pMissingEdges:
                 if (u_,v_) not in edgeProbabilities:
                     edgeProbabilities[u_,v_] = self.calcEdgeProbability(u_,v_, E_rev, edge2edgesLost[u_,v_], V)
-                if (u_,v_) != (u,v):
-                    pr *= edgeProbabilities[u_,v_]
-            
+                pr *= edgeProbabilities[u_,v_]
             gain += (pr * p.val)     
-            
-        
-#         loss = sum(map(lambda p: p.val,partsLost))
         
         return (loss - gain)
     
@@ -574,9 +569,6 @@ class inference(object):
             del V[u,v]
         
         def delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev,edge2Parts,edgeWasAddedToGraph = False, edgeProbability = None, partsProbabilities = None):
-            del edge2edgesLost[u,v]
-            del edge2Loss[u,v]
-            del edge2edgesLost_rev[u,v]
             allParts = edge2Parts[u,v].copy()
             if edgeWasAddedToGraph:
                 for part in edge2Parts[u,v]:
@@ -586,11 +578,19 @@ class inference(object):
                         raise
             else:
                 for part in allParts:
+                    try:
+                        partVal = partsProbabilities[part] * part.val
+                    except Exception:
+                        raise 
                     edges = part.getAllExistingEdges()
                     for e in edges:
-                        edge2Parts[e].remove(part)
+                        if e in edge2Loss:
+                            edge2Parts[e].remove(part)
+                            edge2Loss[e] -= partVal
                 del edge2Parts[u,v]
-            
+            del edge2edgesLost[u,v]
+            del edge2Loss[u,v]
+            del edge2edgesLost_rev[u,v]
                 
         def list2set(ls):
             uniq = set([])
@@ -610,11 +610,9 @@ class inference(object):
             changedHeads.add(v2)
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
                 if (u3,v3) not in edgesLost:
-#                     print "(u3,v3) = (" + str(u3) + "," + str(v3) + "), (u2,v2) = (" + str(u2) + "," + str(v2) + ")"
                     edge2edgesLost[u3,v3].remove((u2,v2))
-                    edge2Loss[u3,v3] -= singleEdgeLossFn((u2,v2))
                     edge2edgesLost_rev[u3,v3].remove((u2,v2))
-            delEdge(u2,v2,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts)
+            delEdge(u2,v2,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts, False, edgeProbabilities[u,v],partsProbabilities)
             delEdgeSimple(u2,v2,E,E_rev,V)
         
         # update probability
@@ -622,7 +620,10 @@ class inference(object):
             if lostV == v:
                 continue
             nHeads = len(E_rev[lostV])
-            newP = 1.0/nHeads
+            if nHeads == 0:
+                newP = 0
+            else:
+                newP = 1.0/nHeads
             for head in E_rev[lostV]:
                 e = (head,lostV)
                 oldP = edgeProbabilities[e]
@@ -634,8 +635,6 @@ class inference(object):
         # remove mapping from u,v to edges lost
 #         print edgeProbabilities[u,v]
         delEdge(u,v,edge2Loss,edge2edgesLost,edge2edgesLost_rev, edge2Parts,True, edgeProbabilities[u,v],partsProbabilities)
-        
-        # del u,v from structures:
         delEdgeSimple(u, v, E, E_rev, V)
 
         # update new edges lost for all E_rev[u] and E[v]
@@ -644,8 +643,6 @@ class inference(object):
         uniqRootsLen = len(uniqRoots)
         
         if v in allClusters:
-            if v == 2:
-                x = 4
             for s in allClusters[v].subNodes:
                 for t in E[s]:
                     if t not in allClusters:
@@ -810,7 +807,7 @@ class inference(object):
                         singleHead = True
                     for u in vHeads:
 #                         currLoss = sum(map(getLoss, edge2edgesLost[u,v])) - V[u,v]
-                        currLoss = edge2Loss[u,v]
+                        currLoss = (edge2Loss[u,v] / edgeProbabilities[u,v])
 #                         currLossOrig = sum(map(getLoss, edge2edgesLost[u,v])) - V[u,v]
 #                         if abs(currLossOrig - currLoss) > 0.000001:
 #                             print "loss =",currLoss, "calculated Loss =", currLossOrig
