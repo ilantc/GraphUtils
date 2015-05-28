@@ -5,7 +5,6 @@ from graph import DiGraph
 from inference import inference
 import getopt
 import time
-from test.sortperf import flush
 
 english     = "english"
 arabic      = "arabic"
@@ -259,7 +258,7 @@ if __name__ == '__main__':
                 if getTrees:
                     treeFileName = "allTrees_" + language + "_order" + str(order) + ".csv"
                     csvfile2 = open(treeFileName, 'wb')
-                    flush()
+                    sys.stdout.flush()
                     for fileData in allFileData:
                         if not fileData.has_key('goldHeads'):
                             continue
