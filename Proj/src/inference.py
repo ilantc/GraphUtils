@@ -1,5 +1,6 @@
 import networkx as nx 
 import math
+from string import join
 
 class inference(object):
 
@@ -557,8 +558,27 @@ class inference(object):
         return {'loss':loss, 'gain': gain}
     
     def updateData(self,u,v,E,E_rev,V,cluster2cluster,cluster2cluster_rev,allClusters,allNodes,edge2edgesLost,\
-                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, singleEdgeLossFn, edge2Parts, unAssignedHeads,\
+                   edge2Loss, edge2clustersMerged,edge2edgesLost_rev, G, edge2Parts, unAssignedHeads,\
                    edgeProbabilities,partsProbabilities):
+        
+        def printEdge2Loc(edge2loc):
+            keys = ['loc' + str(i) for i in [1,2,3,4,10]] + ["diffLoss"]
+            print 'u,v,',join(keys, ",")
+            for (u,v) in edge2loc:
+                str2print = str(u) + "," + str(v) + ","
+                for k in keys:
+                    if k in edge2loc[u,v]:
+                        str2print += '1'
+                    else:
+                        str2print += '0'
+                    str2print += ","
+                print str2print
+        
+        def printUpdateSummary(u,v,edgesLost,updatedEdges,secondaryUpdatedEdges):
+            print "added", (u,v)
+            print "deleted", edgesLost 
+            print "updated", updatedEdges
+            print "updated2", secondaryUpdatedEdges
         
         def delEdge(u,v,E,E_rev,V,edge2Loss,edge2edgesLost,edge2edgesLost_rev,edge2Parts,edgeWasAddedToGraph = False, edgeProbability = None, partsProbabilities = None):
             allParts = edge2Parts[u,v].copy()
@@ -591,11 +611,16 @@ class inference(object):
         # del all edges lost from all structures
         changedHeads = set([])
         edgesLost = edge2edgesLost[u,v].copy()
-        edgesToCalcLoss2 = set([])
+        edgesToCalcLoss = set([])
+#         edge2loc = {}
         for (u2,v2) in edgesLost:
             changedHeads.add(v2)
-            for p in edge2Parts[u2,v2]:
-                edgesToCalcLoss2.update(p.getAllExistingEdges())
+#             for p in edge2Parts[u2,v2]:
+#                 edgesToCalcLoss.update(p.getAllExistingEdges())
+#                 for e in p.getAllExistingEdges():
+#                     if e not in edge2loc:
+#                         edge2loc[e] = {}
+#                     edge2loc[e]['loc1'] = 1
             for (u3,v3) in edge2edgesLost_rev[u2,v2]:
                 if (u3,v3) not in edgesLost:
                     edge2edgesLost[u3,v3].remove((u2,v2))
@@ -611,9 +636,16 @@ class inference(object):
             partsProbabilities[part] /= origProbability
             edges = part.getAllExistingEdges()
             for e in edges:
-                edgesToCalcLoss2.add(e)
+                edgesToCalcLoss.add(e)
+#                 if e not in edge2loc:
+#                     edge2loc[e] = {}
+#                 edge2loc[e]['loc2'] = 1
                 if e in edge2edgesLost_rev:
-                    edgesToCalcLoss2.update(edge2edgesLost_rev[e])
+                    edgesToCalcLoss.update(edge2edgesLost_rev[e])
+#                     for e2 in edge2edgesLost_rev[e]:
+#                         if e2 not in edge2loc:
+#                             edge2loc[e2] = {}
+#                         edge2loc[e2]['loc3'] = 1
         for lostV in changedHeads:
             if lostV == v:
                 continue
@@ -629,10 +661,17 @@ class inference(object):
                 edgeProbabilities[e] = newP
                 for part in edge2Parts[e]:
                     partsProbabilities[part] *= ratio
-                    edgesToCalcLoss2.update(part.getAllExistingEdges())
-                    for e in part.getAllExistingEdges():
-                        if e in edge2edgesLost_rev:
-                            edgesToCalcLoss2.update(edge2edgesLost_rev[e])
+                    edgesToCalcLoss.update(part.getAllExistingEdges())
+#                     for e in part.getAllExistingEdges():
+#                         if e not in edge2loc:
+#                             edge2loc[e] = {}
+#                         edge2loc[e]['loc4'] = 1
+#                         if e in edge2edgesLost_rev:
+#                             edgesToCalcLoss.update(edge2edgesLost_rev[e])
+#                             for e2 in edge2edgesLost_rev:
+#                                 if e2 not in edge2loc:
+#                                     edge2loc[e2] = {}
+#                                 edge2loc[e2]['loc5'] = 1
 
 
         # update new edges lost for all E_rev[u] and E[v]
@@ -655,59 +694,61 @@ class inference(object):
                         if uRoot in E[tNode]:
                             if (tNode,uRoot) not in edge2edgesLost[s,t]:
                                 edge2edgesLost[s,t].add((tNode,uRoot))
-                                edgesToCalcLoss2.add((s,t))
+#                                 edgesToCalcLoss.add((s,t))
+#                                 if (s,t) not in edge2loc:
+#                                     edge2loc[s,t] = {}
+#                                 edge2loc[s,t]['loc6'] = 1
                                 edge2edgesLost_rev[tNode,uRoot].add((s,t))                          
                                 edge2edgesLost[tNode,uRoot].add((s,t))
-                                edgesToCalcLoss2.add((tNode,uRoot))
+#                                 edgesToCalcLoss.add((tNode,uRoot))
+#                                 if (tNode,uRoot) not in edge2loc:
+#                                     edge2loc[tNode,uRoot] = {}
+#                                 edge2loc[tNode,uRoot]['loc7'] = 1
                                 edge2edgesLost_rev[s,t].add((tNode,uRoot))                            
                             if (otherPar is not None) and (otherPar in E[tNode]):
                                 if (tNode,otherPar) not in edge2edgesLost[s,t]:
                                     edge2edgesLost[s,t].add((tNode,otherPar))
-                                    edgesToCalcLoss2.add((s,t))
+#                                     edgesToCalcLoss.add((s,t))
+#                                     if (s,t) not in edge2loc:
+#                                         edge2loc[s,t] = {}
+#                                     edge2loc[s,t]['loc8'] = 1
                                     edge2edgesLost_rev[tNode,otherPar].add((s,t))
                                     edge2edgesLost[tNode,otherPar].add((s,t))
-                                    edgesToCalcLoss2.add((tNode,otherPar))
+#                                     edgesToCalcLoss.add((tNode,otherPar))
+#                                     if (tNode,otherPar) not in edge2loc:
+#                                         edge2loc[tNode,otherPar] = {}
+#                                     edge2loc[tNode,otherPar]['loc9'] = 1
                                     edge2edgesLost_rev[s,t].add((tNode,otherPar))
-#             deletedEdges = set(edgesLost)
-#             deletedEdges.add((u,v))
-#             edgesToCalcLoss.difference_update(deletedEdges)
         updatedEdges = set([])
         secondaryUpdatedEdges = set([])
         secondaryAffectedEdges = set([]) 
-        for (u2update, v2update) in edgesToCalcLoss2:
+        for (u2update, v2update) in edgesToCalcLoss:
             if (u2update, v2update) in edge2Loss:
                 updatedEdges.add((u2update, v2update))
                 # all edges that will cause us to lose e - need to updated that we dont lose part now
-                secondaryAffectedEdges.update(edge2edgesLost_rev[(u2update, v2update)])
+                edges2update = set(edge2edgesLost_rev[(u2update, v2update)]).difference(edgesToCalcLoss)
+                secondaryAffectedEdges.update(edges2update)
+#                 secondaryAffectedEdges.update(edge2edgesLost_rev[(u2update, v2update)])
+#                 for e in edge2edgesLost_rev[(u2update, v2update)]:
+#                     if e not in edge2loc:
+#                         edge2loc[e] = {}
+#                     edge2loc[e]['loc10'] = 1
+#                 l = edge2Loss[u2update, v2update]
                 edge2Loss[u2update, v2update] = self.calcLossPerEdge(u2update, v2update, edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
+#                 if (abs(edge2Loss[u2update, v2update]['loss'] - l['loss']) > 0.00001) or (abs(edge2Loss[u2update, v2update]['gain'] - l['gain']) > 0.00001):
+#                     edge2loc[u2update, v2update]['diffLoss'] = 1
+#                 else:
+#                     edge2loc[u2update, v2update]['diffLoss'] = 0
         for (u2update, v2update) in secondaryAffectedEdges:
             if (u2update, v2update) not in updatedEdges:
-                if (u,v,u2update, v2update) == (0,2,1,4):
-                    x =1
                 secondaryUpdatedEdges.add((u2update, v2update))
                 # all edges that will cause us to lose e - need to updated that we dont lose part now
                 edge2Loss[u2update, v2update] = self.calcLossPerEdge(u2update, v2update, edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
-#         print "added", (u,v)
-#         print "deleted", edgesLost 
-#         print "updated", updatedEdges
-#         print "updated2", secondaryUpdatedEdges
-#         if (u,v) in [(13,14)]:
-#             parts = set([])
-#             edges = edge2edgesLost[20,4]
-#             for e in edges:
-#                 parts.update(edge2Parts[e])
-#             l = 0.0
-#             for p in parts:
-#                 print p, p.val, partsProbabilities[p]
-#                 l += (p.val * partsProbabilities[p])
-#             print 'loss =',l
-#         edgeProbabilities = {}
-#         partsProbabilities = {}
-#         for (u2,v2) in edge2Loss:
-# #             loss = edge2Loss[u2,v2]
-#             edge2Loss[u2,v2] = self.calcLossPerEdge(u2,v2,edge2edgesLost, edge2Parts, unAssignedHeads, edgeProbabilities, partsProbabilities, E_rev, V)
-#             if abs(edge2Loss[u2,v2] - loss) > 0.0000001:
-#                 print "diff loss:", u2, v2, edge2Loss[u2,v2], loss
+#                 if (abs(edge2Loss[u2update, v2update]['loss'] - l['loss']) > 0.00001) or (abs(edge2Loss[u2update, v2update]['gain'] - l['gain']) > 0.00001):
+#                     edge2loc[u2update, v2update]['diffLoss'] = 1
+#                 else:
+#                     edge2loc[u2update, v2update]['diffLoss'] = 0
+
         
         # update the clusters
         for (cFrom,cTo) in edge2clustersMerged[u,v]:
@@ -718,15 +759,31 @@ class inference(object):
                     allNodes[s].root = cFromRoot
                     allClusters[cFromRoot].subNodes[s] = None 
                 del allClusters[cTo]        
-#     
-#         # check if we can infer more cluster merges
-#         for s in E[v]:
-#             vRoot = allNodes[v].root
-#             if vRoot not in clustersEntringU:
-#                 clustersEntringU[vRoot] = []
-#             clustersEntringU[vRoot].append(v)
-            
-    
+
+    def sanityCheck(self,edge2Loss,edge2Parts,partsProbabilities,E_rev, V, edge2edgesLost,unAssignedHeads,edgeProbabilities, eps = 0.0000000001):
+        newEdgeProbs = {}
+        newPartProbs = {}
+        for (u,v) in edge2Loss:
+            newEdgeProbs[u,v] = self.calcEdgeProbability(u, v, E_rev, edge2edgesLost[u,v], V)
+            for p in edge2Parts[u,v]:
+                pProb = partsProbabilities[p]
+                expectedProb = self.calcPartProbability(p, E_rev, V, newEdgeProbs, unAssignedHeads)
+                newPartProbs[p] = expectedProb
+                if abs(pProb - expectedProb) > eps:
+                    print "wrong P for part " + p + "):", pProb, "should be ", expectedProb
+                    raise
+              
+            if abs(newEdgeProbs[u,v] - edgeProbabilities[u,v]) > eps:
+                print "wrong P for edge (" + str(u) + "," + str(v) + "):", edgeProbabilities[u,v], "should be ", newEdgeProbs[u,v]
+                raise
+            loss = edge2Loss[u,v]['loss'] - edge2Loss[u,v]['gain']
+            newLossVals = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,newEdgeProbs,newPartProbs,E_rev, V)
+            newLoss = newLossVals['loss'] - newLossVals['gain']
+            if abs(loss - newLoss) > eps:
+                print "wrong loss for edge (" + str(u) + "," + str(v) + "):", edge2Loss[u,v], "should be ", newLossVals
+                print edge2edgesLost[u,v]
+                raise
+        
     def greedyMinLossTake2(self,order):
         E                   = {}
         E_rev               = {}
@@ -743,9 +800,6 @@ class inference(object):
         
         self.partsManager.mapping['grandParantNoGrandChild'] = {}
         
-        getSingleEdgeLoss = lambda e: V[e]
-        if order == 2:
-            getSingleEdgeLoss = lambda e: V[e]
         
         for i in range(self.n + 1):
             E[i]                    = {}
@@ -758,7 +812,6 @@ class inference(object):
         for (u,v) in self.w:
             V[(u,v)]                    = self.w[u,v]
             edge2edgesLost[u,v]         = set([])
-            edge2Loss[u,v]              = -1 * getSingleEdgeLoss((u,v)) 
             edge2clustersMerged[(u,v)]  = [(u,v)]
             edge2edgesLost_rev[(u,v)]   = set([])
             E[u][v]                     = None
@@ -776,22 +829,18 @@ class inference(object):
         edges = self.partsManager.getArcs()
         for edge in edges:
             (u,v) = (edge.u,edge.v)
-#             if (u,v) == (1,3):
-#                 print ""
             for otheru in E_rev[v]:
                 if otheru != u:
                     edge2edgesLost[u,v].add((otheru,v))
-                    edge2Loss[u,v] += getSingleEdgeLoss((otheru,v))
                     edge2edgesLost_rev[otheru,v].add((u,v))
             if u in E[v]:
                 edge2edgesLost[u,v].add((v,u))
-                edge2Loss[u,v] += getSingleEdgeLoss((v,u))
                 edge2edgesLost_rev[v,u].add((u,v))
         
         unAssignedHeads = set(range(1,self.n + 1))
         edgeProbabilities = {}
         partsProbabilities = {}
-        for (u,v) in edge2Loss:
+        for (u,v) in edge2edgesLost:
             edge2Loss[u,v] = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,edgeProbabilities,partsProbabilities,E_rev, V)
 
         for v in E_rev:
@@ -802,7 +851,6 @@ class inference(object):
                     edge2clustersMerged[u1,u2].append((u1,v))
                 if (u2,u1) in V:
                     edge2clustersMerged[u2,u1].append((u2,v))
-        
         
         G = nx.DiGraph()
         # add all nodes and edges
@@ -820,14 +868,7 @@ class inference(object):
             if len(cluster_0_outEdges) == 1:
                 (bestu,bestv) = (cluster_0_outEdges[0][0],cluster_0_outEdges[0][1])
             else:
-#                 getLoss = lambda e: V[e]
                 for v in unAssignedHeads:
-                    # if v is a leaf - assigne it now
-#                     vIsLeaf = False
-#                     if len(E[v]) == 0:
-#                         vIsLeaf = True
-#                         bestLoss = float('Inf')
-#                         (bestu,bestv) = (None,None)
                     vHeads = E_rev[v].keys()
                     singleHead = False
                     parentClusters = set(map(lambda t: allNodes[t].root,vHeads))
@@ -836,45 +877,16 @@ class inference(object):
                         (bestu,bestv) = (None,None)
                         singleHead = True
                     for u in vHeads:
-#                         currLoss = sum(map(getLoss, edge2edgesLost[u,v])) - V[u,v]
                         currLoss = edge2Loss[u,v]['loss'] - (edge2Loss[u,v]['gain'] / edgeProbabilities[u,v])
-#                         currLossOrig = sum(map(getLoss, edge2edgesLost[u,v])) - V[u,v]
-#                         if abs(currLossOrig - currLoss) > 0.000001:
-#                             print "loss =",currLoss, "calculated Loss =", currLossOrig
-#                             raise 
                         if currLoss < bestLoss:
                             bestLoss = currLoss
                             (bestu,bestv) = (u,v)
-                    if singleHead: #or vIsLeaf:
+                    if singleHead:
                         break
-#             print bestu,bestv
             if bestv is not None:
                 unAssignedHeads.remove(bestv)
-#                 print edgeProbabilities[bestu, bestv]
-                self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G, getSingleEdgeLoss, edge2Parts, unAssignedHeads, edgeProbabilities,partsProbabilities)
-#                 newEdgeProbs = {}
-#                 newPartProbs = {}
-#                 for (u,v) in edge2Loss:
-#                     eps = 0.0000000001
-#                     newEdgeProbs[u,v] = self.calcEdgeProbability(u, v, E_rev, edge2edgesLost[u,v], V)
-#                     for p in edge2Parts[u,v]:
-#                         pProb = partsProbabilities[p]
-#                         expectedProb = self.calcPartProbability(p, E_rev, V, newEdgeProbs, unAssignedHeads)
-#                         newPartProbs[p] = expectedProb
-#                         if abs(pProb - expectedProb) > eps:
-#                             print "wrong P for part " + p + "):", pProb, "should be ", expectedProb
-#                             raise
-#                      
-#                     if abs(newEdgeProbs[u,v] - edgeProbabilities[u,v]) > eps:
-#                         print "wrong P for edge (" + str(u) + "," + str(v) + "):", edgeProbabilities[u,v], "should be ", newEdgeProbs[u,v]
-#                         raise
-#                     loss = edge2Loss[u,v]['loss'] - edge2Loss[u,v]['gain']
-#                     newLossVals = self.calcLossPerEdge(u,v,edge2edgesLost, edge2Parts, unAssignedHeads,newEdgeProbs,newPartProbs,E_rev, V)
-#                     newLoss = newLossVals['loss'] - newLossVals['gain']
-#                     if abs(loss - newLoss) > eps:
-#                         print "wrong loss for edge (" + str(u) + "," + str(v) + "):", edge2Loss[u,v], "should be ", newLossVals
-#                         print edge2edgesLost[u,v]
-#                         raise
+                self.updateData(bestu, bestv, E, E_rev, V, cluster2cluster, cluster2cluster_rev, allClusters, allNodes, edge2edgesLost, edge2Loss, edge2clustersMerged, edge2edgesLost_rev, G, edge2Parts, unAssignedHeads, edgeProbabilities,partsProbabilities)
+#                 self.sanityCheck(edge2Loss,edge2Parts,partsProbabilities,E_rev, V, edge2edgesLost,unAssignedHeads,edgeProbabilities)
             else:
                 print "\t",iterNum, self.n - 1
                 G = None

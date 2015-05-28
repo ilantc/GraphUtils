@@ -60,8 +60,8 @@ def main(fileIndex,useTestData,getTrees,order = 1,language = english):
 #     optGNonProj         = inf.chuLiuEdmondsWrapper()
     t3                  = time.clock()
 #     optGgreedyMinLoss   = inf.greedyMinLoss()
-    if fileIndex == '42':
-        print "0,2"
+#     if fileIndex == '42':
+#         print "0,2"
     optGgreedyMinLoss   = inf.greedyMinLossTake2(order)
     t4                  = time.clock()
 #     optGtwoSidedMinLoss = inf.twoSidedMinLoss()
