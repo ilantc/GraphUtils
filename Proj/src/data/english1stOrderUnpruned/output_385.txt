@@ -1,0 +1,4 @@
+# _root_ Telecussed
+#goldHeads=0,
+#predictedHeads=0,
+(0,1),-4.06704 # DEPENDENCYPART_ARC

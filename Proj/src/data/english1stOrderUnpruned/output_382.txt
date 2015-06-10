@@ -1,0 +1,7 @@
+# _root_ Idle Thought
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-5.80175 # DEPENDENCYPART_ARC
+(0,2),-6.03317 # DEPENDENCYPART_ARC
+(1,2),1.07416 # DEPENDENCYPART_ARC
+(2,1),3.71248 # DEPENDENCYPART_ARC
