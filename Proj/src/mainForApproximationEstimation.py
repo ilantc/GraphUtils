@@ -63,7 +63,9 @@ def analyzeData(trees):
         data['infVal'] = tree['inference']['val']
         if countMatches(tree['cle']['tree'], tree['solver']['tree']) != data['n']:
             print "tree", trees.index(tree), "different CLE and solver trees"
-            
+        apx = 0.5
+        if (float(data['infVal']) / float(data['optVal'])) < apx:
+            print "tree", trees.index(tree), "appx val of less than",apx
         allData.append(data)
     return allData
 
@@ -86,7 +88,7 @@ def loadFromFile(fileName):
 if __name__ == '__main__':
     
     nFiles = 1699
-    readFile = True
+    readFile = False
     
     outputFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_english.csv"
 
@@ -98,6 +100,8 @@ if __name__ == '__main__':
         allTrees = []
         for fileId in range(nFiles + 1):
             try:
+                fileId = 1486
+                ### DEBUG THIS
                 trees = getTrees(fileId)
                 allTrees.append(trees)
             except Exception:
@@ -119,6 +123,7 @@ if __name__ == '__main__':
         csvfile.close
     
     summaryFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_english_summary.csv"
+    summaryFileName = "delME.csv"
     allData = analyzeData(allTrees)
     csvfile = open(summaryFileName, 'wb')
     fieldnames = ["n","infCLEAccuracy","optVal", "infVal"] 
