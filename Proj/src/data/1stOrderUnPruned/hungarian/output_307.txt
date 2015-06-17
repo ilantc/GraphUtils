@@ -1,0 +1,6 @@
+# _root_ — Nem .
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-1.66724 # DEPENDENCYPART_ARC
+(2,1),1.56291 # DEPENDENCYPART_ARC
+(2,3),1.00115 # DEPENDENCYPART_ARC

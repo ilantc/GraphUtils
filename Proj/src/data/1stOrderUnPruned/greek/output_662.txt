@@ -1,0 +1,5 @@
+# _root_ Τα ενδιαφέροντα
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,2),-0.709334 # DEPENDENCYPART_ARC
+(2,1),1.96088 # DEPENDENCYPART_ARC

@@ -1,0 +1,7 @@
+# _root_ ديوجين بفانوسين
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),1.19438 # DEPENDENCYPART_ARC
+(0,2),0.552083 # DEPENDENCYPART_ARC
+(1,2),0.162228 # DEPENDENCYPART_ARC
+(2,1),1.62809 # DEPENDENCYPART_ARC

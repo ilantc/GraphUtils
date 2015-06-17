@@ -1,0 +1,6 @@
+# _root_ — Jó .
+#goldHeads=2,0,2,
+#predictedHeads=2,0,2,
+(0,2),-1.80837 # DEPENDENCYPART_ARC
+(2,1),1.28158 # DEPENDENCYPART_ARC
+(2,3),0.887223 # DEPENDENCYPART_ARC

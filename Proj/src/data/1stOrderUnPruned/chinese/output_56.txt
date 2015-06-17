@@ -1,0 +1,4 @@
+# _root_ 人物
+#goldHeads=0,
+#predictedHeads=0,
+(0,1),-3.4459 # DEPENDENCYPART_ARC

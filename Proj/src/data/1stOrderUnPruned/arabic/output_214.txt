@@ -1,0 +1,7 @@
+# _root_ جِهادٌ الخازِنُ
+#goldHeads=2,0,
+#predictedHeads=0,1,
+(0,1),0.864055 # DEPENDENCYPART_ARC
+(0,2),0.21091 # DEPENDENCYPART_ARC
+(1,2),0.310891 # DEPENDENCYPART_ARC
+(2,1),0.505886 # DEPENDENCYPART_ARC

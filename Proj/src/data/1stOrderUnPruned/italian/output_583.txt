@@ -1,0 +1,6 @@
+# _root_ 6 .
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),0.624308 # DEPENDENCYPART_ARC
+(0,2),-0.665468 # DEPENDENCYPART_ARC
+(1,2),2.71646 # DEPENDENCYPART_ARC

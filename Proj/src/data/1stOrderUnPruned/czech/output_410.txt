@@ -1,0 +1,7 @@
+# _root_ černobílá :
+#goldHeads=0,0,
+#predictedHeads=0,0,
+(0,1),-0.0508501 # DEPENDENCYPART_ARC
+(0,2),3.97014 # DEPENDENCYPART_ARC
+(1,2),-0.572546 # DEPENDENCYPART_ARC
+(2,1),-0.88744 # DEPENDENCYPART_ARC

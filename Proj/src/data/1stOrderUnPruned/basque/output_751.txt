@@ -1,0 +1,7 @@
+# _root_ hainbat atxikimendu
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-0.518495 # DEPENDENCYPART_ARC
+(0,2),-0.120527 # DEPENDENCYPART_ARC
+(1,2),-0.339709 # DEPENDENCYPART_ARC
+(2,1),2.07328 # DEPENDENCYPART_ARC

@@ -1,0 +1,7 @@
+# _root_ مُحَمَّد صَلاح
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),0.458129 # DEPENDENCYPART_ARC
+(0,2),0.519027 # DEPENDENCYPART_ARC
+(1,2),-0.512038 # DEPENDENCYPART_ARC
+(2,1),2.79856 # DEPENDENCYPART_ARC

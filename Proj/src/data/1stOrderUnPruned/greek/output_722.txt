@@ -1,0 +1,7 @@
+# _root_ Αλογοσκούφης :
+#goldHeads=0,0,
+#predictedHeads=0,0,
+(0,1),0.286967 # DEPENDENCYPART_ARC
+(0,2),1.23561 # DEPENDENCYPART_ARC
+(1,2),0.146931 # DEPENDENCYPART_ARC
+(2,1),-0.430476 # DEPENDENCYPART_ARC

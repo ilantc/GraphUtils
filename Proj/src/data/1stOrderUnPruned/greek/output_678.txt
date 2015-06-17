@@ -1,0 +1,7 @@
+# _root_ Στρασβούργο -
+#goldHeads=0,0,
+#predictedHeads=0,0,
+(0,1),0.969659 # DEPENDENCYPART_ARC
+(0,2),1.59284 # DEPENDENCYPART_ARC
+(1,2),0.198459 # DEPENDENCYPART_ARC
+(2,1),-1.10677 # DEPENDENCYPART_ARC

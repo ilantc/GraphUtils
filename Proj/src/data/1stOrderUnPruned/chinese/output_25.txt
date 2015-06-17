@@ -1,0 +1,7 @@
+# _root_ 寫下 讀後感
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-2.14187 # DEPENDENCYPART_ARC
+(0,2),-4.1412 # DEPENDENCYPART_ARC
+(1,2),2.7844 # DEPENDENCYPART_ARC
+(2,1),2.17329 # DEPENDENCYPART_ARC

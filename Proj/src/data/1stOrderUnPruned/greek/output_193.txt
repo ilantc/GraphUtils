@@ -1,0 +1,7 @@
+# _root_ Εκπομπή 16_Απριλίου
+#goldHeads=0,0,
+#predictedHeads=0,0,
+(0,1),0.831239 # DEPENDENCYPART_ARC
+(0,2),0.817406 # DEPENDENCYPART_ARC
+(1,2),0.295867 # DEPENDENCYPART_ARC
+(2,1),0.124139 # DEPENDENCYPART_ARC

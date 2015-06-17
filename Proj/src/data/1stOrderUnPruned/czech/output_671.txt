@@ -1,0 +1,7 @@
+# _root_ Upoutat pozornost
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-0.359155 # DEPENDENCYPART_ARC
+(0,2),-1.41973 # DEPENDENCYPART_ARC
+(1,2),4.24666 # DEPENDENCYPART_ARC
+(2,1),0.0485079 # DEPENDENCYPART_ARC

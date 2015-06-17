@@ -1,0 +1,7 @@
+# _root_ Miroslav Korecký
+#goldHeads=2,0,
+#predictedHeads=2,0,
+(0,1),-0.253917 # DEPENDENCYPART_ARC
+(0,2),0.871252 # DEPENDENCYPART_ARC
+(1,2),-0.520965 # DEPENDENCYPART_ARC
+(2,1),5.441 # DEPENDENCYPART_ARC

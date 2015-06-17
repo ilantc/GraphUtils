@@ -1,0 +1,6 @@
+# _root_ 姓 張
+#goldHeads=0,1,
+#predictedHeads=0,1,
+(0,1),-2.69426 # DEPENDENCYPART_ARC
+(0,2),-4.23103 # DEPENDENCYPART_ARC
+(1,2),3.38906 # DEPENDENCYPART_ARC
