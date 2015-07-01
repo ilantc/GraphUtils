@@ -1,4 +1,4 @@
 # _root_ 陳啟禮
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),-3.59497 # DEPENDENCYPART_ARC
+(0,1),-2.91823 # DEPENDENCYPART_ARC

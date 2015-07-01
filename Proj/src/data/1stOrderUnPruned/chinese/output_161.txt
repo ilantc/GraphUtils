@@ -1,4 +1,4 @@
 # _root_ 好辯成性
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),-1.65442 # DEPENDENCYPART_ARC
+(0,1),-1.04455 # DEPENDENCYPART_ARC

@@ -1,4 +1,4 @@
 # _root_ komentář
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),0.439963 # DEPENDENCYPART_ARC
+(0,1),0.61726 # DEPENDENCYPART_ARC

@@ -1,4 +1,4 @@
 # _root_ 想想
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),-1.71663 # DEPENDENCYPART_ARC
+(0,1),-1.08936 # DEPENDENCYPART_ARC

@@ -1,4 +1,4 @@
 # _root_ 烏煙瘴氣
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),-1.53512 # DEPENDENCYPART_ARC
+(0,1),-0.932806 # DEPENDENCYPART_ARC

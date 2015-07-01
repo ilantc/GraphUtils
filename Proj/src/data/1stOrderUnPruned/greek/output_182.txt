@@ -1,4 +1,4 @@
 # _root_ Ρόδος
 #goldHeads=0,
 #predictedHeads=0,
-(0,1),0.632223 # DEPENDENCYPART_ARC
+(0,1),0.784598 # DEPENDENCYPART_ARC
