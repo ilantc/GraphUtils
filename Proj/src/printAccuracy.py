@@ -22,7 +22,7 @@ if __name__ == '__main__':
         if not f.endswith(".txt"):
             continue
         nFiles += 1
-        g = DiGraph(f)
+        g = DiGraph(d + "/" + f)
         optHeads = g.optHeads
         goldHeads = g.goldHeads
         for i in range(0,g.n):
