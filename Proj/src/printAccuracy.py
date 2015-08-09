@@ -4,11 +4,10 @@ from graph import DiGraph
 
 if __name__ == '__main__':
     
-    args = sys.argv
-    if(len(args) > 2):
+    if len(sys.argv) > 2:
         print "usage:",sys.argv[0],"dirname" 
     
-    d = args[1]
+    d = sys.argv[1]
     if (d == "."):
         d = os.getcwd()
     
