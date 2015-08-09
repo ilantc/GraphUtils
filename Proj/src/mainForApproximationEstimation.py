@@ -1,11 +1,13 @@
 import csv
 from graph import DiGraph
 from inference import inference
+import os, os.path
+import sys
 
 
-def getTrees(fileIndex):
-    fileIndex = str(fileIndex)
-    inputFile = "./data/english1stOrderUnpruned/output_" + fileIndex + ".txt"
+
+def getTrees(inputFile):
+    
     g = DiGraph(inputFile)
     
     cleTree         = [0] * g.n;
@@ -86,50 +88,70 @@ def loadFromFile(fileName):
     return allData
     
 if __name__ == '__main__':
-    
-    nFiles = 1699
-    readFile = False
-    
-    outputFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_english.csv"
 
-    print "outputFileName      =", outputFileName
     
-    if readFile:
-        allTrees = loadFromFile(outputFileName)
-    else: 
-        allTrees = []
-        for fileId in range(nFiles + 1):
-            try:
-                fileId = 1486
-                ### DEBUG THIS
-                trees = getTrees(fileId)
-                allTrees.append(trees)
-            except Exception:
-                print "\t\t## file ID =", fileId
-                raise
-            if (fileId % 30) == 0:
-                print "fileID =", fileId 
+    english     = "english"
+    arabic      = "arabic"
+    basque      = "basque"
+    catalan     = "catalan"
+    chinese     = "chinese" 
+    czech       = "czech"
+    hungarian   = "hungarian"
+    turkish     = "turkish"
+    languages   = [english,arabic,basque,catalan,chinese,czech,hungarian,turkish]
+    if len(sys.argv) > 1:
+        languageId = int(sys.argv[1])
+        print "language ID =", languageId
+        if languageId < 0 or languageId > (len(languages) - 1):
+            raise Exception('bad language id' + sys.argv[1])
+        languages = [languages[languageId]]
+    languages   = [english,chinese]
+    baseDir     = "./data/1stOrderUnPruned/"# + language + "/output_" + str(fileIndex) + ".txt"
+    for language in languages:
+        languageDir = baseDir + language + "/"
+        nFiles = len([name for name in os.listdir(languageDir) if os.path.isfile(os.path.join(languageDir, name))])
+        readFile = False
         
-        csvfile = open(outputFileName, 'wb')
-    #     fieldnames = ["cle","goldHeads","solverHeads", "inference"] 
-        writer = csv.writer(csvfile)
-        
-        inferenceTypes = ['gold','solver', 'inference','cle']
-        for tree in allTrees:
-            for inferenceType in inferenceTypes:
-                line = [inferenceType] + [tree[inferenceType]['val']] + tree[inferenceType]['tree']
-                writer.writerow(line)
-            writer.writerow("")
-        csvfile.close
+        outputFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_" + language + ".csv"
     
-    summaryFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_english_summary.csv"
-    summaryFileName = "delME.csv"
-    allData = analyzeData(allTrees)
-    csvfile = open(summaryFileName, 'wb')
-    fieldnames = ["n","infCLEAccuracy","optVal", "infVal"] 
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    for data in allData:
-        writer.writerow(data)
+        print "outputFileName      =", outputFileName
+        
+        if readFile:
+            allTrees = loadFromFile(outputFileName)
+        else: 
+            allTrees = []
+            for fileId in range(nFiles):
+#                 (languageDir, fileId) = (baseDir + chinese + "/", 533)
+                try:
+                    trees = getTrees(languageDir + "output_" + str(fileId) + ".txt")
+                    allTrees.append(trees)
+                except Exception:
+                    print "\t\t## file ID =", fileId
+                    raise
+                if (fileId % 30) == 0:
+                    print "fileID =", fileId 
+            
+            csvfile = open(outputFileName, 'wb')
+        #     fieldnames = ["cle","goldHeads","solverHeads", "inference"] 
+            writer = csv.writer(csvfile)
+            
+            inferenceTypes = ['gold','solver', 'inference','cle']
+            for tree in allTrees:
+                for inferenceType in inferenceTypes:
+                    line = [inferenceType] + [tree[inferenceType]['val']] + tree[inferenceType]['tree']
+                    writer.writerow(line)
+                writer.writerow("")
+            csvfile.close
+        
+        summaryFileName = "inferenceApx_nFiles_" + str(nFiles) + "_1stOrderModel_" + language + "_summary.csv"
+#         summaryFileName = "delME.csv"
+        allData = analyzeData(allTrees)
+        csvfile = open(summaryFileName, 'wb')
+        fieldnames = ["n","infCLEAccuracy","optVal", "infVal"] 
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for data in allData:
+            writer.writerow(data)
+        csvfile.close()
         
             

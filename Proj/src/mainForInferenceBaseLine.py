@@ -169,7 +169,7 @@ if __name__ == '__main__':
         
 #     nFiles = 100
     orders    = [1,2]
-    languages = [english]
+#     languages = [english]
     orders    = [2] 
     summary = ""
     for order in orders:
@@ -200,7 +200,7 @@ if __name__ == '__main__':
                     continue
 #                 fileId = 184
                 try:
-#                     (fileId,language,order) = (266,english,2)
+#                     (fileId,language,order) = (406,chinese,1)
                     fileData = main(fileId,useTestData,getTrees,order,language)
 #                     sys.exit()
                 except Exception:
