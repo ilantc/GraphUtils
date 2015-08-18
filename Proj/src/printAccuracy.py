@@ -21,6 +21,8 @@ if __name__ == '__main__':
     for f in os.listdir(d):
         if not f.endswith(".txt"):
             continue
+	if f.endswith("log.txt"):
+            continue
         nFiles += 1
         g = DiGraph(d + "/" + f)
         optHeads = g.optHeads
