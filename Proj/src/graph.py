@@ -5,7 +5,7 @@ from partsManager import partsManager
 
 class DiGraph:
     
-    def __init__(self,infile):
+    def __init__(self,infile, readFileLite = False):
         # create a new graph
         G = nx.DiGraph()
         
@@ -13,7 +13,7 @@ class DiGraph:
         self.partsManager = partsManager()
         self.infile = infile
         if(self.infile):
-            self.readFile(self.infile);
+            self.readFile(self.infile,readFileLite);
         
         # edge to feature list 
         
@@ -40,7 +40,7 @@ class DiGraph:
                 G.remove_edge(u,v)
         return G
 
-    def readFile(self,infile):
+    def readFile(self,infile,readFileLite):
         ins = open( infile, "r" )
         logfile = open("log.txt", "w")
         #print(infile)
@@ -62,6 +62,9 @@ class DiGraph:
         # remove last empty element
         optHeads = optHeads[:-1]
         self.optHeads = optHeads;
+        
+        if readFileLite:
+            return
         
         dependencyType2partKey = {"DEPENDENCYPART_ARC"                      : 'arc',                    \
                                   "DEPENDENCYPART_NEXTSIBL_LAST_SIB"        : 'lastSibl',               \

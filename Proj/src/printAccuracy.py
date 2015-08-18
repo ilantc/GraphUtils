@@ -21,19 +21,19 @@ if __name__ == '__main__':
     for f in os.listdir(d):
         if not f.endswith(".txt"):
             continue
-	if f.endswith("log.txt"):
-            continue
-        nFiles += 1
-        g = DiGraph(d + "/" + f)
-        optHeads = g.optHeads
-        goldHeads = g.goldHeads
-        for i in range(0,g.n):
-            v           = i + 1
-            goldu       = goldHeads[i]
-            optu        = optHeads[i]
-            if optu == goldu:
-                nCorrect += 1
-            total += 1
+    if f.endswith("log.txt"):
+        continue
+    nFiles += 1
+    g = DiGraph(d + "/" + f,True)
+    optHeads = g.optHeads
+    goldHeads = g.goldHeads
+    for i in range(0,g.n):
+        v           = i + 1
+        goldu       = goldHeads[i]
+        optu        = optHeads[i]
+        if optu == goldu:
+            nCorrect += 1
+        total += 1
     
     print "nFiles   =", nFiles
     print "nTokens  =", total
