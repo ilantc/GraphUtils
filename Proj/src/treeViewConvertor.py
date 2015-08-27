@@ -26,27 +26,25 @@ treeViewConvertor.py ./data/forRunFrom2007/hungarian_test_1000.conll inferenceAp
 treeViewConvertor.py ./data/forRunFrom2007/turkish_test_1000.conll   inferenceApx_nFiles_1000_1stOrderModel_turkish.csv    turkish_cleTrees.conll   ./data/1stOrderUnPruned/turkish/   cle
 treeViewConvertor.py ./data/forRunFrom2007/sec22_dep.gold            inferenceApx_nFiles_1700_1stOrderModel_english.csv    english_cleTrees.conll   ./data/1stOrderUnPruned/english/   cle
 
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/arabic_test_1000.conll    _     arabic_infTrees.conll /u/ilantc/runArea2/ilan_2/arabic/    inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/chinese_test_1000.conll   _    chinese_infTrees.conll /u/ilantc/runArea2/ilan_2/chinese/   inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/basque_test_1000.conll    _     basque_infTrees.conll /u/ilantc/runArea2/ilan_2/basque/    inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/catalan_test_1000.conll   _    catalan_infTrees.conll /u/ilantc/runArea2/ilan_2/catalan/   inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/czech_test_1000.conll     _      czech_infTrees.conll /u/ilantc/runArea2/ilan_2/czech/     inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/greek_test_1000.conll     _      greek_infTrees.conll /u/ilantc/runArea2/ilan_2/greek/     inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/hungarian_test_1000.conll _  hungarian_infTrees.conll /u/ilantc/runArea2/ilan_2/hungarian/ inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/turkish_test_1000.conll   _    turkish_infTrees.conll /u/ilantc/runArea2/ilan_2/turkish/   inference
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/sec22_dep.gold            _    english_infTrees.conll /u/ilantc/runArea2/ilan_2/english/   inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/arabic_test_1000.conll    _     arabic_infTrees.conll /u/ilantc/runArea2/ilan_2/arabic/    inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/chinese_test_1000.conll   _    chinese_infTrees.conll /u/ilantc/runArea2/ilan_2/chinese/   inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/basque_test_1000.conll    _     basque_infTrees.conll /u/ilantc/runArea2/ilan_2/basque/    inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/catalan_test_1000.conll   _    catalan_infTrees.conll /u/ilantc/runArea2/ilan_2/catalan/   inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/czech_test_1000.conll     _      czech_infTrees.conll /u/ilantc/runArea2/ilan_2/czech/     inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/greek_test_1000.conll     _      greek_infTrees.conll /u/ilantc/runArea2/ilan_2/greek/     inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/hungarian_test_1000.conll _  hungarian_infTrees.conll /u/ilantc/runArea2/ilan_2/hungarian/ inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/turkish_test_1000.conll   _    turkish_infTrees.conll /u/ilantc/runArea2/ilan_2/turkish/   inference
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/sec22_dep.gold            _    english_infTrees.conll /u/ilantc/runArea2/ilan_2/english/   inference
 
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/arabic_test_1000.conll    _     arabic_cleTrees.conll /u/ilantc/runArea2/ilan_2/arabic/    gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/chinese_test_1000.conll   _    chinese_cleTrees.conll /u/ilantc/runArea2/ilan_2/chinese/   gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/basque_test_1000.conll    _     basque_cleTrees.conll /u/ilantc/runArea2/ilan_2/basque/    gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/catalan_test_1000.conll   _    catalan_cleTrees.conll /u/ilantc/runArea2/ilan_2/catalan/   gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/czech_test_1000.conll     _      czech_cleTrees.conll /u/ilantc/runArea2/ilan_2/czech/     gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/greek_test_1000.conll     _      greek_cleTrees.conll /u/ilantc/runArea2/ilan_2/greek/     gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/hungarian_test_1000.conll _  hungarian_cleTrees.conll /u/ilantc/runArea2/ilan_2/hungarian/ gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/turkish_test_1000.conll   _    turkish_cleTrees.conll /u/ilantc/runArea2/ilan_2/turkish/   gold
-treeViewConvertor.py /u/ilantc/data/forRunFrom2007/sec22_dep.gold            _    english_cleTrees.conll /u/ilantc/runArea2/ilan_2/english/   gold
-
-
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/arabic_test_1000.conll    _     arabic_cleTrees.conll /u/ilantc/runArea2/ilan_2/arabic/    gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/chinese_test_1000.conll   _    chinese_cleTrees.conll /u/ilantc/runArea2/ilan_2/chinese/   gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/basque_test_1000.conll    _     basque_cleTrees.conll /u/ilantc/runArea2/ilan_2/basque/    gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/catalan_test_1000.conll   _    catalan_cleTrees.conll /u/ilantc/runArea2/ilan_2/catalan/   gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/czech_test_1000.conll     _      czech_cleTrees.conll /u/ilantc/runArea2/ilan_2/czech/     gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/greek_test_1000.conll     _      greek_cleTrees.conll /u/ilantc/runArea2/ilan_2/greek/     gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/hungarian_test_1000.conll _  hungarian_cleTrees.conll /u/ilantc/runArea2/ilan_2/hungarian/ gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/turkish_test_1000.conll   _    turkish_cleTrees.conll /u/ilantc/runArea2/ilan_2/turkish/   gold
+python /u/ilantc/GraphUtils/Proj/src/treeViewConvertor.py /u/ilantc/data/forRunFrom2007/sec22_dep.gold            _    english_cleTrees.conll /u/ilantc/runArea2/ilan_2/english/   gold
 
 """
 
@@ -112,7 +110,10 @@ for sentenceId in range(sentenceCount):
         currTree = allHeads[sentenceId][treeType]
     for v in range(len(currTree)):
         u = currTree[v]
-        w = g.partsManager.getArc(int(u),v + 1).val
+        try:
+            w = g.partsManager.getArc(int(u),v + 1).val
+        except KeyError:
+            w = "nan"
         line = sentence[v].split("\t")
         line[6] = str(u)
         line[7] = str(w)
