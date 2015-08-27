@@ -38,5 +38,5 @@ if __name__ == '__main__':
     print "nFiles   =", nFiles
     print "nTokens  =", total
     print "nCorrect =", nCorrect
-    print "accuracy =", float(nCorrect)/total
+    print "accuracy =", 100 * float(nCorrect)/total
     
