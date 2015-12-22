@@ -46,17 +46,16 @@ if __name__ == '__main__':
             v           = i + 1
             goldu       = goldHeads[i]
             optu        = optHeads[i]
+            if optu == "_":
+                optu = '0'
             if optu == goldu:
                 nCorrect            += 1
                 nUnionCorrect       += 1
                 nUndirectedCorrect  += 1  
             elif ((parserResDir != "") and (parserHeads[i] == goldu)):
                 nUnionCorrect += 1
-            try:
-                if ((int(optu) > 0) and ( int(goldHeads[int(optu) - 1]) == (i + 1) )):
-                    nUndirectedCorrect += 1
-            except ValueError:
-                print d,f
+            if ((int(optu) > 0) and ( int(goldHeads[int(optu) - 1]) == (i + 1) )):
+                nUndirectedCorrect += 1
             total += 1
     strToPrint = order + "," + lang + "," + str(nFiles) + "," + str(total) + "," + decodeMethod + "," + alpha + "," + beta
     strToPrint += "," + str(100 * float(nCorrect)/total) + "," + t + "," + str(100 * float(nUnionCorrect)/total)
