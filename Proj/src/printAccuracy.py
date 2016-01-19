@@ -8,14 +8,14 @@ if __name__ == '__main__':
         print "usage:",sys.argv[0],"dirname" 
     
     currArg = 1    
-    d = sys.argv[currArg]; currArg++
-    t = sys.argv[currArg]; currArg++
-    lang = sys.argv[currArg]; currArg++
-    order = sys.argv[currArg]; currArg++
-    decodeMethod = sys.argv[currArg]; currArg++
-    alpha = sys.argv[currArg]; currArg++
-    beta = sys.argv[currArg]; currArg++
-    gamma = sys.argv[currArg]; currArg++
+    d = sys.argv[currArg]; currArg += 1
+    t = sys.argv[currArg]; currArg += 1
+    lang = sys.argv[currArg]; currArg += 1 
+    order = sys.argv[currArg]; currArg += 1 
+    decodeMethod = sys.argv[currArg]; currArg += 1
+    alpha = sys.argv[currArg]; currArg += 1
+    beta = sys.argv[currArg]; currArg += 1
+    gamma = sys.argv[currArg]; currArg += 1 
     parserResDir = ""
     if len(sys.argv) == (currArg + 1):
         parserResDir = sys.argv[currArg]
