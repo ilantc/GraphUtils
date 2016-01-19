@@ -4,19 +4,21 @@ from graph import DiGraph
 
 if __name__ == '__main__':
     
-    if len(sys.argv) > 9:
+    if len(sys.argv) > 10:
         print "usage:",sys.argv[0],"dirname" 
     
-    d = sys.argv[1]
-    t = sys.argv[2]
-    lang = sys.argv[3]
-    order = sys.argv[4]
-    decodeMethod = sys.argv[5]
-    alpha = sys.argv[6]
-    beta = sys.argv[7]
+    currArg = 1    
+    d = sys.argv[currArg]; currArg++
+    t = sys.argv[currArg]; currArg++
+    lang = sys.argv[currArg]; currArg++
+    order = sys.argv[currArg]; currArg++
+    decodeMethod = sys.argv[currArg]; currArg++
+    alpha = sys.argv[currArg]; currArg++
+    beta = sys.argv[currArg]; currArg++
+    gamma = sys.argv[currArg]; currArg++
     parserResDir = ""
-    if len(sys.argv) == 9:
-        parserResDir = sys.argv[8]
+    if len(sys.argv) == (currArg + 1):
+        parserResDir = sys.argv[currArg]
 
     if (d == "."):
         d = os.getcwd()
@@ -57,7 +59,7 @@ if __name__ == '__main__':
             if ((int(optu) > 0) and ( int(goldHeads[int(optu) - 1]) == (i + 1) )):
                 nUndirectedCorrect += 1
             total += 1
-    strToPrint = order + "," + lang + "," + str(nFiles) + "," + str(total) + "," + decodeMethod + "," + alpha + "," + beta
+    strToPrint = order + "," + lang + "," + str(nFiles) + "," + str(total) + "," + decodeMethod + "," + alpha + "," + beta + "," + gamma
     strToPrint += "," + str(100 * float(nCorrect)/total) + "," + t + "," + str(100 * float(nUnionCorrect)/total)
     strToPrint += "," + str(100 * float(nUndirectedCorrect)/total)
     print strToPrint
