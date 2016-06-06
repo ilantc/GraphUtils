@@ -1,7 +1,0 @@
-# _root_ atzo goizean
-#goldHeads=0,0,
-#predictedHeads=0,1,
-(0,1),-0.708089 # DEPENDENCYPART_ARC
-(0,2),-1.2932 # DEPENDENCYPART_ARC
-(1,2),-0.447422 # DEPENDENCYPART_ARC
-(2,1),-0.575456 # DEPENDENCYPART_ARC

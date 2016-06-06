@@ -1,7 +1,0 @@
-# _root_ Foreign Bonds
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-6.16402 # DEPENDENCYPART_ARC
-(0,2),-6.96706 # DEPENDENCYPART_ARC
-(1,2),0.753693 # DEPENDENCYPART_ARC
-(2,1),4.07957 # DEPENDENCYPART_ARC

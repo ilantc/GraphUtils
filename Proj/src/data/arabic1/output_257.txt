@@ -1,7 +1,0 @@
-# _root_ سَمَر أزمشلي
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),0.372225 # DEPENDENCYPART_ARC
-(0,2),0.522056 # DEPENDENCYPART_ARC
-(1,2),-0.178852 # DEPENDENCYPART_ARC
-(2,1),2.02037 # DEPENDENCYPART_ARC

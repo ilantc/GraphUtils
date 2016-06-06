@@ -1,4 +1,0 @@
-# _root_ Názor
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-0.125302 # DEPENDENCYPART_ARC

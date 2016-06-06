@@ -1,4 +1,0 @@
-# _root_ Energy
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-5.93091 # DEPENDENCYPART_ARC

@@ -1,5 +1,0 @@
-# _root_ 要 記得
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),-1.90873 # DEPENDENCYPART_ARC
-(2,1),3.64263 # DEPENDENCYPART_ARC

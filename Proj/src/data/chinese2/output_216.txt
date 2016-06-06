@@ -1,6 +1,0 @@
-# _root_ 高自邇 說
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),0.397054 # DEPENDENCYPART_ARC
-(2,1),0.496921 # DEPENDENCYPART_ARC
-(0,2),(2,1),0.593273 # DEPENDENCYPART_GRANDPAR

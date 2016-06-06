@@ -1,6 +1,0 @@
-# _root_ Ostobaság .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-3.0439 # DEPENDENCYPART_ARC
-(1,2),-1.15813 # DEPENDENCYPART_ARC
-(0,1),(1,2),1.41611 # DEPENDENCYPART_GRANDPAR

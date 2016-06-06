@@ -1,7 +1,0 @@
-# _root_ 安靜 了 一會兒
-#goldHeads=0,1,1,
-#predictedHeads=0,1,1,
-(0,1),-2.70418 # DEPENDENCYPART_ARC
-(0,3),-4.14073 # DEPENDENCYPART_ARC
-(1,2),2.03311 # DEPENDENCYPART_ARC
-(1,3),1.6961 # DEPENDENCYPART_ARC

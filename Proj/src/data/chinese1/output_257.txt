@@ -1,6 +1,0 @@
-# _root_ 連大慶 並 說
-#goldHeads=3,3,0,
-#predictedHeads=3,3,0,
-(0,3),-2.44196 # DEPENDENCYPART_ARC
-(3,1),2.36134 # DEPENDENCYPART_ARC
-(3,2),4.24272 # DEPENDENCYPART_ARC

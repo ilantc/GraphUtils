@@ -1,5 +1,0 @@
-# _root_ Igyekszem .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-0.82613 # DEPENDENCYPART_ARC
-(1,2),2.00422 # DEPENDENCYPART_ARC

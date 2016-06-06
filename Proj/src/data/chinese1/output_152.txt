@@ -1,6 +1,0 @@
-# _root_ 叫做 花見
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-4.16542 # DEPENDENCYPART_ARC
-(0,2),-4.41718 # DEPENDENCYPART_ARC
-(1,2),2.61057 # DEPENDENCYPART_ARC

@@ -1,7 +1,0 @@
-# _root_ arzalluzen adierazpenak
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-0.684567 # DEPENDENCYPART_ARC
-(0,2),-0.586186 # DEPENDENCYPART_ARC
-(1,2),-0.980392 # DEPENDENCYPART_ARC
-(2,1),1.24923 # DEPENDENCYPART_ARC

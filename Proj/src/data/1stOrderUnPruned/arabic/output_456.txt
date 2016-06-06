@@ -1,7 +1,0 @@
-# _root_ نُور القرموطي
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),0.486633 # DEPENDENCYPART_ARC
-(0,2),0.657905 # DEPENDENCYPART_ARC
-(1,2),0.120818 # DEPENDENCYPART_ARC
-(2,1),2.22893 # DEPENDENCYPART_ARC

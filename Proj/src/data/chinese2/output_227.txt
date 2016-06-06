@@ -1,6 +1,0 @@
-# _root_ 週Ｋ線 言
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),-0.292369 # DEPENDENCYPART_ARC
-(2,1),0.510653 # DEPENDENCYPART_ARC
-(0,2),(2,1),0.441125 # DEPENDENCYPART_GRANDPAR

@@ -1,7 +1,0 @@
-# _root_ jose_luis korta
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-0.265466 # DEPENDENCYPART_ARC
-(0,2),-0.32214 # DEPENDENCYPART_ARC
-(1,2),2.09601 # DEPENDENCYPART_ARC
-(2,1),0.566134 # DEPENDENCYPART_ARC

@@ -1,4 +1,0 @@
-# _root_ Municipals
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-6.43524 # DEPENDENCYPART_ARC

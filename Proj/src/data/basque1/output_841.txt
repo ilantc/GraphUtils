@@ -1,7 +1,0 @@
-# _root_ erregaien fiskalitatea
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-0.767678 # DEPENDENCYPART_ARC
-(0,2),-1.03395 # DEPENDENCYPART_ARC
-(1,2),-0.582414 # DEPENDENCYPART_ARC
-(2,1),1.98298 # DEPENDENCYPART_ARC

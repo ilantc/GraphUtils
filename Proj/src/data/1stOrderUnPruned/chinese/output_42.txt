@@ -1,4 +1,0 @@
-# _root_ 田徑
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-2.93589 # DEPENDENCYPART_ARC

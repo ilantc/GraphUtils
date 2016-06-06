@@ -1,6 +1,0 @@
-# _root_ 都 認不出來 了
-#goldHeads=2,0,2,
-#predictedHeads=2,0,0,
-(0,2),-2.69321 # DEPENDENCYPART_ARC
-(2,1),3.35869 # DEPENDENCYPART_ARC
-(0,3),-5.53006 # DEPENDENCYPART_ARC

@@ -1,7 +1,0 @@
-# _root_ Jsem opotřebovaný
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),0.834533 # DEPENDENCYPART_ARC
-(0,2),-0.552813 # DEPENDENCYPART_ARC
-(1,2),1.91068 # DEPENDENCYPART_ARC
-(2,1),-0.500253 # DEPENDENCYPART_ARC

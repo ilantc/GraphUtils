@@ -1,6 +1,0 @@
-# _root_ 光緒 ２１年
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),-1.77916 # DEPENDENCYPART_ARC
-(2,1),0.433427 # DEPENDENCYPART_ARC
-(0,2),(2,1),0.456347 # DEPENDENCYPART_GRANDPAR

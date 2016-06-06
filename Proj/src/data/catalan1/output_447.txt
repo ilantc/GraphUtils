@@ -1,6 +1,0 @@
-# _root_ - Sí .
-#goldHeads=2,0,2,
-#predictedHeads=2,0,2,
-(0,2),-6.63919 # DEPENDENCYPART_ARC
-(2,1),0.577663 # DEPENDENCYPART_ARC
-(2,3),1.30196 # DEPENDENCYPART_ARC

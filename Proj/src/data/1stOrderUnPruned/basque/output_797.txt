@@ -1,7 +1,0 @@
-# _root_ ezker abertzaleari
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-0.576568 # DEPENDENCYPART_ARC
-(0,2),-1.37486 # DEPENDENCYPART_ARC
-(1,2),2.39178 # DEPENDENCYPART_ARC
-(2,1),0.14221 # DEPENDENCYPART_ARC

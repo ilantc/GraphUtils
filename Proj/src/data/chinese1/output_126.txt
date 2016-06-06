@@ -1,7 +1,0 @@
-# _root_ 經過 千錘百鍊
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-3.158 # DEPENDENCYPART_ARC
-(0,2),-4.69859 # DEPENDENCYPART_ARC
-(1,2),2.87207 # DEPENDENCYPART_ARC
-(2,1),-0.844483 # DEPENDENCYPART_ARC

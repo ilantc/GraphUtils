@@ -1,6 +1,0 @@
-# _root_ Evet .
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),1.55704 # DEPENDENCYPART_ARC
-(2,1),0.0144861 # DEPENDENCYPART_ARC
-(0,2),(2,1),-0.230789 # DEPENDENCYPART_GRANDPAR

@@ -1,7 +1,0 @@
-# _root_ _ İyiyim .
-#goldHeads=2,3,0,
-#predictedHeads=2,3,0,
-(0,3),1.53547 # DEPENDENCYPART_ARC
-(2,1),2.27708 # DEPENDENCYPART_ARC
-(3,1),-0.811375 # DEPENDENCYPART_ARC
-(3,2),1.44112 # DEPENDENCYPART_ARC

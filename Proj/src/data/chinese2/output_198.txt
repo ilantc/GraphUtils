@@ -1,6 +1,0 @@
-# _root_ 滿清 入關
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,2),-0.400218 # DEPENDENCYPART_ARC
-(2,1),0.398683 # DEPENDENCYPART_ARC
-(0,2),(2,1),0.521392 # DEPENDENCYPART_GRANDPAR

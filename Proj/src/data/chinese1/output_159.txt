@@ -1,5 +1,0 @@
-# _root_ 懷念 淡水河
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-3.30441 # DEPENDENCYPART_ARC
-(1,2),2.83861 # DEPENDENCYPART_ARC

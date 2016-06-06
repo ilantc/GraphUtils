@@ -1,4 +1,0 @@
-# _root_ 唐
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-2.90354 # DEPENDENCYPART_ARC

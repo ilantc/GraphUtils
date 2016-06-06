@@ -1,7 +1,0 @@
-# _root_ Duymuyorlardı .
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-1.44846 # DEPENDENCYPART_ARC
-(0,2),1.68972 # DEPENDENCYPART_ARC
-(1,2),-0.64879 # DEPENDENCYPART_ARC
-(2,1),1.59452 # DEPENDENCYPART_ARC

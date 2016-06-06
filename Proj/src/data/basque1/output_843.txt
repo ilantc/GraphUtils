@@ -1,7 +1,0 @@
-# _root_ irabazien_gaineko zerga
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-0.760067 # DEPENDENCYPART_ARC
-(0,2),-1.03397 # DEPENDENCYPART_ARC
-(1,2),-1.0285 # DEPENDENCYPART_ARC
-(2,1),1.97695 # DEPENDENCYPART_ARC

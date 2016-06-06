@@ -1,7 +1,0 @@
-# _root_ Celostátní pátrání
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-0.540163 # DEPENDENCYPART_ARC
-(0,2),-0.104094 # DEPENDENCYPART_ARC
-(1,2),-1.46419 # DEPENDENCYPART_ARC
-(2,1),4.77231 # DEPENDENCYPART_ARC

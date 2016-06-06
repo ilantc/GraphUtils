@@ -1,7 +1,0 @@
-# _root_ capelli .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),1.1058 # DEPENDENCYPART_ARC
-(0,2),-0.820564 # DEPENDENCYPART_ARC
-(1,2),3.07149 # DEPENDENCYPART_ARC
-(2,1),-0.802356 # DEPENDENCYPART_ARC

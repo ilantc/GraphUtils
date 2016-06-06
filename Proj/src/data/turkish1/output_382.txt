@@ -1,7 +1,0 @@
-# _root_ Eline_sağlık .
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-0.974531 # DEPENDENCYPART_ARC
-(0,2),2.89827 # DEPENDENCYPART_ARC
-(1,2),-0.268252 # DEPENDENCYPART_ARC
-(2,1),0.251517 # DEPENDENCYPART_ARC

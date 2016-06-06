@@ -1,7 +1,0 @@
-# _root_ laburrean .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-0.654473 # DEPENDENCYPART_ARC
-(0,2),-0.396762 # DEPENDENCYPART_ARC
-(1,2),1.25916 # DEPENDENCYPART_ARC
-(2,1),-0.321558 # DEPENDENCYPART_ARC

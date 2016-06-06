@@ -1,7 +1,0 @@
-# _root_ Gitmeliyim .
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-1.11737 # DEPENDENCYPART_ARC
-(0,2),2.02512 # DEPENDENCYPART_ARC
-(1,2),-0.217729 # DEPENDENCYPART_ARC
-(2,1),2.2305 # DEPENDENCYPART_ARC

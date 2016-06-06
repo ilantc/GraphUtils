@@ -1,7 +1,0 @@
-# _root_ Λονδίνο :
-#goldHeads=0,0,
-#predictedHeads=0,0,
-(0,1),0.913117 # DEPENDENCYPART_ARC
-(0,2),1.39339 # DEPENDENCYPART_ARC
-(1,2),-0.57508 # DEPENDENCYPART_ARC
-(2,1),-1.01917 # DEPENDENCYPART_ARC

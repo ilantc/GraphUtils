@@ -1,7 +1,0 @@
-# _root_ Αθήνα-Πρέβεζα :
-#goldHeads=0,0,
-#predictedHeads=0,0,
-(0,1),0.824635 # DEPENDENCYPART_ARC
-(0,2),1.36672 # DEPENDENCYPART_ARC
-(1,2),0.06787 # DEPENDENCYPART_ARC
-(2,1),-1.07867 # DEPENDENCYPART_ARC

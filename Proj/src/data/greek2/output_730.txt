@@ -1,4 +1,0 @@
-# _root_ Αξιοθέατα
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),0.222858 # DEPENDENCYPART_ARC

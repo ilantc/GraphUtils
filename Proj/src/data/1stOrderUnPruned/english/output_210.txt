@@ -1,7 +1,0 @@
-# _root_ Frank Tremdine
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),-6.16428 # DEPENDENCYPART_ARC
-(0,2),-5.73149 # DEPENDENCYPART_ARC
-(1,2),1.0509 # DEPENDENCYPART_ARC
-(2,1),4.11246 # DEPENDENCYPART_ARC

@@ -1,7 +1,0 @@
-# _root_ Gróf_Andrássy_Gyula .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-2.02698 # DEPENDENCYPART_ARC
-(0,2),-3.17831 # DEPENDENCYPART_ARC
-(1,2),0.257333 # DEPENDENCYPART_ARC
-(2,1),-2.40638 # DEPENDENCYPART_ARC

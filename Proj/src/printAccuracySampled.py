@@ -33,6 +33,9 @@ if __name__ == '__main__':
     nFiles              = 0
     nUnionCorrect       = 0
     nUndirectedCorrect  = 0
+    nSharedMistakes     = 0
+    oracle2 		= 0
+    nAllCorrect 	= 0
     for f in os.listdir(d):
         if not f.endswith(".txt"):
             continue
@@ -42,31 +45,41 @@ if __name__ == '__main__':
         g = DiGraph(d + "/" + f,True)
         optHeads = g.optHeads
         goldHeads = g.goldHeads
+        currInferenceCorrect = 0
+        currParserCorrect    = 0
         if (parserResDir != ""):
             parser_g = DiGraph(parserResDir + "/" + f,True)
             parserHeads = parser_g.optHeads
-        try:
-            for i in range(0,g.n):
-                v           = i + 1
-                goldu       = goldHeads[i]
-                optu        = optHeads[i]
-                if optu == "_":
-                    optu = '0'
-                if optu == goldu:
-                    nCorrect            += 1
-                    nUnionCorrect       += 1
-                    nUndirectedCorrect  += 1  
-                elif ((parserResDir != "") and (parserHeads[i] == goldu)):
-                    nUnionCorrect += 1
-                if ((int(optu) > 0) and ( int(goldHeads[int(optu) - 1]) == (i + 1) )):
-                    nUndirectedCorrect += 1
-                total += 1
-        except IndexError:
-            print "index error: curr dir = " + d
-            raise
+        for i in range(0,g.n):
+            v           = i + 1
+            goldu       = goldHeads[i]
+            optu        = optHeads[i]
+            if optu == "_":
+                optu = '0'
+            if optu == goldu:
+                nCorrect            += 1
+                nUnionCorrect       += 1
+                nUndirectedCorrect  += 1  
+                currInferenceCorrect += 1
+            elif ((parserResDir != "") and (parserHeads[i] == goldu)):
+                nUnionCorrect += 1
+            elif ((parserResDir != "") and (parserHeads[i] == optu)):
+                nSharedMistakes += 1
+            if ((parserResDir != "") and (parserHeads[i] == goldu)):
+                currParserCorrect += 1
+            if ((int(optu) > 0) and ( int(goldHeads[int(optu) - 1]) == (i + 1) )):
+                nUndirectedCorrect += 1
+            total += 1
+        currBest = currInferenceCorrect
+        if (currParserCorrect > currBest):
+            currBest = currParserCorrect
+        oracle2 += currBest
+        if (currInferenceCorrect == g.n):
+            nAllCorrect += 1
     strToPrint = order + "," + lang + "," + str(nFiles) + "," + str(total) + "," + decodeMethod + "," + alpha + "," + beta + "," + gamma + "," + gamma2
     strToPrint += "," + str(100 * float(nCorrect)/total) + "," + t + "," + str(100 * float(nUnionCorrect)/total)
-    strToPrint += "," + str(100 * float(nUndirectedCorrect)/total)
+    strToPrint += "," + str(100 * float(nUndirectedCorrect)/total) + "," + str(100 * float(nSharedMistakes)/total)
+    strToPrint += "," + str(100 * float(oracle2)/total) + "," + str(100 * float(nAllCorrect)/nFiles)
     print strToPrint
     #print "nFiles   =", nFiles
     #print "nTokens  =", total

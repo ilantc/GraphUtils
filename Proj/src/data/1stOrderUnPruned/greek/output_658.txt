@@ -1,7 +1,0 @@
-# _root_ Θαλάσσιες συγκοινωνίες
-#goldHeads=2,0,
-#predictedHeads=2,0,
-(0,1),0.917922 # DEPENDENCYPART_ARC
-(0,2),0.469559 # DEPENDENCYPART_ARC
-(1,2),-0.250919 # DEPENDENCYPART_ARC
-(2,1),4.01723 # DEPENDENCYPART_ARC

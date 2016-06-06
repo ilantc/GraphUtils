@@ -1,4 +1,0 @@
-# _root_ 換句話說
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),-2.64992 # DEPENDENCYPART_ARC

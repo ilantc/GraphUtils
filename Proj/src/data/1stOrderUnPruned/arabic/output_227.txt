@@ -1,4 +1,0 @@
-# _root_ العِراقُ
-#goldHeads=0,
-#predictedHeads=0,
-(0,1),0.920935 # DEPENDENCYPART_ARC

@@ -1,7 +1,0 @@
-# _root_ Bevégeztetett .
-#goldHeads=0,1,
-#predictedHeads=0,1,
-(0,1),-0.188159 # DEPENDENCYPART_ARC
-(0,2),-2.84275 # DEPENDENCYPART_ARC
-(1,2),2.42146 # DEPENDENCYPART_ARC
-(2,1),-1.68031 # DEPENDENCYPART_ARC
